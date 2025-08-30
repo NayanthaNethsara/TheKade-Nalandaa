@@ -1,91 +1,45 @@
+using AuthService.Data;
+using AuthService.DTOs;
+using AuthService.Helpers;
 using AuthService.Models;
-using Microsoft.AspNetCore.Identity;
+using AuthService.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+using Microsoft.EntityFrameworkCore;
 
-namespace AuthService.Controllers
+namespace AuthService.Controllers;
+
+[ApiController]
+[Route("auth")]
+public class AuthController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class AuthController : ControllerBase
+    private readonly AuthDbContext _db;
+    private readonly JwtService _jwt;
+    private readonly GoogleOAuthHelper _googleHelper;
+
+    public AuthController(AuthDbContext db, JwtService jwt, GoogleOAuthHelper googleHelper)
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IConfiguration _config;
-
-        public AuthController(UserManager<ApplicationUser> userManager, IConfiguration config)
-        {
-            _userManager = userManager;
-            _config = config;
-        }
-
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterModel model)
-        {
-            var user = new ApplicationUser { UserName = model.Email, Email = model.Email, FullName = model.FullName };
-            var result = await _userManager.CreateAsync(user, model.Password);
-
-            if (!result.Succeeded)
-                return BadRequest(result.Errors);
-
-            await _userManager.AddToRoleAsync(user, model.Role); // Admin / Author / Reader
-
-            return Ok("User registered successfully");
-        }
-
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginModel model)
-        {
-            var user = await _userManager.FindByEmailAsync(model.Email);
-            if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
-            {
-                var roles = await _userManager.GetRolesAsync(user);
-                var token = GenerateJwtToken(user, roles);
-                return Ok(new { token });
-            }
-            return Unauthorized();
-        }
-
-        private string GenerateJwtToken(ApplicationUser user, IList<string> roles)
-        {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            var claims = new List<Claim>
-            {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.NameIdentifier, user.Id)
-            };
-
-            foreach (var role in roles)
-                claims.Add(new Claim(ClaimTypes.Role, role));
-
-            var token = new JwtSecurityToken(
-                issuer: _config["Jwt:Issuer"],
-                audience: _config["Jwt:Audience"],
-                claims: claims,
-                expires: DateTime.Now.AddHours(3),
-                signingCredentials: creds
-            );
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }
+        _db = db;
+        _jwt = jwt;
+        _googleHelper = googleHelper;
     }
 
-    public class RegisterModel
+    [HttpPost("google")]
+    public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginDto dto)
     {
-        public required string FullName { get; set; }
-        public required string Email { get; set; }
-        public required string Password { get; set; }
-        public required string Role { get; set; } // Admin / Author / Reader
-    }
+        var userInfo = await _googleHelper.ExchangeCodeAsync(dto.Code, dto.RedirectUri);
+        var googleId = userInfo.GetProperty("id").GetString()!;
+        var email = userInfo.GetProperty("email").GetString()!;
+        var name = userInfo.GetProperty("name").GetString()!;
 
-    public class LoginModel
-    {
-        public required string Email { get; set; }
-        public required string Password { get; set; }
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.GoogleId == googleId);
+        if (user == null)
+        {
+            user = new User { GoogleId = googleId, Email = email, Name = name };
+            _db.Users.Add(user);
+            await _db.SaveChangesAsync();
+        }
+
+        var jwt = _jwt.GenerateToken(user);
+        return Ok(new { token = jwt });
     }
 }
