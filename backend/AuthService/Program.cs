@@ -1,28 +1,33 @@
-using AuthService.Data;
-using AuthService.Helpers;
-using AuthService.Services;
-using Microsoft.EntityFrameworkCore;
+using AuthService.Configurations;
+using DotNetEnv;
 
+Env.Load();
 var builder = WebApplication.CreateBuilder(args);
 
-// Load env variables automatically
+// Load env variables
 builder.Configuration.AddEnvironmentVariables();
 
-builder.Services.AddDbContext<AuthDbContext>(options =>
-    options.UseMySql(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
-        new MySqlServerVersion(new Version(8,0,33))
-    ));
+// Add configs
+builder.Services.AddDatabase(builder.Configuration);
+builder.Services.AddSecurityServices(builder.Configuration);
+builder.Services.AddAppServices();
 
-builder.Services.AddScoped<JwtService>();
-builder.Services.AddScoped<GoogleOAuthHelper>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+// Middleware
 app.UseSwagger();
 app.UseSwaggerUI();
+
+app.UseCors("AllowFrontend");
+
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.UseHttpsRedirection();
 app.MapControllers();
+
 app.Run();
