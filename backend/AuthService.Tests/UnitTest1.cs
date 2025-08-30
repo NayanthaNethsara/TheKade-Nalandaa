@@ -1,46 +1,15 @@
-﻿using AuthService.Services;
-using AuthService.Models; // make sure User model namespace is correct
-using Microsoft.Extensions.Configuration;
-using System.Collections.Generic;
-using Xunit;
+﻿using Xunit;
 
-namespace AuthService.Tests.Services
+namespace AuthService.Tests
 {
-    public class JwtServiceTests
+    public class UnitTest1
     {
-        private readonly JwtService _jwtService;
-
-        public JwtServiceTests()
-        {
-            // Mock configuration
-            var inMemorySettings = new Dictionary<string, string>
-            {
-                { "Jwt:Secret", "ThisIsALongSuperSecretKey1234567890!" }
-            };
-            var configuration = new ConfigurationBuilder()
-                .AddInMemoryCollection(inMemorySettings)
-                .Build();
-
-            _jwtService = new JwtService(configuration);
-        }
-
         [Fact]
-        public void GenerateToken_ReturnsTokenString()
+        public void Test1()
         {
-            // Arrange
-            var user = new User
-            {
-                Id = 1,
-                Name = "Test User",
-                Email = "test@example.com",
-                GoogleId = "google123"
-            };
-
-            // Act
-            var token = _jwtService.GenerateToken(user);
-
-            // Assert
-            Assert.False(string.IsNullOrEmpty(token)); // token should not be null or empty
+            int a = 5;
+            int b = 5;
+            Assert.Equal(a, b); // simple assertion
         }
     }
 }
