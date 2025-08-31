@@ -2,16 +2,16 @@ services:
   authservice:
     build: ./AuthService
     env_file:
-      - ./AuthService/.env # list item, not key-value
+      - ./AuthService/.env
     ports:
-      - "5000:5000"
+      - "5218:8080" # host:container
     depends_on:
       - auth_db
 
   auth_db:
     image: mysql:8
     env_file:
-      - ./AuthService/.env # load same env for DB
+      - ./AuthService/.env
     ports:
       - "3306:3306"
     volumes:

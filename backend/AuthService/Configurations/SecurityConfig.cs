@@ -11,11 +11,12 @@ namespace AuthService.Configurations
         public static IServiceCollection AddSecurityServices(this IServiceCollection services, IConfiguration config)
         {
             // CORS
+            var frontendOrigin = config["Frontend:Url"] ?? "http://localhost:3000";
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowFrontend", policy =>
                 {
-                    policy.WithOrigins(config["Frontend:Url"] ?? "http://localhost:3000")
+                    policy.WithOrigins(frontendOrigin)
                           .AllowAnyHeader()
                           .AllowAnyMethod()
                           .AllowCredentials();
