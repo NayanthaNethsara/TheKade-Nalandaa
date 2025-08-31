@@ -13,7 +13,7 @@ namespace AuthService.Tests.Services
         public JwtServiceTests()
         {
             // Mock configuration
-            var inMemorySettings = new Dictionary<string, string>
+            var inMemorySettings = new Dictionary<string, string?>
             {
                 { "Jwt:Secret", "ThisIsALongSuperSecretKey1234567890!" } // 32+ chars
             };
