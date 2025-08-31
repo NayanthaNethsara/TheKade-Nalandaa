@@ -1,0 +1,21 @@
+services:
+  authservice:
+    build: ./AuthService
+    env_file:
+      - ./AuthService/.env
+    ports:
+      - "5218:8080" # host:container
+    depends_on:
+      - auth_db
+
+  auth_db:
+    image: mysql:8
+    env_file:
+      - ./AuthService/.env
+    ports:
+      - "3306:3306"
+    volumes:
+      - auth_db_data:/var/lib/mysql
+
+volumes:
+  auth_db_data:
