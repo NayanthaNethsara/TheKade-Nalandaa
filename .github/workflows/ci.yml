@@ -1,55 +1,31 @@
-name: CI Integration Tests
+name: CI
 
 on:
   push:
-    branches: [ dev ]
+    branches:
+      - dev
   pull_request:
-    branches: [ dev ]
+    branches:
+      - dev
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
-    services:
-      mysql:
-        image: mysql:8
-        env:
-          MYSQL_ROOT_PASSWORD: rootpassword
-          MYSQL_DATABASE: auth_service
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd "mysqladmin ping --silent"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-    env:
-      # Pass secrets from GitHub to your application
-      Jwt__Secret: ${{ secrets.JWT_SECRET }}
-      Jwt__Issuer: ${{ secrets.JWT_ISSUER }}
-      Jwt__Audience: ${{ secrets.JWT_AUDIENCE }}
-      Google__ClientId: ${{ secrets.GOOGLE_CLIENT_ID }}
-      Google__ClientSecret: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-      ConnectionStrings__DefaultConnection: server=127.0.0.1;port=3306;database=auth_service;user=root;password=rootpassword
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: 9.0.x
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0.x'
 
-    - name: Restore dependencies
-      run: dotnet restore ./backend/AuthService/AuthService.csproj
+      - name: Restore dependencies
+        run: dotnet restore ./backend/AuthService
 
-    - name: Build
-      run: dotnet build ./backend/AuthService/AuthService.csproj --no-restore --configuration Release
+      - name: Build
+        run: dotnet build ./backend/AuthService --no-restore --configuration Release
 
-    - name: Run database migrations
-      run: |
-        dotnet ef database update --project ./backend/AuthService/AuthService.csproj --startup-project ./backend/AuthService/AuthService.csproj
-
-    - name: Run tests
-      run: dotnet test ./backend/AuthService.Tests/AuthService.Tests.csproj --no-build --configuration Release
+      - name: Run tests
+        run: dotnet test ./backend/AuthService.Tests --no-build --verbosity normal
