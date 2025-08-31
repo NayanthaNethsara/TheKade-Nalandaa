@@ -13,7 +13,7 @@ namespace AuthService.Configurations
 
             // Helpers
             services.AddScoped<JwtService>();
-            services.AddScoped<GoogleOAuthHelper>();
+            services.AddScoped<IGoogleOAuthHelper, GoogleOAuthHelper>();
 
             // Global HttpClient
             services.AddHttpClient();

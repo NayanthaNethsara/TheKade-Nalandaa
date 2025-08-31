@@ -10,9 +10,9 @@ namespace AuthService.Services
     {
         private readonly AuthDbContext _db;
         private readonly JwtService _jwt;
-        private readonly GoogleOAuthHelper _googleHelper;
+        private readonly IGoogleOAuthHelper _googleHelper;
 
-        public AuthServiceImpl(AuthDbContext db, JwtService jwt, GoogleOAuthHelper googleHelper)
+        public AuthServiceImpl(AuthDbContext db, JwtService jwt, IGoogleOAuthHelper googleHelper)
         {
             _db = db;
             _jwt = jwt;

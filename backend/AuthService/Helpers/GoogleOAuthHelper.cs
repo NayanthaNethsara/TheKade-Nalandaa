@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace AuthService.Helpers;
 
-public class GoogleOAuthHelper
+public class GoogleOAuthHelper : IGoogleOAuthHelper
 {
     private readonly IConfiguration _config;
     private readonly HttpClient _http;
