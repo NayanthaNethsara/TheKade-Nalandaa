@@ -1,39 +1,47 @@
-name: CI/CD Pipeline
+name: CI - AuthService
 
 on:
   push:
     branches:
-      - dev # ✅ runs only on dev branch
+      - dev
   pull_request:
     branches:
-      - dev # ✅ optional: also run for PRs into dev
+      - dev
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
-
     services:
       mysql:
         image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
-          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
         ports:
           - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -p${{ secrets.MYSQL_ROOT_PASSWORD }}"
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -u root -p${{ secrets.MYSQL_ROOT_PASSWORD }}"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=3
+        env:
+          MYSQL_ROOT_PASSWORD: rootpassword
+          MYSQL_DATABASE: auth_service
+
+    env:
+      ConnectionStrings__DefaultConnection: server=127.0.0.1;port=3306;database=auth_service;user=root;password=${{ secrets.MYSQL_ROOT_PASSWORD }}
+      Jwt__Secret: ${{ secrets.Jwt__Secret }}
+      Jwt__Issuer: ${{ secrets.Jwt__Issuer }}
+      Jwt__Audience: ${{ secrets.Jwt__Audience }}
+      Google__ClientId: ${{ secrets.Google__ClientId }}
+      Google__ClientSecret: ${{ secrets.Google__ClientSecret }}
+      Frontend__Url: ${{ secrets.Frontend__Url }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up .NET
+      - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: "9.0.x"
+          dotnet-version: '9.0.x'
 
       - name: Restore dependencies
         run: dotnet restore ./AuthService
@@ -41,5 +49,5 @@ jobs:
       - name: Build
         run: dotnet build ./AuthService --configuration Release --no-restore
 
-      - name: Run tests
-        run: dotnet test ./AuthService --no-build --verbosity normal
+      - name: Run Tests
+        run: dotnet test ./AuthService.Tests --no-build --verbosity normal
