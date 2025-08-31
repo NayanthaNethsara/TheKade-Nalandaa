@@ -1,4 +1,4 @@
-name: CI - AuthService
+name: CI
 
 on:
   push:
@@ -11,43 +11,21 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    services:
-      mysql:
-        image: mysql:8.0
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1 -u root -p${{ secrets.MYSQL_ROOT_PASSWORD }}"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=3
-        env:
-          MYSQL_ROOT_PASSWORD: rootpassword
-          MYSQL_DATABASE: auth_service
-
-    env:
-      ConnectionStrings__DefaultConnection: server=127.0.0.1;port=3306;database=auth_service;user=root;password=${{ secrets.MYSQL_ROOT_PASSWORD }}
-      Jwt__Secret: ${{ secrets.Jwt__Secret }}
-      Jwt__Issuer: ${{ secrets.Jwt__Issuer }}
-      Jwt__Audience: ${{ secrets.Jwt__Audience }}
-      Google__ClientId: ${{ secrets.Google__ClientId }}
-      Google__ClientSecret: ${{ secrets.Google__ClientSecret }}
-      Frontend__Url: ${{ secrets.Frontend__Url }}
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '9.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore ./AuthService
+        run: dotnet restore ./backend/AuthService
 
       - name: Build
-        run: dotnet build ./AuthService --configuration Release --no-restore
+        run: dotnet build ./backend/AuthService --no-restore --configuration Release
 
-      - name: Run Tests
-        run: dotnet test ./AuthService.Tests --no-build --verbosity normal
+      - name: Run tests
+        run: dotnet test ./backend/AuthService.Tests --no-build --verbosity normal
