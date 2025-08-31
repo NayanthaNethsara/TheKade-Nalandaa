@@ -16,7 +16,6 @@ public class GoogleOAuthHelper
 
     public async Task<JsonElement> ExchangeCodeAsync(string code, string redirectUri)
     {
-        Console.WriteLine("Exchanging code with Google OAuth...");
 
         var content = new FormUrlEncodedContent(new Dictionary<string, string>
         {
@@ -28,9 +27,7 @@ public class GoogleOAuthHelper
         });
 
         var tokenResp = await _http.PostAsync("https://oauth2.googleapis.com/token", content);
-        Console.WriteLine($"Token response status: {tokenResp.StatusCode}");
         var respBody = await tokenResp.Content.ReadAsStringAsync();
-        Console.WriteLine($"Token response body: {respBody}");
 
         tokenResp.EnsureSuccessStatusCode();
 
@@ -38,7 +35,6 @@ public class GoogleOAuthHelper
         _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
         var userInfo = await _http.GetStringAsync("https://www.googleapis.com/oauth2/v2/userinfo");
-        Console.WriteLine($"User info: {userInfo}");
 
         return JsonDocument.Parse(userInfo).RootElement;
     }
