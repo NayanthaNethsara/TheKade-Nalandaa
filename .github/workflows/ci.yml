@@ -1,4 +1,4 @@
-name: CI
+name: AuthService CI
 
 on:
   push:
@@ -12,6 +12,23 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping -h localhost"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 3
+
+    env:
+      ConnectionStrings__DefaultConnection: server=127.0.0.1;port=3306;database=${{ secrets.MYSQL_DATABASE }};user=root;password=${{ secrets.MYSQL_ROOT_PASSWORD }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -21,11 +38,15 @@ jobs:
         with:
           dotnet-version: '9.0.x'
 
-      - name: Restore dependencies
-        run: dotnet restore ./backend/AuthService
+      - name: Install dependencies
+        run: dotnet restore ./backend/AuthService/AuthService.csproj
 
       - name: Build
-        run: dotnet build ./backend/AuthService --no-restore --configuration Release
+        run: dotnet build ./backend/AuthService/AuthService.csproj --configuration Release --no-restore
 
       - name: Run tests
-        run: dotnet test ./backend/AuthService.Tests --no-build --verbosity normal
+        run: dotnet test ./backend/AuthService.Tests/AuthService.Tests.csproj --no-build --verbosity normal
+
+      - name: Build Docker image
+        run: |
+          docker build -t authservice ./backend/AuthService
