@@ -1,0 +1,50 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -u root -p${{ secrets.MYSQL_ROOT_PASSWORD }}"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x # adjust to your version
+
+      - name: Restore dependencies
+        run: dotnet restore ./AuthService/AuthService.csproj
+
+      - name: Build
+        run: dotnet build ./AuthService/AuthService.csproj --no-restore --configuration Release
+
+      - name: Run tests
+        env:
+          ConnectionStrings__DefaultConnection: "server=127.0.0.1;port=3306;database=${{ secrets.MYSQL_DATABASE }};user=root;password=${{ secrets.MYSQL_ROOT_PASSWORD }}"
+          Jwt__Secret: ${{ secrets.Jwt__Secret }}
+          Jwt__Issuer: ${{ secrets.Jwt__Issuer }}
+          Jwt__Audience: ${{ secrets.Jwt__Audience }}
+          Google__ClientId: ${{ secrets.Google__ClientId }}
+          Google__ClientSecret: ${{ secrets.Google__ClientSecret }}
+          Frontend__Url: ${{ secrets.Frontend__Url }}
+        run: dotnet test ./AuthService/AuthService.csproj --no-build --verbosity normal
