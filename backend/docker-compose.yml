@@ -1,21 +1,12 @@
+version: "3.9"
+
 services:
   authservice:
-    build: ./AuthService
-    env_file:
-      - ./AuthService/.env
+    build:
+      context: ./AuthService
+      dockerfile: Dockerfile
+    container_name: authservice
     ports:
-      - "5218:8080" # host:container
-    depends_on:
-      - auth_db
-
-  auth_db:
-    image: mysql:8
+      - "5218:8080"
     env_file:
-      - ./AuthService/.env
-    ports:
-      - "3306:3306"
-    volumes:
-      - auth_db_data:/var/lib/mysql
-
-volumes:
-  auth_db_data:
+      - ./AuthService/.env # loads env vars into container
