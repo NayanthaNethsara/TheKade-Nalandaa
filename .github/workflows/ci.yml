@@ -28,6 +28,6 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/authservice:latest
+          tags: ghcr.io/nayanthanethsara/authservice:latest
           context: ./backend/AuthService
           file: ./backend/AuthService/Dockerfile
