@@ -14,3 +14,10 @@ publish/
 .env.local
 .env.docker
 appsettings.Development.json
+
+# Developer-specific files
+.vscode/
+*.DS_Store
+
+# LunchSettings
+Properties/launchSettings.json
