@@ -19,12 +19,13 @@ namespace AuthService.Data
                 entity.HasIndex(u => u.GoogleId).IsUnique();
                 entity.HasIndex(u => u.Email).IsUnique();
 
-                // Role constraint using ToTable().HasCheckConstraint
+                // Role constraint for SQL Server
                 entity.ToTable(tb => tb.HasCheckConstraint(
                     "CK_User_Role",
-                    $"`Role` IN ('{Roles.Reader}', '{Roles.Author}', '{Roles.Admin}')"
+                    $"[Role] IN ('{Roles.Reader}', '{Roles.Author}', '{Roles.Admin}')"
                 ));
             });
         }
+
     }
 }

@@ -1,11 +1,17 @@
 using AuthService.Configurations;
 using DotNetEnv;
 
-Env.Load();
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Load env variables
-builder.Configuration.AddEnvironmentVariables();
+if (builder.Environment.IsDevelopment())
+{
+    Env.Load();
+}
+
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddEnvironmentVariables(); // load env vars from Azure or GitHub secrets
 
 // Add configs
 builder.Services.AddDatabase(builder.Configuration);
