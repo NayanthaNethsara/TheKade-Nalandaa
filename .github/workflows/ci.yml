@@ -3,6 +3,14 @@ name: Build, Test & Deploy AuthService
 on:
   push:
     branches: [dev]
+    paths:
+      - "backend/AuthService/**"
+      - "backend/AuthService.Tests/**"
+  pull_request:
+    branches: [dev]
+    paths:
+      - "backend/AuthService/**"
+      - "backend/AuthService.Tests/**"
   workflow_dispatch:
 
 permissions:
@@ -34,8 +42,9 @@ jobs:
 
   # 2️⃣ Build Docker & Push to GHCR
   docker-build-and-push:
+    if: github.event_name == 'push' # ✅ Only run on push
     runs-on: ubuntu-latest
-    needs: build-and-test # only run if tests succeed
+    needs: build-and-test
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -60,6 +69,7 @@ jobs:
 
   # 3️⃣ Deploy to Azure
   deploy:
+    if: github.event_name == 'push' # ✅ Only run on push
     runs-on: ubuntu-latest
     needs: docker-build-and-push
     steps:
