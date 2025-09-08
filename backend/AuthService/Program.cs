@@ -36,4 +36,6 @@ app.UseAuthorization();
 app.UseHttpsRedirection();
 app.MapControllers();
 
+app.MapGet("/", () => "Auth Service is running...");
+
 app.Run();
