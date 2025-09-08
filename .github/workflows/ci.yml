@@ -30,7 +30,7 @@ jobs:
         run: dotnet build ./backend/AuthService/AuthService.csproj --configuration Release --no-restore
 
       - name: Run Tests
-        run: dotnet test ./backend/AuthService.test/AuthService.test.csproj --no-build --verbosity normal
+        run: dotnet test ./backend/AuthService.Tests/AuthService.Tests.csproj --no-build --verbosity normal
 
   # 2️⃣ Build Docker & Push to GHCR
   docker-build-and-push:
