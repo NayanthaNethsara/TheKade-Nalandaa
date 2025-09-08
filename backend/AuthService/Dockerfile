@@ -2,12 +2,14 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /app
 
-# Copy csproj and restore first for caching
-COPY *.csproj ./
+# Copy csproj files separately to leverage caching
+COPY backend/AuthService/*.csproj ./ 
 RUN dotnet restore
 
-# Copy the rest of the code and build
-COPY . ./
+# Copy the rest of the code
+COPY backend/AuthService/ ./ 
+
+# Build
 RUN dotnet build -c Release -o /app/build
 
 # Publish stage
