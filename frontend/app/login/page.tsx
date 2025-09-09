@@ -5,21 +5,11 @@ import type React from "react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
-import {
-  Eye,
-  EyeOff,
-  Lock,
-  User,
-  AlertCircle,
-  HelpCircle,
-  Phone,
-  Mail,
-} from "lucide-react";
+import { Eye, EyeOff, Lock, User, AlertCircle } from "lucide-react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ThemeToggle } from "@/components/theme-toggle";
 import Link from "next/link";
 
 export default function Login() {
@@ -117,8 +107,8 @@ export default function Login() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
             >
-              <h2 className="text-4xl font-black bg-gradient-to-r from-gray-800 to-gray-600 dark:from-gray-200 dark:to-gray-400 bg-clip-text text-transparent">
-                NoPolin HUB
+              <h2 className="text-2xl font-black bg-gradient-to-r from-gray-800 to-gray-600 dark:from-gray-200 dark:to-gray-400 bg-clip-text text-transparent">
+                Nalandaa - TheKade
               </h2>
               <div className="h-1 w-16 bg-gradient-to-r from-gray-600 to-gray-500 rounded-full mt-2" />
             </motion.div>
@@ -130,8 +120,8 @@ export default function Login() {
               transition={{ delay: 0.4 }}
             >
               <p className="text-gray-600 dark:text-gray-300 text-base leading-relaxed">
-                Your centralized solution to reduce queues and optimize
-                transport across Sri Lanka.
+                Access your favorite books anytime, anywhere. Discover, read,
+                and enjoy a world of stories in one place.
               </p>
             </motion.div>
 
@@ -381,7 +371,7 @@ export default function Login() {
                 </Link>
               </p>
             </motion.div>
-            <motion.div
+            {/* <motion.div
               className="mt-10 pt-8 border-t border-gray-200/30 dark:border-gray-700/30"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -429,23 +419,25 @@ export default function Login() {
                   </a>
                 </motion.div>
               </div>
-            </motion.div>
+            </motion.div> */}
           </div>
         </motion.div>
 
         {/* Right Panel - Background Image */}
         <motion.div
-          className="relative hidden lg:block bg-gray-900"
+          className="relative hidden lg:block"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8 }}
         >
+          <div className="absolute inset-0 bg-gradient-to-br from-gray-900/40 via-gray-800/30 to-gray-700/40 backdrop-blur-[1px] z-10"></div>
+
           {/* Background image */}
           <Image
-            src="/login/sri-lanka.png"
+            src="/login/girl-reading-book.jpg"
             alt="Login background"
             fill
-            className="object-cover object-center opacity-40"
+            className="object-cover object-center z-0"
             priority
           />
 
@@ -457,11 +449,9 @@ export default function Login() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.8 }}
             >
-              <div className="inline-block bg-gray-900/90 backdrop-blur-sm rounded-2xl px-6 py-4">
-                <h2 className="text-3xl font-bold text-white">
-                  Smarter Transport, Fewer Queues
-                </h2>
-              </div>
+              <h2 className="text-3xl font-bold text-white drop-shadow-2xl">
+                A Universe of Books, One Click Away
+              </h2>
             </motion.div>
 
             <motion.div
@@ -476,19 +466,17 @@ export default function Login() {
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.9, type: "spring" }}
               >
-                <div className="inline-flex items-center px-8 py-3 rounded-full bg-gray-900/90 backdrop-blur-sm text-white border border-white/30 shadow-xl">
-                  <span className="text-sm font-semibold text-white">
-                    Centralized Control
+                <div className="inline-flex items-center px-8 py-3 rounded-full backdrop-blur-md bg-white/20 text-white border border-white/30 shadow-xl shadow-gray-900/20">
+                  <span className="text-sm font-semibold">
+                    Your Personal Library
                   </span>
                 </div>
               </motion.div>
 
-              <div className="bg-gray-900/90 backdrop-blur-sm rounded-2xl px-6 py-4 max-w-md">
-                <p className="text-white text-base leading-relaxed">
-                  Track vehicles, manage lines, and improve efficiency across
-                  Sri Lanka — all in one unified platform.
-                </p>
-              </div>
+              <p className="text-white text-base drop-shadow-lg leading-relaxed max-w-md">
+                Discover, read, and enjoy thousands of e-books anytime, anywhere
+                — your personal library in the cloud.
+              </p>
             </motion.div>
           </div>
         </motion.div>

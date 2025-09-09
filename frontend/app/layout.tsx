@@ -14,9 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "NoPolin Hub",
-  description:
-    "A centralized, user-friendly portal to book government service appointments in Sri Lanka skip the queues, save time, and breeze through official processes. Built by The Kade team to make bureaucracy less painful and more efficient.",
+  title: "Nalandaa - The Kade",
+  description: "an E-Book Platform",
 };
 
 export default function RootLayout({
