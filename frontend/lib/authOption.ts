@@ -2,33 +2,28 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { jwtDecode } from "jwt-decode";
 import { readIdFromJwt, readNameFromJwt, readRoleFromJwt } from "@/lib/auth";
+import { DecodedJWT } from "@/types/auth";
 
 const API_BASE_URL =
-  process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL;
-
-interface DecodedJWT {
-  sub: string;
-  role: string;
-  exp: number;
-}
+  process.env.AUTH_API_BASE_URL || process.env.NEXT_PUBLIC_AUTH_API_BASE_URL;
 
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        username: { label: "Username", type: "text" },
+        email: { label: "Emali", type: "email" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         if (!credentials) return null;
 
         try {
-          const res = await fetch(`${API_BASE_URL}/api/auth/authenticate`, {
+          const res = await fetch(`${API_BASE_URL}/api/Auth/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              username: credentials.username,
+              email: credentials.email,
               password: credentials.password,
             }),
           });
@@ -39,22 +34,21 @@ export const authOptions: NextAuthOptions = {
 
           const data = await res.json();
 
-          const username = readNameFromJwt(data.access_token);
-          const role = readRoleFromJwt(data.access_token);
-          const userId = readIdFromJwt(data.access_token);
+          const username = readNameFromJwt(data.token);
+          const role = readRoleFromJwt(data.token);
+          const userId = readIdFromJwt(data.token);
 
           if (!username || !role) return null;
 
           return {
             id: username,
-            accessToken: data.access_token,
-            refreshToken: data.refresh_token,
+            accessToken: data.token,
             username,
             role,
             userId,
           };
         } catch (error) {
-          console.error("🔥 Error in authorize:", error);
+          console.error("Error in authorize:", error);
           return null;
         }
       },
@@ -68,19 +62,14 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         const typedUser = user as unknown as {
           accessToken: string;
-          refreshToken: string;
           username: string;
           role: string;
-          userId: number;
         };
         const decoded = jwtDecode<DecodedJWT>(typedUser.accessToken);
 
         token.accessToken = typedUser.accessToken;
-        token.refreshToken = typedUser.refreshToken;
-        token.username = typedUser.username;
         token.role = typedUser.role;
         token.accessTokenExpires = decoded.exp * 1000;
-        token.userId = typedUser.userId;
       }
 
       // Check if token is still valid
@@ -88,16 +77,16 @@ export const authOptions: NextAuthOptions = {
         return token;
       }
 
-      // TODO: refresh token flow
       return token;
     },
 
     async session({ session, token }) {
       session.user = {
-        username: token.username as string,
         role: token.role as string,
         accessToken: token.accessToken as string,
         userId: token.userId as number,
+        subscription: token.subscription as string,
+        accessTokenExpires: token.accessTokenExpires as number,
       };
       return session;
     },
