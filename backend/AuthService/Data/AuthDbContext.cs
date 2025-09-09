@@ -20,18 +20,6 @@ namespace AuthService.Data
                 entity.HasIndex(u => u.GoogleId).IsUnique();
                 entity.HasIndex(u => u.Email).IsUnique();
 
-                // Role constraint
-                entity.ToTable(tb => tb.HasCheckConstraint(
-                    "CK_User_Role",
-                    $"[Role] IN ('{Roles.Reader}', '{Roles.Author}', '{Roles.Admin}')"
-                ));
-
-                // Subscription constraint
-                entity.ToTable(tb => tb.HasCheckConstraint(
-                    "CK_User_Subscription",
-                    $"[Subscription] IN ('{SubscriptionStatus.Free}', '{SubscriptionStatus.Premium}', '{SubscriptionStatus.Author}')"
-                ));
-
                 // Login constraint: either GoogleId or PasswordHash must be non-null
                 entity.ToTable(tb => tb.HasCheckConstraint(
                     "CK_User_Login",

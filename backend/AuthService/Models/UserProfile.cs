@@ -21,7 +21,5 @@ namespace AuthService.Models
         [MaxLength(255)]
         public string? Address { get; set; }
 
-        [MaxLength(100)]
-        public string? Occupation { get; set; }
     }
 }
