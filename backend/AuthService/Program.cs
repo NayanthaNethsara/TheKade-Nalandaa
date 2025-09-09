@@ -14,7 +14,11 @@ builder.Configuration
     .AddEnvironmentVariables(); // load env vars from Azure or GitHub secrets
 
 // Add configs
-builder.Services.AddDatabase(builder.Configuration);
+var isTest = AppDomain.CurrentDomain.GetAssemblies().Any(a => a.FullName != null && a.FullName.Contains("QA.AuthService.Tests"));
+if (!isTest)
+{
+    builder.Services.AddDatabase(builder.Configuration);
+}
 builder.Services.AddSecurityServices(builder.Configuration);
 builder.Services.AddAppServices();
 
@@ -39,3 +43,5 @@ app.MapControllers();
 app.MapGet("/", () => "Auth Service is running...");
 
 app.Run();
+
+public partial class Program { }
