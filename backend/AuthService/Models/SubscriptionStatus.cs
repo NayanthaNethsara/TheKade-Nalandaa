@@ -1,9 +1,8 @@
-namespace AuthService.Models
+namespace AuthService.Models;
+
+public enum SubscriptionStatus
 {
-    public static class SubscriptionStatus
-    {
-        public const string Free = "Free";
-        public const string Premium = "Premium";
-        public const string Author = "Author";
-    }
+    Free,
+    Premium,
+    Author
 }

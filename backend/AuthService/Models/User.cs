@@ -19,10 +19,10 @@ namespace AuthService.Models
         public string Name { get; set; } = null!;
 
         [Required, MaxLength(20)]
-        public string Role { get; set; } = Roles.Reader; // default
+        public Roles Role { get; set; } = Roles.Reader; // default
 
         [Required, MaxLength(20)]
-        public string Subscription { get; set; } = SubscriptionStatus.Free; // default
+        public SubscriptionStatus Subscription { get; set; } = SubscriptionStatus.Free; // default
 
         // Nullable: for Google-only users this will be null.
         // For local accounts store hashed password (e.g. using IPasswordHasher<T>).
