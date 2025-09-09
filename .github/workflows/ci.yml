@@ -41,7 +41,7 @@ jobs:
         run: dotnet test ./backend/AuthService.Tests/AuthService.Tests.csproj --no-build --verbosity normal --logger "trx;LogFileName=TestResults.trx"
 
       - name: Upload Test Results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: TestResults
           path: ./backend/AuthService.Tests/TestResults.trx
