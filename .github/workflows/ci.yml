@@ -38,7 +38,20 @@ jobs:
         run: dotnet build ./backend/AuthService/AuthService.csproj --configuration Release --no-restore
 
       - name: Run Tests
-        run: dotnet test ./backend/AuthService.Tests/AuthService.Tests.csproj --no-build --verbosity normal
+        run: dotnet test ./backend/AuthService.Tests/AuthService.Tests.csproj --no-build --verbosity normal --logger "trx;LogFileName=TestResults.trx"
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: TestResults
+          path: ./backend/AuthService.Tests/TestResults.trx
+
+      - name: Publish Test Results to PR
+        uses: microsoft/test-report-action@v1
+        with:
+          test-results-files: ./backend/AuthService.Tests/TestResults.trx
+          merge-results: true
+          fail-if-no-tests: true
 
   # 2️ Build Docker & Push to GHCR
   docker-build-and-push:
