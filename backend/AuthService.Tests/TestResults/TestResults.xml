@@ -1,0 +1,18 @@
+<testsuites>
+  <testsuite name="AuthService.Tests.dll" tests="4" skipped="0" failures="0" errors="0" time="0.47558979999999995" timestamp="2025-09-09T14:10:41" hostname="nayanthanethsaras-MacBook-Air" id="0" package="AuthService.Tests.dll">
+    <properties />
+    <testcase classname="AuthService.Tests.Services.JwtServiceTests" name="GenerateToken_ReturnsTokenString" time="0.0186811" />
+    <testcase classname="AuthService.Tests.Helpers.GoogleOAuthHelperTests" name="ExchangeCodeAsync_ReturnsUserInfo" time="0.0430679" />
+    <testcase classname="AuthService.Tests.UserServiceTests" name="Cannot_Add_Duplicate_Email" time="0.3287305" />
+    <testcase classname="AuthService.Tests.UserServiceTests" name="Can_Add_User" time="0.0851103" />
+    <system-out>
+Test Framework Informational Messages:
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.8.2+699d445a1a (64-bit .NET 9.0.7)
+[xUnit.net 00:00:00.03]   Discovering: AuthService.Tests
+[xUnit.net 00:00:00.04]   Discovered:  AuthService.Tests
+[xUnit.net 00:00:00.04]   Starting:    AuthService.Tests
+[xUnit.net 00:00:00.47]   Finished:    AuthService.Tests
+</system-out>
+    <system-err></system-err>
+  </testsuite>
+</testsuites>

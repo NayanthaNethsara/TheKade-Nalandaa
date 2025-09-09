@@ -38,7 +38,7 @@ jobs:
         run: dotnet build ./backend/AuthService/AuthService.csproj --configuration Release --no-restore
 
       - name: Run Tests
-        run: dotnet test ./backend/AuthService.Tests/AuthService.Tests.csproj --no-build --logger "junit;LogFilePath=./backend/AuthService.Tests/TestResults.xml"
+        run: dotnet test ./backend/AuthService.Tests/AuthService.Tests.csproj --no-build --logger:"junit;LogFilePath=backend/AuthService.Tests/TestResults/TestResults.xml;AssemblyName=AuthService.Tests"
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
