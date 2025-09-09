@@ -8,6 +8,7 @@ namespace AuthService.Data
         public AuthDbContext(DbContextOptions<AuthDbContext> options) : base(options) { }
 
         public DbSet<User> Users { get; set; } = null!;
+        public DbSet<UserProfile> UserProfiles { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -19,13 +20,18 @@ namespace AuthService.Data
                 entity.HasIndex(u => u.GoogleId).IsUnique();
                 entity.HasIndex(u => u.Email).IsUnique();
 
-                // Role constraint for SQL Server
+                // Role constraint
                 entity.ToTable(tb => tb.HasCheckConstraint(
                     "CK_User_Role",
                     $"[Role] IN ('{Roles.Reader}', '{Roles.Author}', '{Roles.Admin}')"
                 ));
+
+                // Subscription constraint
+                entity.ToTable(tb => tb.HasCheckConstraint(
+                    "CK_User_Subscription",
+                    $"[Subscription] IN ('{SubscriptionStatus.Free}', '{SubscriptionStatus.Premium}', '{SubscriptionStatus.Author}')"
+                ));
             });
         }
-
     }
 }
