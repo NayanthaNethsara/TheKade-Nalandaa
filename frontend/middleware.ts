@@ -1,35 +1,57 @@
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
-import { NextRequest, NextResponse } from "next/server";
+
+const SECRET = process.env.NEXTAUTH_SECRET;
 
 export async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+
+  // public pages
+  const publicPaths = ["/login", "/register", "/forget-password"];
+  const isPublic = publicPaths.includes(pathname);
+
   try {
-    const { pathname } = req.nextUrl;
+    const token = await getToken({ req, secret: SECRET });
 
-    const token = await getToken({
-      req,
-      secret: process.env.NEXTAUTH_SECRET,
-    });
-
-    const isPublic = ["/login", "/forget-password", "/register"].includes(
-      pathname
-    );
-
-    console.log("ExpireData:", token?.exp);
-    console.log("Date Now", Date.now());
+    // check token expiration using your accessTokenExpires
     const isExpired =
-      token?.exp && typeof token.exp === "number"
-        ? Date.now() >= token.exp * 1000
+      token?.accessTokenExpires && typeof token.accessTokenExpires === "number"
+        ? Date.now() >= token.accessTokenExpires
         : true;
 
-    if (!isPublic && (!token || isExpired)) {
-      return NextResponse.redirect(new URL("/login", req.url));
+    if (!pathname.startsWith("/api")) {
+      // protected page + no token or expired → redirect to login
+      if (!isPublic && (!token || isExpired)) {
+        return NextResponse.redirect(new URL("/login", req.url));
+      }
+
+      // public page + valid token → redirect to dashboard
+      if (isPublic && token && !isExpired) {
+        return NextResponse.redirect(new URL("/dashboard", req.url));
+      }
+
+      return NextResponse.next(); // allow access
     }
 
-    if (isPublic && token && !isExpired) {
-      return NextResponse.redirect(new URL("/dashboard", req.url));
+    if (pathname.startsWith("/api") && !pathname.startsWith("/api/auth")) {
+      if (!token || isExpired) {
+        return new NextResponse(
+          JSON.stringify({
+            message: "Unauthorized - token expired or missing",
+          }),
+          {
+            status: 401,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+      }
+      return NextResponse.next(); // allow API access
     }
+
     return NextResponse.next();
   } catch (err) {
+    console.error("Middleware error:", err);
     return new NextResponse(
       JSON.stringify({
         error: "Middleware crashed",
@@ -43,13 +65,14 @@ export async function middleware(req: NextRequest) {
   }
 }
 
+// Define which paths the middleware applies to
 export const config = {
   matcher: [
-    "/middleware-check",
     "/dashboard/:path*",
     "/profile/:path*",
     "/settings/:path*",
     "/admin/:path*",
-    "/((?!api|_next|static|favicon.ico|.*\\.(?:jpg|jpeg|png|svg|webp|gif|ico|woff|woff2|ttf|eot)).*)",
+    "/api/:path*",
+    "/((?!_next|static|favicon.ico|.*\\.(?:jpg|jpeg|png|svg|webp|gif|ico|woff|woff2|ttf|eot)).*)", // catch other pages
   ],
 };

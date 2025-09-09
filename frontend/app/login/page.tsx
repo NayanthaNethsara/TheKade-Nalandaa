@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 
 export default function Login() {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -26,8 +26,8 @@ export default function Login() {
 
     setError(null);
 
-    if (!username.trim()) {
-      setError("Username is required");
+    if (!email.trim()) {
+      setError("Email is required");
       return;
     }
 
@@ -40,13 +40,13 @@ export default function Login() {
 
     try {
       const result = await signIn("credentials", {
-        username,
+        email,
         password,
         redirect: false,
       });
 
       if (result?.error) {
-        setError("Invalid username or password");
+        setError("Invalid email or password");
       } else {
         router.push("/dashboard");
       }
@@ -221,31 +221,31 @@ export default function Login() {
                 transition={{ delay: 0.6 }}
               >
                 <Label
-                  htmlFor="username"
+                  htmlFor="email"
                   className="text-sm font-semibold text-gray-700 dark:text-gray-200"
                 >
-                  Username
+                  Email
                 </Label>
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-gray-400 dark:text-gray-500 group-focus-within:text-gray-600 dark:group-focus-within:text-gray-300 transition-colors">
                     <User className="h-5 w-5" />
                   </div>
                   <Input
-                    id="username"
-                    type="text"
-                    placeholder="Enter your username"
+                    id="email"
+                    type="email"
+                    placeholder="Enter your Email"
                     required
-                    value={username}
+                    value={email}
                     onChange={(e) => {
-                      setUsername(e.target.value);
+                      setEmail(e.target.value);
                       if (error) setError(null);
                     }}
                     className={`pl-12 h-14 backdrop-blur-sm bg-white/60 dark:bg-gray-800/60 border-2 ${
-                      error && !username.trim()
+                      error && !email.trim()
                         ? "border-red-300 dark:border-red-700 focus-visible:ring-red-500/20"
                         : "border-gray-200/50 dark:border-gray-700/50 focus-visible:ring-gray-500/20 focus-visible:border-gray-400"
                     } text-gray-900 dark:text-gray-100 rounded-2xl focus-visible:ring-4 focus-visible:ring-offset-0 shadow-lg shadow-gray-200/20 dark:shadow-gray-950/20 transition-all duration-200 hover:shadow-xl hover:shadow-gray-200/30 dark:hover:shadow-gray-950/30`}
-                    aria-invalid={error && !username.trim() ? "true" : "false"}
+                    aria-invalid={error && !email.trim() ? "true" : "false"}
                   />
                 </div>
               </motion.div>
