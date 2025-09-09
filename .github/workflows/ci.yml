@@ -51,7 +51,7 @@ jobs:
         with:
           name: AuthService Tests
           path: ./backend/AuthService.Tests/TestResults.xml
-          reporter: junit
+          reporter: jest-junit
 
   # 2️ Build Docker & Push to GHCR
   docker-build-and-push:
