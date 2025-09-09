@@ -103,7 +103,7 @@ export function AppSidebar() {
   }
 
   const user = {
-    username: session.user.username || "Guest",
+    username: session.user.userId || "Guest",
     role: session.user.role?.toUpperCase() || "CITIZEN",
   };
 
