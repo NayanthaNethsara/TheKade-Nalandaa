@@ -1,0 +1,12 @@
+version: "3.9"
+
+services:
+  authservice:
+    build:
+      context: ./AuthService
+      dockerfile: Dockerfile
+    container_name: authservice
+    ports:
+      - "5218:8080"
+    env_file:
+      - ./AuthService/.env # loads env vars into container

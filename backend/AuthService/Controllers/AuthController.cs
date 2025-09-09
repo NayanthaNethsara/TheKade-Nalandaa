@@ -1,91 +1,107 @@
-using AuthService.Models;
-using Microsoft.AspNetCore.Identity;
+using AuthService.DTOs;
+using AuthService.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 
-namespace AuthService.Controllers
+namespace AuthService.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class AuthController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class AuthController : ControllerBase
+    private readonly IAuthService _authService;
+
+    public AuthController(IAuthService authService)
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IConfiguration _config;
+        _authService = authService;
+    }
 
-        public AuthController(UserManager<ApplicationUser> userManager, IConfiguration config)
+    // ------------------ GOOGLE LOGIN ------------------
+    [HttpPost("login/google")]
+    public async Task<IActionResult> LoginWithGoogle([FromBody] GoogleLoginDto dto)
+    {
+        try
         {
-            _userManager = userManager;
-            _config = config;
+            var result = await _authService.LoginWithGoogleAsync(dto);
+            return Ok(result);
         }
-
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterModel model)
+        catch (Exception ex)
         {
-            var user = new ApplicationUser { UserName = model.Email, Email = model.Email, FullName = model.FullName };
-            var result = await _userManager.CreateAsync(user, model.Password);
-
-            if (!result.Succeeded)
-                return BadRequest(result.Errors);
-
-            await _userManager.AddToRoleAsync(user, model.Role); // Admin / Author / Reader
-
-            return Ok("User registered successfully");
-        }
-
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginModel model)
-        {
-            var user = await _userManager.FindByEmailAsync(model.Email);
-            if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
-            {
-                var roles = await _userManager.GetRolesAsync(user);
-                var token = GenerateJwtToken(user, roles);
-                return Ok(new { token });
-            }
-            return Unauthorized();
-        }
-
-        private string GenerateJwtToken(ApplicationUser user, IList<string> roles)
-        {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            var claims = new List<Claim>
-            {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.NameIdentifier, user.Id)
-            };
-
-            foreach (var role in roles)
-                claims.Add(new Claim(ClaimTypes.Role, role));
-
-            var token = new JwtSecurityToken(
-                issuer: _config["Jwt:Issuer"],
-                audience: _config["Jwt:Audience"],
-                claims: claims,
-                expires: DateTime.Now.AddHours(3),
-                signingCredentials: creds
-            );
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            return BadRequest(new { message = ex.Message });
         }
     }
 
-    public class RegisterModel
+    // ------------------ LOCAL REGISTER (Reader) ------------------
+    [HttpPost("register")]
+    public async Task<IActionResult> RegisterLocal([FromBody] RegisterUserDto dto)
     {
-        public required string FullName { get; set; }
-        public required string Email { get; set; }
-        public required string Password { get; set; }
-        public required string Role { get; set; } // Admin / Author / Reader
+        try
+        {
+            var result = await _authService.RegisterLocalAsync(dto);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
-    public class LoginModel
+    // ------------------ LOCAL LOGIN ------------------
+    [HttpPost("login")]
+    public async Task<IActionResult> LoginLocal([FromBody] LoginUserDto dto)
     {
-        public required string Email { get; set; }
-        public required string Password { get; set; }
+        try
+        {
+            var result = await _authService.LoginLocalAsync(dto);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    // ------------------ AUTHOR REGISTRATION ------------------
+    [HttpPost("register-author")]
+    public async Task<IActionResult> RegisterAuthor([FromBody] RegisterAuthorDto dto)
+    {
+        try
+        {
+            var result = await _authService.RegisterAuthorAsync(dto);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    // ------------------ FORGOT PASSWORD ------------------
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
+    {
+        try
+        {
+            await _authService.ForgotPasswordAsync(dto);
+            return Ok(new { message = "If the email exists, a reset link has been sent." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    // ------------------ RESET PASSWORD ------------------
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
+    {
+        try
+        {
+            await _authService.ResetPasswordAsync(dto);
+            return Ok(new { message = "Password has been reset successfully." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 }

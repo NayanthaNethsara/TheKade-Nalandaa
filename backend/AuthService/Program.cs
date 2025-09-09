@@ -1,60 +1,22 @@
-using AuthService.Data;
-using AuthService.Models;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using AuthService.Configurations;
 using DotNetEnv;
 
-Env.Load(); // Load environment variables from .env
 
 var builder = WebApplication.CreateBuilder(args);
 
-var jwtKey = Environment.GetEnvironmentVariable("Jwt__Key");
-var jwtIssuer = Environment.GetEnvironmentVariable("Jwt__Issuer");
-var jwtAudience = Environment.GetEnvironmentVariable("Jwt__Audience");
-var connectionString = Environment.GetEnvironmentVariable("DefaultConnection");
-
-if (string.IsNullOrWhiteSpace(connectionString))
+if (builder.Environment.IsDevelopment())
 {
-    throw new InvalidOperationException("Database connection string is not configured in environment variables.");
+    Env.Load();
 }
 
-if (string.IsNullOrWhiteSpace(jwtKey))
-{
-    throw new InvalidOperationException("JWT Key is not configured in environment variables.");
-}
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddEnvironmentVariables(); // load env vars from Azure or GitHub secrets
 
-// Database
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(connectionString));
-
-// Identity
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddDefaultTokenProviders();
-
-// JWT Authentication
-var key = Encoding.ASCII.GetBytes(jwtKey);
-
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtIssuer,
-        ValidAudience = jwtAudience,
-        IssuerSigningKey = new SymmetricSecurityKey(key)
-    };
-});
+// Add configs
+builder.Services.AddDatabase(builder.Configuration);
+builder.Services.AddSecurityServices(builder.Configuration);
+builder.Services.AddAppServices();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -62,12 +24,18 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+// Middleware
 app.UseSwagger();
 app.UseSwaggerUI();
+
+app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseHttpsRedirection();
 app.MapControllers();
+
+app.MapGet("/", () => "Auth Service is running...");
 
 app.Run();
