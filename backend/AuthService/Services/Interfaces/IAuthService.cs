@@ -1,10 +1,15 @@
 using AuthService.DTOs;
-using AuthService.Models;
 
-namespace AuthService.Services
+namespace AuthService.Services;
+
+public interface IAuthService
 {
-    public interface IAuthService
-    {
-        Task<string> LoginWithGoogleAsync(GoogleLoginDto dto);
-    }
+    Task<AuthResponseDto> LoginWithGoogleAsync(GoogleLoginDto dto);
+    Task<AuthResponseDto> RegisterLocalAsync(RegisterUserDto dto);
+    Task<AuthResponseDto> LoginLocalAsync(LoginUserDto dto);
+    Task<AuthResponseDto> RegisterAuthorAsync(RegisterAuthorDto dto);
+    Task ForgotPasswordAsync(ForgotPasswordDto dto);
+    Task ResetPasswordAsync(ResetPasswordDto dto);
+
+
 }

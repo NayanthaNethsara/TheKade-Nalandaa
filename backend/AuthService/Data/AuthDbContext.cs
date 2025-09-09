@@ -8,6 +8,7 @@ namespace AuthService.Data
         public AuthDbContext(DbContextOptions<AuthDbContext> options) : base(options) { }
 
         public DbSet<User> Users { get; set; } = null!;
+        public DbSet<UserProfile> UserProfiles { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -19,13 +20,22 @@ namespace AuthService.Data
                 entity.HasIndex(u => u.GoogleId).IsUnique();
                 entity.HasIndex(u => u.Email).IsUnique();
 
-                // Role constraint for SQL Server
+                // Login constraint: either GoogleId or PasswordHash must be non-null
                 entity.ToTable(tb => tb.HasCheckConstraint(
-                    "CK_User_Role",
-                    $"[Role] IN ('{Roles.Reader}', '{Roles.Author}', '{Roles.Admin}')"
+                    "CK_User_Login",
+                    "([GoogleId] IS NOT NULL OR [PasswordHash] IS NOT NULL)"
                 ));
+
+            });
+
+            modelBuilder.Entity<UserProfile>(entity =>
+            {
+                // One-to-one relationship with User
+                entity.HasOne(up => up.User)
+                      .WithOne(u => u.Profile)
+                      .HasForeignKey<UserProfile>(up => up.UserId)
+                      .OnDelete(DeleteBehavior.Cascade); // if user is deleted, profile also goes
             });
         }
-
     }
 }

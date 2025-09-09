@@ -38,7 +38,20 @@ jobs:
         run: dotnet build ./backend/AuthService/AuthService.csproj --configuration Release --no-restore
 
       - name: Run Tests
-        run: dotnet test ./backend/AuthService.Tests/AuthService.Tests.csproj --no-build --verbosity normal
+        run: dotnet test ./backend/AuthService.Tests/AuthService.Tests.csproj --no-build --logger:"junit;LogFilePath=backend/AuthService.Tests/TestResults/TestResults.xml;AssemblyName=AuthService.Tests"
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: ./backend/AuthService.Tests/TestResults/TestResults.xml
+
+      - name: Publish Test Report
+        uses: dorny/test-reporter@v2
+        with:
+          name: AuthService Tests
+          path: ./backend/AuthService.Tests/TestResults/TestResults.xml
+          reporter: jest-junit
 
   # 2️ Build Docker & Push to GHCR
   docker-build-and-push:
