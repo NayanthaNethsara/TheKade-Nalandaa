@@ -1,441 +1,253 @@
-"use client"
+"use client";
+import { 
+  BadgeCheck, Bell, BookOpen, CalendarDays, ChevronRight, Crown,
+  Edit3, LogOut, Settings, ShieldCheck, Star, TrendingUp,
+  User as UserIcon, Book
+} from "lucide-react";
 
-import type React from "react"
+type SubStatus = "active" | "past_due" | "canceled" | "trialing";
 
-import { useState } from "react"
-import { useSession } from "next-auth/react"
-import { motion } from "framer-motion"
-import { User, Mail, Phone, MapPin, Camera, Edit, Save, X, Upload, FileText, AlertCircle } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
+export default function UserProfileDashboard() {
+  // These are example data I used just for the showcase. These are to be replaced with API data
+  const user = {
+    name: "User Name",
+    username: "@example_user",
+    joinedAt: "2024-10-02",
+  };
 
-interface AddressChangeRequest {
-  id: string
-  currentAddress: string
-  newAddress: string
-  reason: string
-  documents: File[]
-  status: "pending" | "approved" | "rejected"
-  submittedDate: string
-  adminNotes?: string
-}
+  const subscription: { tier: string; status: SubStatus; renewsOn: string; paymentMethodLast4: string } = {
+    tier: "Premium",
+    status: "active",
+    renewsOn: "2025-10-01",
+    paymentMethodLast4: "4242",
+  };
 
-export default function ProfilePage() {
-  const { data: session } = useSession()
-  const [isEditing, setIsEditing] = useState(false)
-  const [showAddressChange, setShowAddressChange] = useState(false)
-  const [profileData, setProfileData] = useState({
-    name: session?.user?.name || "",
-    email: session?.user?.email || "",
-    phone: session?.user?.phone || "",
-    nic: session?.user?.nic || "",
-    address: session?.user?.address || "",
-  })
+  const stats = {
+    minutesRead: 12480,
+    booksCompleted: 27,
+    currentStreak: 12,
+    avgMinutesPerDay: 42,
+  };
 
-  const [addressChangeData, setAddressChangeData] = useState({
-    newAddress: "",
-    reason: "",
-    documents: [] as File[],
-  })
+  const recent = [
+    { id: "1", title: "Example_Book_1", author: "Author_1", progress: 78, lastOpened: "2h ago" },
+    { id: "2", title: "Example_Book_2", author: "Author_2", progress: 35, lastOpened: "yesterday" },
+    { id: "3", title: "Example_Book_3", author: "Author_3", progress: 12, lastOpened: "3d ago" },
+  ];
 
-  const [pendingRequests, setPendingRequests] = useState<AddressChangeRequest[]>([
-    {
-      id: "1",
-      currentAddress: "123 Main St, Colombo",
-      newAddress: "456 New St, Kandy",
-      reason: "Job relocation",
-      documents: [],
-      status: "pending",
-      submittedDate: "2024-01-10",
-    },
-  ])
+  const genres = ["Sci-Fi", "Self-Help", "Productivity", "Software", "Psychology"];
 
-  const handleSaveProfile = () => {
-    // Save basic profile changes (non-sensitive data)
-    console.log("Saving profile:", profileData)
-    setIsEditing(false)
-  }
-
-  const handleAddressChangeSubmit = () => {
-    const newRequest: AddressChangeRequest = {
-      id: Date.now().toString(),
-      currentAddress: profileData.address,
-      newAddress: addressChangeData.newAddress,
-      reason: addressChangeData.reason,
-      documents: addressChangeData.documents,
-      status: "pending",
-      submittedDate: new Date().toISOString().split("T")[0],
-    }
-
-    setPendingRequests([...pendingRequests, newRequest])
-    setAddressChangeData({ newAddress: "", reason: "", documents: [] })
-    setShowAddressChange(false)
-  }
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const files = Array.from(e.target.files)
-      setAddressChangeData((prev) => ({
-        ...prev,
-        documents: [...prev.documents, ...files],
-      }))
-    }
-  }
-
-  const removeDocument = (index: number) => {
-    setAddressChangeData((prev) => ({
-      ...prev,
-      documents: prev.documents.filter((_, i) => i !== index),
-    }))
-  }
-
-  if (!session) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="w-8 h-8 border-2 border-t-transparent border-gray-600 rounded-full animate-spin"></div>
-      </div>
-    )
-  }
+  const subAccent = getSubAccent(subscription.status);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 p-6">
-      <div className="max-w-4xl mx-auto space-y-6">
-        {/* Header */}
-        <motion.div
-          className="text-center space-y-4"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">My Profile</h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400">
-            Manage your personal information and account settings
-          </p>
-        </motion.div>
+    <main className="min-h-screen bg-gradient-to-br from-zinc-950 via-neutral-950 to-zinc-900 text-zinc-100">
+      {/* Top bar */}
+      <div className="sticky top-0 z-50 backdrop-blur supports-[backdrop-filter]:bg-zinc-950/60">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-amber-400 to-rose-500 shadow-lg shadow-rose-900/30" />
+            <span className="font-semibold tracking-tight">Nalandaa</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-sm hover:bg-white/10 transition">
+              <Bell className="h-4 w-4" />
+              Alerts
+            </button>
+            <button className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-sm hover:bg-white/10 transition">
+              <Settings className="h-4 w-4" />
+              Settings
+            </button>
+          </div>
+        </div>
+      </div>
 
-        {/* Profile Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.6 }}
-        >
-          <Card className="backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-0 shadow-lg shadow-black/5 dark:shadow-black/20">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-2xl font-semibold">Personal Information</CardTitle>
-              <Button
-                onClick={() => setIsEditing(!isEditing)}
-                variant="outline"
-                className="backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-0 shadow-lg shadow-black/5 dark:shadow-black/20"
-              >
-                {isEditing ? <X className="h-4 w-4 mr-2" /> : <Edit className="h-4 w-4 mr-2" />}
-                {isEditing ? "Cancel" : "Edit"}
-              </Button>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Profile Photo */}
-              <div className="flex items-center space-x-6">
-                <div className="relative">
-                  <div className="w-24 h-24 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                    <User className="h-12 w-12 text-gray-400" />
-                  </div>
-                  {isEditing && (
-                    <button className="absolute -bottom-2 -right-2 p-2 bg-gray-600 hover:bg-gray-700 text-white rounded-full shadow-lg">
-                      <Camera className="h-4 w-4" />
-                    </button>
-                  )}
+      {/* Header */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Profile Card (Will be replaced with API data) */}
+          <div className="lg:col-span-2">
+            <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-zinc-900 to-zinc-800 p-6 sm:p-8">
+              <div className="absolute -right-24 -top-24 h-64 w-64 rounded-full bg-gradient-to-tr from-amber-400/10 to-rose-500/10 blur-2xl" />
+              <div className="flex items-start gap-6">
+                <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-zinc-800 ring-1 ring-white/20">
+                  <UserIcon className="h-10 w-10 text-zinc-400" />
                 </div>
+                <div className="flex-1">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">
+                      {user.name}
+                    </h1>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-white/5 px-2.5 py-1 text-xs font-medium ring-1 ring-white/10">
+                      <UserIcon className="h-3.5 w-3.5" /> {user.username}
+                    </span>
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${subAccent}`}
+                    >
+                      <Crown className="h-3.5 w-3.5" /> {subscription.tier}
+                    </span>
+                  </div>
+
+                  <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <StatTile icon={<BookOpen className="h-4 w-4" />} label="Books completed" value={stats.booksCompleted} />
+                    <StatTile icon={<TrendingUp className="h-4 w-4" />} label="Reading streak" value={`${stats.currentStreak} days`} />
+                    <StatTile icon={<CalendarDays className="h-4 w-4" />} label="Avg mins / day" value={stats.avgMinutesPerDay} />
+                    <StatTile icon={<Star className="h-4 w-4" />} label="Total minutes" value={stats.minutesRead} />
+                  </div>
+
+                  <div className="mt-6 flex flex-wrap items-center gap-2">
+                    {genres.map((g) => (
+                      <span key={g} className="rounded-full bg-white/5 px-3 py-1 text-xs font-medium ring-1 ring-white/10">
+                        {g}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="mt-6 flex flex-wrap gap-2">
+                    <button className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-sm hover:bg-white/10 transition">
+                      <Edit3 className="h-4 w-4" /> Edit profile
+                    </button>
+                    <button className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-sm hover:bg-white/10 transition">
+                      <ShieldCheck className="h-4 w-4" /> Privacy
+                    </button>
+                    <button className="inline-flex items-center gap-2 rounded-xl border border-rose-500/20 bg-rose-500/10 px-3 py-1.5 text-sm hover:bg-rose-500/15 transition">
+                      <LogOut className="h-4 w-4" /> Sign out
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Subscription Card (Will be replaced with API data) */}
+          <div>
+            <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-zinc-900 to-zinc-800 p-6 sm:p-8">
+              <div className="absolute -left-24 -top-24 h-64 w-64 rounded-full bg-gradient-to-tr from-emerald-400/10 to-sky-500/10 blur-2xl" />
+              <div className="flex items-start justify-between gap-4">
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{profileData.name}</h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    {session.user.role === "admin" ? "Administrator" : "Citizen"}
+                  <div className="flex items-center gap-2">
+                    <Crown className="h-5 w-5 text-amber-400" />
+                    <h2 className="text-lg font-semibold">Subscription</h2>
+                  </div>
+                  <p className="mt-1 text-sm text-zinc-400">
+                    {subscription.tier} plan · {subscription.status}
                   </p>
                 </div>
+                <BadgeCheck className="h-6 w-6 text-emerald-400" />
               </div>
 
-              {/* Profile Form */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Full Name</Label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <Input
-                      id="name"
-                      value={profileData.name}
-                      onChange={(e) => setProfileData((prev) => ({ ...prev, name: e.target.value }))}
-                      disabled={!isEditing}
-                      className="pl-10 backdrop-blur-xl bg-white/60 dark:bg-slate-800/60 border-0 shadow-lg shadow-black/5 dark:shadow-black/20"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email Address</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <Input
-                      id="email"
-                      value={profileData.email}
-                      onChange={(e) => setProfileData((prev) => ({ ...prev, email: e.target.value }))}
-                      disabled={!isEditing}
-                      className="pl-10 backdrop-blur-xl bg-white/60 dark:bg-slate-800/60 border-0 shadow-lg shadow-black/5 dark:shadow-black/20"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <Input
-                      id="phone"
-                      value={profileData.phone}
-                      onChange={(e) => setProfileData((prev) => ({ ...prev, phone: e.target.value }))}
-                      disabled={!isEditing}
-                      className="pl-10 backdrop-blur-xl bg-white/60 dark:bg-slate-800/60 border-0 shadow-lg shadow-black/5 dark:shadow-black/20"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="nic">NIC Number</Label>
-                  <Input
-                    id="nic"
-                    value={profileData.nic}
-                    disabled
-                    className="backdrop-blur-xl bg-gray-100/60 dark:bg-gray-800/60 border-0 shadow-lg shadow-black/5 dark:shadow-black/20 cursor-not-allowed"
-                  />
-                  <p className="text-xs text-gray-500">NIC cannot be changed</p>
-                </div>
-
-                <div className="md:col-span-2 space-y-2">
-                  <Label htmlFor="address">Current Address</Label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                    <Textarea
-                      id="address"
-                      value={profileData.address}
-                      disabled
-                      className="pl-10 backdrop-blur-xl bg-gray-100/60 dark:bg-gray-800/60 border-0 shadow-lg shadow-black/5 dark:shadow-black/20 cursor-not-allowed resize-none"
-                      rows={3}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs text-gray-500">Address changes require admin approval</p>
-                    <Button
-                      onClick={() => setShowAddressChange(true)}
-                      size="sm"
-                      variant="outline"
-                      className="backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-0 shadow-lg shadow-black/5 dark:shadow-black/20"
-                    >
-                      Request Address Change
-                    </Button>
-                  </div>
-                </div>
+              <div className="mt-6 grid grid-cols-1 gap-3 text-sm">
+                <InfoRow label="Renews on" value={formatDate(subscription.renewsOn)} />
+                <InfoRow label="Payment" value={`•••• •••• •••• ${subscription.paymentMethodLast4}`} />
+                <InfoRow label="Member since" value={formatDate(user.joinedAt)} />
               </div>
 
-              {/* Save Button */}
-              {isEditing && (
-                <div className="flex justify-end">
-                  <Button
-                    onClick={handleSaveProfile}
-                    className="bg-gray-600 hover:bg-gray-700 shadow-lg shadow-gray-600/20"
-                  >
-                    <Save className="h-4 w-4 mr-2" />
-                    Save Changes
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Address Change Requests */}
-        {pendingRequests.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.6 }}
-          >
-            <Card className="backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-0 shadow-lg shadow-black/5 dark:shadow-black/20">
-              <CardHeader>
-                <CardTitle className="text-xl font-semibold">Address Change Requests</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {pendingRequests.map((request) => (
-                  <div
-                    key={request.id}
-                    className="p-4 backdrop-blur-xl bg-white/50 dark:bg-slate-800/50 rounded-lg border border-white/20 dark:border-slate-700/20"
-                  >
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-2">
-                          <Badge className="bg-gray-200 text-gray-900 dark:bg-gray-800/30 dark:text-gray-200">
-                            {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
-                          </Badge>
-                          <span className="text-sm text-gray-500">Submitted: {request.submittedDate}</span>
-                        </div>
-                        <div className="space-y-2 text-sm">
-                          <div>
-                            <strong>From:</strong> {request.currentAddress}
-                          </div>
-                          <div>
-                            <strong>To:</strong> {request.newAddress}
-                          </div>
-                          <div>
-                            <strong>Reason:</strong> {request.reason}
-                          </div>
-                          <div>
-                            <strong>Documents:</strong> {request.documents.length} file(s) uploaded
-                          </div>
-                        </div>
-                      </div>
-                      <AlertCircle className="h-5 w-5 text-gray-400 mt-1" />
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
-
-        {/* Address Change Modal */}
-        {showAddressChange && (
-          <motion.div
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-          >
-            <motion.div
-              className="w-full max-w-2xl backdrop-blur-xl bg-white/90 dark:bg-slate-900/90 rounded-2xl shadow-2xl"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.3 }}
-            >
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">Request Address Change</h2>
-                  <Button onClick={() => setShowAddressChange(false)} variant="ghost" size="sm">
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="currentAddress">Current Address</Label>
-                    <Textarea
-                      id="currentAddress"
-                      value={profileData.address}
-                      disabled
-                      className="backdrop-blur-xl bg-gray-100/60 dark:bg-gray-800/60 border-0 shadow-lg shadow-black/5 dark:shadow-black/20 cursor-not-allowed resize-none"
-                      rows={2}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="newAddress">New Address *</Label>
-                    <Textarea
-                      id="newAddress"
-                      value={addressChangeData.newAddress}
-                      onChange={(e) => setAddressChangeData((prev) => ({ ...prev, newAddress: e.target.value }))}
-                      placeholder="Enter your new address..."
-                      className="backdrop-blur-xl bg-white/60 dark:bg-slate-800/60 border-0 shadow-lg shadow-black/5 dark:shadow-black/20 resize-none"
-                      rows={3}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="reason">Reason for Change *</Label>
-                    <Textarea
-                      id="reason"
-                      value={addressChangeData.reason}
-                      onChange={(e) => setAddressChangeData((prev) => ({ ...prev, reason: e.target.value }))}
-                      placeholder="Explain why you need to change your address..."
-                      className="backdrop-blur-xl bg-white/60 dark:bg-slate-800/60 border-0 shadow-lg shadow-black/5 dark:shadow-black/20 resize-none"
-                      rows={3}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Supporting Documents *</Label>
-                    <div className="space-y-3">
-                      <div className="flex items-center space-x-2">
-                        <input
-                          type="file"
-                          multiple
-                          accept=".pdf,.jpg,.jpeg,.png"
-                          onChange={handleFileUpload}
-                          className="hidden"
-                          id="documents"
-                        />
-                        <Button
-                          onClick={() => document.getElementById("documents")?.click()}
-                          variant="outline"
-                          className="backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-0 shadow-lg shadow-black/5 dark:shadow-black/20"
-                        >
-                          <Upload className="h-4 w-4 mr-2" />
-                          Upload Documents
-                        </Button>
-                        <span className="text-sm text-gray-500">PDF, JPG, PNG (Max 5MB each)</span>
-                      </div>
-
-                      {addressChangeData.documents.length > 0 && (
-                        <div className="space-y-2">
-                          {addressChangeData.documents.map((file, index) => (
-                            <div
-                              key={index}
-                              className="flex items-center justify-between p-2 backdrop-blur-xl bg-white/50 dark:bg-slate-800/50 rounded-lg"
-                            >
-                              <div className="flex items-center space-x-2">
-                                <FileText className="h-4 w-4 text-gray-400" />
-                                <span className="text-sm">{file.name}</span>
-                                <span className="text-xs text-gray-500">
-                                  ({(file.size / 1024 / 1024).toFixed(2)} MB)
-                                </span>
-                              </div>
-                              <Button onClick={() => removeDocument(index)} variant="ghost" size="sm">
-                                <X className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    <p className="text-xs text-gray-500">
-                      Required documents: Utility bill, lease agreement, employment letter, or other proof of residence
-                    </p>
-                  </div>
-
-                  <div className="flex justify-end space-x-3">
-                    <Button
-                      onClick={() => setShowAddressChange(false)}
-                      variant="outline"
-                      className="backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-0 shadow-lg shadow-black/5 dark:shadow-black/20"
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      onClick={handleAddressChangeSubmit}
-                      disabled={
-                        !addressChangeData.newAddress ||
-                        !addressChangeData.reason ||
-                        addressChangeData.documents.length === 0
-                      }
-                      className="bg-gray-600 hover:bg-gray-700 shadow-lg shadow-gray-600/20"
-                    >
-                      Submit Request
-                    </Button>
-                  </div>
-                </div>
+              <div className="mt-6 flex flex-wrap gap-2">
+                <button className="inline-flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-sm hover:bg-emerald-500/15 transition">
+                  Manage plan <ChevronRight className="h-4 w-4" />
+                </button>
+                <button className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-sm hover:bg-white/10 transition">
+                  Billing history
+                </button>
               </div>
-            </motion.div>
-          </motion.div>
-        )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Recent Activity */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-16">
+        <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-zinc-900 to-zinc-800 p-6 sm:p-8">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold">Continue reading</h3>
+            <button className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-sm hover:bg-white/10 transition">
+              View library
+            </button>
+          </div>
+
+          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {recent.map((b) => (
+              <article key={b.id} className="group overflow-hidden rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition">
+                <div className="aspect-[16/9] w-full flex items-center justify-center bg-zinc-800">
+                  <Book className="h-10 w-10 text-zinc-400" />
+                </div>
+                <div className="p-4">
+                  <h4 className="font-medium leading-tight line-clamp-1">{b.title}</h4>
+                  <p className="mt-1 text-sm text-zinc-400 line-clamp-1">{b.author}</p>
+                  <div className="mt-3 flex items-center justify-between">
+                    <Progress value={b.progress} />
+                    <span className="text-xs text-zinc-400">{b.lastOpened}</span>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="pb-10">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center text-xs text-zinc-500">
+          © {new Date().getFullYear()} Nalandaa · Read more, every day.
+        </div>
+      </footer>
+    </main>
+  );
+}
+
+function getSubAccent(status: SubStatus): string {
+  switch (status) {
+    case "active":
+      return "bg-emerald-500/15 text-emerald-500 ring-1 ring-emerald-500/20";
+    case "past_due":
+      return "bg-amber-500/15 text-amber-500 ring-1 ring-amber-500/20";
+    case "trialing":
+      return "bg-sky-500/15 text-sky-500 ring-1 ring-sky-500/20";
+    default:
+      return "bg-rose-500/15 text-rose-500 ring-1 ring-rose-500/20";
+  }
+}
+
+function StatTile({
+  icon, label, value,
+}: { icon: React.ReactNode; label: string; value: React.ReactNode }) {
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-3">
+      <div className="absolute -right-6 -top-6 h-16 w-16 rounded-full bg-white/5 blur-xl" />
+      <div className="flex items-center gap-2 text-zinc-300">
+        <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-zinc-800 ring-1 ring-white/10">
+          {icon}
+        </span>
+        <span className="text-xs">{label}</span>
       </div>
+      <div className="mt-2 text-xl font-semibold tracking-tight">{value}</div>
     </div>
-  )
+  );
+}
+
+function InfoRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-white/5 px-3 py-2">
+      <span className="text-zinc-400">{label}</span>
+      <span className="font-medium">{value}</span>
+    </div>
+  );
+}
+
+function Progress({ value }: { value: number }) {
+  return (
+    <div className="flex items-center gap-2">
+      <div className="h-2 w-28 rounded-full bg-zinc-700">
+        <div style={{ width: `${Math.max(0, Math.min(100, value))}%` }} className="h-2 rounded-full bg-gradient-to-r from-amber-400 to-rose-500" />
+      </div>
+      <span className="text-xs text-zinc-400 tabular-nums">{value}%</span>
+    </div>
+  );
+}
+
+function formatDate(iso: string) {
+  try {
+    return new Date(iso).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "2-digit" });
+  } catch {
+    return iso;
+  }
 }
