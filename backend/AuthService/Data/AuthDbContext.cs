@@ -31,6 +31,22 @@ namespace AuthService.Data
                     "CK_User_Subscription",
                     $"[Subscription] IN ('{SubscriptionStatus.Free}', '{SubscriptionStatus.Premium}', '{SubscriptionStatus.Author}')"
                 ));
+
+                // Login constraint: either GoogleId or PasswordHash must be non-null
+                entity.ToTable(tb => tb.HasCheckConstraint(
+                    "CK_User_Login",
+                    "([GoogleId] IS NOT NULL OR [PasswordHash] IS NOT NULL)"
+                ));
+
+            });
+
+            modelBuilder.Entity<UserProfile>(entity =>
+            {
+                // One-to-one relationship with User
+                entity.HasOne(up => up.User)
+                      .WithOne(u => u.Profile)
+                      .HasForeignKey<UserProfile>(up => up.UserId)
+                      .OnDelete(DeleteBehavior.Cascade); // if user is deleted, profile also goes
             });
         }
     }

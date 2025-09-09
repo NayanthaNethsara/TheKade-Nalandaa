@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace AuthService.Models
@@ -7,8 +8,9 @@ namespace AuthService.Models
         [Key]
         public int Id { get; set; }
 
-        [Required, MaxLength(100)]
-        public string GoogleId { get; set; } = null!; // Google OAuth unique ID
+        // Optional now — Google-only users will have a value, local accounts may have null
+        [MaxLength(100)]
+        public string? GoogleId { get; set; }
 
         [Required, EmailAddress, MaxLength(255)]
         public string Email { get; set; } = null!;
@@ -22,9 +24,14 @@ namespace AuthService.Models
         [Required, MaxLength(20)]
         public string Subscription { get; set; } = SubscriptionStatus.Free; // default
 
+        // Nullable: for Google-only users this will be null.
+        // For local accounts store hashed password (e.g. using IPasswordHasher<T>).
+        [MaxLength(512)]
+        public string? PasswordHash { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        // Navigation
+        // navigation to detailed profile (optional)
         public UserProfile? Profile { get; set; }
     }
 }
