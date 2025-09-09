@@ -3,13 +3,14 @@ export interface LoginRequest {
   password: string;
 }
 
-export interface AuthResponse {
-  accessToken: string;
-  refreshToken: string;
+export interface JWTPayload {
+  subscription: string;
+  role: "Reader" | "Author" | "Admin";
+  exp: number;
 }
 
-export interface JWTPayload {
-  sub: string;
-  role: "ADMIN" | "CITIZEN";
+export interface DecodedJWT {
+  subscription: string;
+  role: string;
   exp: number;
 }
