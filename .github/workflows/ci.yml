@@ -19,7 +19,7 @@ permissions:
   packages: write
 
 jobs:
-  # 1️⃣ Build & Test job
+  # Build & Test job
   build-and-test:
     runs-on: ubuntu-latest
     steps:
@@ -40,9 +40,9 @@ jobs:
       - name: Run Tests
         run: dotnet test ./backend/AuthService.Tests/AuthService.Tests.csproj --no-build --verbosity normal
 
-  # 2️⃣ Build Docker & Push to GHCR
+  # 2️ Build Docker & Push to GHCR
   docker-build-and-push:
-    if: github.event_name == 'push' # ✅ Only run on push
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     needs: build-and-test
     steps:
@@ -67,9 +67,9 @@ jobs:
           context: ./backend/AuthService
           file: ./backend/AuthService/Dockerfile
 
-  # 3️⃣ Deploy to Azure
+  # Deploy to Azure
   deploy:
-    if: github.event_name == 'push' # ✅ Only run on push
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     needs: docker-build-and-push
     steps:
