@@ -2,14 +2,63 @@ import { type NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
-    const apiUrl = process.env.API_BASE_URL;
-
-    console.log("API Base URL:", apiUrl);
+    const API_BASE_URL = process.env.AUTH_API_BASE_URL;
     const body = await request.json();
-    const { username, password, email, phone, role } = body;
 
-    // Validate required fields
-    if (!username || !password || !email || !phone || !role) {
+    const { password, email, phone, role, name, nic } = body;
+
+    console.log(password, email, phone, role, name, nic);
+
+    // Handle Reader registration (new format)
+    if (role === "READER") {
+      // Validate required fields for Reader
+      if (!email || !name || !password) {
+        return NextResponse.json(
+          { error: "Email, name, and password are required" },
+          { status: 400 }
+        );
+      }
+
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return NextResponse.json(
+          { error: "Invalid email format" },
+          { status: 400 }
+        );
+      }
+
+      console.log("Registering reader:", { email, name });
+
+      const backendResponse = await fetch(`${API_BASE_URL}/api/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          name,
+          password,
+        }),
+      });
+
+      const data = await backendResponse.json();
+
+      if (!backendResponse.ok) {
+        return NextResponse.json(
+          { error: data.message || "Reader registration failed" },
+          { status: backendResponse.status }
+        );
+      }
+
+      return NextResponse.json(
+        { message: "Reader registered successfully", user: data.user },
+        { status: 201 }
+      );
+    }
+
+    // Handle existing Author registration (legacy format)
+    if (!password || !email || !phone || !role || !name || !nic) {
       return NextResponse.json(
         { error: "All fields are required" },
         { status: 400 }
@@ -34,24 +83,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate role
-    if (!["ADMIN", "CITIZEN"].includes(role)) {
-      return NextResponse.json({ error: "Invalid role" }, { status: 400 });
-    }
-
     const backendResponse = await fetch(
-      `${process.env.API_BASE_URL}/api/auth/register`,
+      `${API_BASE_URL}/api/auth/register-author`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          username,
+          name,
           password,
           email,
           phone,
-          role,
+          nic,
         }),
       }
     );

@@ -77,9 +77,7 @@ export default function Register() {
     setIsLoading(true);
 
     try {
-      const endpoint = isAuthor
-        ? "/api/auth/register-author"
-        : "/api/auth/register";
+      const endpoint = "/api/auth/register";
       const payload = isAuthor
         ? {
             email: formData.email,
@@ -87,11 +85,13 @@ export default function Register() {
             password: formData.password,
             nic: formData.nic,
             phone: formData.phone,
+            role: "AUTHOR",
           }
         : {
             email: formData.email,
             name: formData.name,
             password: formData.password,
+            role: "READER",
           };
 
       const response = await fetch(endpoint, {
