@@ -81,6 +81,9 @@ public class AuthServiceImpl : IAuthService
             throw new Exception("Invalid credentials");
         }
 
+        if (!user.Active)
+            throw new Exception("Account is inactive. Please contact support.");
+
         return new AuthResponseDto(_jwt.GenerateToken(user));
     }
 
@@ -101,7 +104,8 @@ public class AuthServiceImpl : IAuthService
             Name = dto.Name,
             PasswordHash = PasswordHelper.HashPassword(dto.Password),
             Role = Roles.Author,
-            Subscription = SubscriptionStatus.Author
+            Subscription = SubscriptionStatus.Author,
+            Active = false // Authors need admin approval
         };
 
         _db.Users.Add(user);
