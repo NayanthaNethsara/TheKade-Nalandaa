@@ -6,14 +6,16 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { Eye, EyeOff, Lock, User, AlertCircle } from "lucide-react";
-import Image from "next/image";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import AuthRightPanel from "@/components/auth/auth-right-panel";
+import AuthFooter from "@/components/auth/auth-footer";
+import AuthHeader from "@/components/auth/auth-header";
 
 export default function Login() {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -26,8 +28,8 @@ export default function Login() {
 
     setError(null);
 
-    if (!username.trim()) {
-      setError("Username is required");
+    if (!email.trim()) {
+      setError("Email is required");
       return;
     }
 
@@ -40,13 +42,13 @@ export default function Login() {
 
     try {
       const result = await signIn("credentials", {
-        username,
+        email,
         password,
         redirect: false,
       });
 
       if (result?.error) {
-        setError("Invalid username or password");
+        setError("Invalid email or password");
       } else {
         router.push("/dashboard");
       }
@@ -101,29 +103,7 @@ export default function Login() {
           <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/5 to-gray-50/20 dark:from-transparent dark:via-gray-800/5 dark:to-gray-950/20 pointer-events-none" />
 
           <div className="relative z-10">
-            <motion.div
-              className="mb-8"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-            >
-              <h2 className="text-2xl font-black bg-gradient-to-r from-gray-800 to-gray-600 dark:from-gray-200 dark:to-gray-400 bg-clip-text text-transparent">
-                Nalandaa - TheKade
-              </h2>
-              <div className="h-1 w-16 bg-gradient-to-r from-gray-600 to-gray-500 rounded-full mt-2" />
-            </motion.div>
-
-            <motion.div
-              className="mb-8"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              <p className="text-gray-600 dark:text-gray-300 text-base leading-relaxed">
-                Access your favorite books anytime, anywhere. Discover, read,
-                and enjoy a world of stories in one place.
-              </p>
-            </motion.div>
+            <AuthHeader />
 
             {/* Error message display */}
             {error && (
@@ -221,31 +201,31 @@ export default function Login() {
                 transition={{ delay: 0.6 }}
               >
                 <Label
-                  htmlFor="username"
+                  htmlFor="email"
                   className="text-sm font-semibold text-gray-700 dark:text-gray-200"
                 >
-                  Username
+                  Email
                 </Label>
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-gray-400 dark:text-gray-500 group-focus-within:text-gray-600 dark:group-focus-within:text-gray-300 transition-colors">
                     <User className="h-5 w-5" />
                   </div>
                   <Input
-                    id="username"
-                    type="text"
-                    placeholder="Enter your username"
+                    id="email"
+                    type="email"
+                    placeholder="Enter your Email"
                     required
-                    value={username}
+                    value={email}
                     onChange={(e) => {
-                      setUsername(e.target.value);
+                      setEmail(e.target.value);
                       if (error) setError(null);
                     }}
                     className={`pl-12 h-14 backdrop-blur-sm bg-white/60 dark:bg-gray-800/60 border-2 ${
-                      error && !username.trim()
+                      error && !email.trim()
                         ? "border-red-300 dark:border-red-700 focus-visible:ring-red-500/20"
                         : "border-gray-200/50 dark:border-gray-700/50 focus-visible:ring-gray-500/20 focus-visible:border-gray-400"
                     } text-gray-900 dark:text-gray-100 rounded-2xl focus-visible:ring-4 focus-visible:ring-offset-0 shadow-lg shadow-gray-200/20 dark:shadow-gray-950/20 transition-all duration-200 hover:shadow-xl hover:shadow-gray-200/30 dark:hover:shadow-gray-950/30`}
-                    aria-invalid={error && !username.trim() ? "true" : "false"}
+                    aria-invalid={error && !email.trim() ? "true" : "false"}
                   />
                 </div>
               </motion.div>
@@ -371,115 +351,11 @@ export default function Login() {
                 </Link>
               </p>
             </motion.div>
-            {/* <motion.div
-              className="mt-10 pt-8 border-t border-gray-200/30 dark:border-gray-700/30"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.8 }}
-            >
-              <div className="flex items-center justify-between">
-                <motion.div
-                  className="flex items-center space-x-3 backdrop-blur-sm bg-white/40 dark:bg-gray-800/40 px-4 py-2 rounded-full border border-white/20 dark:border-gray-700/20 shadow-lg shadow-gray-200/20 dark:shadow-gray-950/20"
-                  initial={{ x: -20, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ delay: 0.9, type: "spring", stiffness: 200 }}
-                >
-                  <ThemeToggle />
-                  <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                    Theme
-                  </span>
-                </motion.div>
-
-                <motion.div
-                  className="flex items-center space-x-6"
-                  initial={{ x: 20, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ delay: 1.0, type: "spring", stiffness: 200 }}
-                >
-                  <a
-                    href="/help"
-                    className="flex items-center space-x-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 transition-colors group"
-                  >
-                    <HelpCircle className="h-4 w-4 group-hover:scale-110 transition-transform" />
-                    <span>Help</span>
-                  </a>
-                  <a
-                    href="tel:+94112345678"
-                    className="flex items-center space-x-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 transition-colors group"
-                  >
-                    <Phone className="h-4 w-4 group-hover:scale-110 transition-transform" />
-                    <span>Support</span>
-                  </a>
-                  <a
-                    href="mailto:support@nopolin.lk"
-                    className="flex items-center space-x-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 transition-colors group"
-                  >
-                    <Mail className="h-4 w-4 group-hover:scale-110 transition-transform" />
-                    <span>Contact</span>
-                  </a>
-                </motion.div>
-              </div>
-            </motion.div> */}
+            <AuthFooter />
           </div>
         </motion.div>
 
-        {/* Right Panel - Background Image */}
-        <motion.div
-          className="relative hidden lg:block"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8 }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-gray-900/40 via-gray-800/30 to-gray-700/40 backdrop-blur-[1px] z-10"></div>
-
-          {/* Background image */}
-          <Image
-            src="/login/girl-reading-book.jpg"
-            alt="Login background"
-            fill
-            className="object-cover object-center z-0"
-            priority
-          />
-
-          {/* Foreground content */}
-          <div className="absolute inset-0 flex flex-col justify-between z-20 p-12">
-            <motion.div
-              className="space-y-6"
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.8 }}
-            >
-              <h2 className="text-3xl font-bold text-white drop-shadow-2xl">
-                A Universe of Books, One Click Away
-              </h2>
-            </motion.div>
-
-            <motion.div
-              className="space-y-6"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7, duration: 0.8 }}
-            >
-              <motion.div
-                className="flex"
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.9, type: "spring" }}
-              >
-                <div className="inline-flex items-center px-8 py-3 rounded-full backdrop-blur-md bg-white/20 text-white border border-white/30 shadow-xl shadow-gray-900/20">
-                  <span className="text-sm font-semibold">
-                    Your Personal Library
-                  </span>
-                </div>
-              </motion.div>
-
-              <p className="text-white text-base drop-shadow-lg leading-relaxed max-w-md">
-                Discover, read, and enjoy thousands of e-books anytime, anywhere
-                — your personal library in the cloud.
-              </p>
-            </motion.div>
-          </div>
-        </motion.div>
+        <AuthRightPanel />
       </motion.div>
     </div>
   );

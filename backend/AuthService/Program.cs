@@ -1,6 +1,6 @@
 using AuthService.Configurations;
 using DotNetEnv;
-
+using AuthService.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +24,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+
 // Middleware
 app.UseSwagger();
 app.UseSwaggerUI();
@@ -37,5 +38,12 @@ app.UseHttpsRedirection();
 app.MapControllers();
 
 app.MapGet("/", () => "Auth Service is running...");
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
+    await DbSeeder.SeedAdminAsync(db);
+}
+
 
 app.Run();

@@ -36,5 +36,8 @@ namespace AuthService.Models
 
         // navigation to detailed profile (optional)
         public UserProfile? Profile { get; set; }
+
+        [Required]
+        public bool Active { get; set; } = true; // default
     }
 }
