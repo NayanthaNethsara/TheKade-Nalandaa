@@ -125,7 +125,7 @@ export function AppSidebar() {
             >
               <Link href="/dashboard" className="flex items-center gap-2">
                 <span className="text-2xl font-black text-gray-800 dark:text-gray-200">
-                  NoPolin HUB
+                  The Kade Nalanda
                 </span>
               </Link>
             </SidebarMenuButton>
