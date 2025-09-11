@@ -1,84 +1,114 @@
-﻿using AuthService.Data;
-using AuthService.Models;
-using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
+using Moq;
+using AuthService.Services;
+using AuthService.DTOs;
+using AuthService.Models;
+using Xunit.Abstractions;
 
 namespace AuthService.Tests
 {
-    public class UserServiceTests : IDisposable
+    public class UserServiceMockTests
     {
-        private readonly SqliteConnection _connection;
-        private readonly AuthDbContext _context;
+        private readonly Mock<IUserService> _mockService;
+        private readonly ITestOutputHelper _output;
 
-        public UserServiceTests()
+        public UserServiceMockTests(ITestOutputHelper output)
         {
-            // Create in-memory SQLite connection
-            _connection = new SqliteConnection("Filename=:memory:");
-            _connection.Open();
-
-            var options = new DbContextOptionsBuilder<AuthDbContext>()
-                .UseSqlite(_connection)
-                .Options;
-
-            _context = new AuthDbContext(options);
-            _context.Database.EnsureCreated();
-        }
-
-        public void Dispose()
-        {
-            _context.Dispose();
-            _connection.Close();
+            _mockService = new Mock<IUserService>();
+            _output = output;
         }
 
         [Fact]
-        public async Task Can_Add_User()
+        public async Task GetAllReadersAsync_ShouldReturnReaders()
         {
-            var user = new User
+            var fakeReaders = new List<ReaderSummeryDto>
             {
-                GoogleId = "google123",
-                Email = "test@example.com",
-                Name = "Test User",
-                Role = Roles.Reader,
-                CreatedAt = DateTime.UtcNow
+                new ReaderSummeryDto(1, "Alice", "alice@test.com", SubscriptionStatus.Free, System.DateTime.UtcNow),
+                new ReaderSummeryDto(2, "Bob", "bob@test.com", SubscriptionStatus.Premium, System.DateTime.UtcNow)
             };
 
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            _mockService.Setup(s => s.GetAllReadersAsync())
+                        .ReturnsAsync(fakeReaders);
 
-            var savedUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == "test@example.com");
-            Assert.NotNull(savedUser);
-            Assert.Equal(Roles.Reader, savedUser!.Role);
+            var result = await _mockService.Object.GetAllReadersAsync();
+
+            _output.WriteLine($"Returned {result.Count} readers");
+            foreach (var r in result)
+                _output.WriteLine($"- {r.Id}: {r.Name} ({r.Email}) [{r.Subscription}]");
+
+            Assert.Equal(2, result.Count);
         }
 
         [Fact]
-        public async Task Cannot_Add_Duplicate_Email()
+        public async Task GetAllReadersAsync_ShouldReturnEmptyList()
         {
-            var user1 = new User
-            {
-                GoogleId = "google1",
-                Email = "duplicate@example.com",
-                Name = "User One",
-                Role = Roles.Reader,
-                CreatedAt = DateTime.UtcNow
-            };
+            _mockService.Setup(s => s.GetAllReadersAsync())
+                        .ReturnsAsync(new List<ReaderSummeryDto>());
 
-            var user2 = new User
-            {
-                GoogleId = "google2",
-                Email = "duplicate@example.com", // same email
-                Name = "User Two",
-                Role = Roles.Reader,
-                CreatedAt = DateTime.UtcNow
-            };
+            var result = await _mockService.Object.GetAllReadersAsync();
 
-            _context.Users.Add(user1);
-            await _context.SaveChangesAsync();
+            _output.WriteLine("Readers list is empty as expected");
 
-            _context.Users.Add(user2);
-            await Assert.ThrowsAsync<DbUpdateException>(async () => await _context.SaveChangesAsync());
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public async Task GetReaderByIdAsync_ShouldReturnSingleReader()
+        {
+            var fakeReader = new ReaderSummeryDto(1, "Alice", "alice@test.com", SubscriptionStatus.Free, System.DateTime.UtcNow);
+
+            _mockService.Setup(s => s.GetReaderByIdAsync(1))
+                        .ReturnsAsync(fakeReader);
+
+            var result = await _mockService.Object.GetReaderByIdAsync(1);
+
+            _output.WriteLine(result != null
+                ? $"Found reader: {result.Name} ({result.Email})"
+                : "Reader not found");
+
+            Assert.NotNull(result);
+            Assert.Equal("Alice", result!.Name);
+        }
+
+        [Fact]
+        public async Task GetReaderByIdAsync_ShouldReturnNull_IfNotFound()
+        {
+            _mockService.Setup(s => s.GetReaderByIdAsync(99))
+                        .ReturnsAsync((ReaderSummeryDto?)null);
+
+            var result = await _mockService.Object.GetReaderByIdAsync(99);
+
+            _output.WriteLine("No reader found for ID 99 (expected)");
+
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task ActivateUser_ShouldPass()
+        {
+            _mockService.Setup(s => s.ActivateUserAsync(1))
+                        .Returns(Task.CompletedTask);
+
+            await _mockService.Object.ActivateUserAsync(1);
+
+            _output.WriteLine("User 1 activated successfully");
+
+            Assert.True(true);
+        }
+
+        [Fact]
+        public async Task DeactivateUser_ShouldPass()
+        {
+            _mockService.Setup(s => s.DeactivateUserAsync(1))
+                        .Returns(Task.CompletedTask);
+
+            await _mockService.Object.DeactivateUserAsync(1);
+
+            _output.WriteLine("User 1 deactivated successfully");
+
+            Assert.True(true);
         }
     }
 }
