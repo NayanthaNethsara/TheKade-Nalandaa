@@ -8,8 +8,10 @@ namespace AuthService.Configurations
     {
         public static IServiceCollection AddAppServices(this IServiceCollection services)
         {
-            // Register your business/service layer
+            // Business/service layer
             services.AddScoped<IAuthService, AuthServiceImpl>();
+
+            services.AddScoped<IUserService, UserService>();
 
             // Helpers
             services.AddScoped<JwtService>();

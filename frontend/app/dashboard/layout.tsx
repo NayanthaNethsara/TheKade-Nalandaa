@@ -68,7 +68,7 @@ export default function DashboardLayout({
               </Breadcrumb>
             </div>
           </header>
-          <main className="flex-1 overflow-auto">{children}</main>
+          <main className="flex-1 p-4">{children}</main>
         </SidebarInset>
       </SidebarProvider>
     </SessionProvider>

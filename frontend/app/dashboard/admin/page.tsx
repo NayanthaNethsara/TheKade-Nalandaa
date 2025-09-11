@@ -55,7 +55,7 @@ const subscriptionColors = {
     "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300",
 };
 
-export default function AdminDashboard() {
+export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
