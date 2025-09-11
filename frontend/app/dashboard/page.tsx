@@ -31,7 +31,7 @@ export default function Dashboard() {
     return null;
   }
 
-  return session.user.role === "ADMIN" ? (
+  return session.user.role === "Admin" ? (
     <AdminDashboard />
   ) : (
     <CitizenDashboard />

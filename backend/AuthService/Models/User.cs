@@ -39,5 +39,8 @@ namespace AuthService.Models
 
         [Required]
         public bool Active { get; set; } = true; // default
+
+        // Profile picture URL (optional)
+        public string? ProfilePictureUrl { get; set; }
     }
 }
