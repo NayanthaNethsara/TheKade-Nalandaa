@@ -1,525 +1,431 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import {
-  Calendar,
-  Clock,
-  Users,
-  MapPin,
-  Plus,
   Search,
-  Bus,
-  Settings,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
+  Users,
+  Eye,
+  Mail,
+  Calendar,
+  Download,
+  MoreHorizontal,
+  BookOpen,
+  PenTool,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-interface Appointment {
+export type User = {
   id: string;
-  service: string;
-  location: string;
-  date: string;
-  time: string;
-  status: "pending" | "confirmed" | "completed" | "cancelled";
-  queuePosition?: number;
-  estimatedWait?: string;
-  type: "transport" | "government" | "healthcare" | "education";
-  userName: string;
-  userEmail: string;
-}
-
-interface AddressChangeRequest {
-  id: string;
-  userName: string;
-  userEmail: string;
-  currentAddress: string;
-  newAddress: string;
-  reason: string;
-  documents: string[];
-  status: "pending" | "approved" | "rejected";
-  submittedDate: string;
-}
-
-const mockAppointments: Appointment[] = [
-  {
-    id: "1",
-    service: "Bus Ticket - Colombo to Kandy",
-    location: "Pettah Bus Station",
-    date: "2024-01-15",
-    time: "09:00",
-    status: "confirmed",
-    queuePosition: 3,
-    estimatedWait: "15 mins",
-    type: "transport",
-    userName: "John Citizen",
-    userEmail: "john@example.com",
-  },
-  {
-    id: "2",
-    service: "Passport Application",
-    location: "Immigration Office - Colombo",
-    date: "2024-01-16",
-    time: "14:30",
-    status: "pending",
-    queuePosition: 12,
-    estimatedWait: "45 mins",
-    type: "government",
-    userName: "Jane Smith",
-    userEmail: "jane@example.com",
-  },
-  {
-    id: "3",
-    service: "Medical Consultation",
-    location: "National Hospital",
-    date: "2024-01-17",
-    time: "11:00",
-    status: "confirmed",
-    queuePosition: 5,
-    estimatedWait: "25 mins",
-    type: "healthcare",
-    userName: "Bob Wilson",
-    userEmail: "bob@example.com",
-  },
-];
-
-const mockAddressRequests: AddressChangeRequest[] = [
-  {
-    id: "1",
-    userName: "John Citizen",
-    userEmail: "john@example.com",
-    currentAddress: "123 Main St, Colombo",
-    newAddress: "456 New St, Kandy",
-    reason: "Job relocation",
-    documents: ["employment_letter.pdf", "lease_agreement.pdf"],
-    status: "pending",
-    submittedDate: "2024-01-10",
-  },
-  {
-    id: "2",
-    userName: "Jane Smith",
-    userEmail: "jane@example.com",
-    currentAddress: "789 Old Rd, Galle",
-    newAddress: "321 Fresh Ave, Colombo",
-    reason: "Family reasons",
-    documents: ["family_certificate.pdf", "utility_bill.pdf"],
-    status: "pending",
-    submittedDate: "2024-01-12",
-  },
-];
-
-const serviceIcons = {
-  transport: Bus,
-  government: Users,
-  healthcare: Plus,
-  education: Users,
+  name: string;
+  email: string;
+  userType: "reader" | "author";
+  subscription?: string;
+  createdAt: string;
+  isActive: boolean;
 };
 
-const statusColors = {
-  pending: "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300",
-  confirmed: "bg-gray-200 text-gray-900 dark:bg-gray-800/30 dark:text-gray-200",
-  completed: "bg-gray-300 text-gray-900 dark:bg-gray-700/40 dark:text-gray-100",
-  cancelled: "bg-gray-400 text-gray-900 dark:bg-gray-600/50 dark:text-gray-100",
-  approved: "bg-gray-200 text-gray-900 dark:bg-gray-800/30 dark:text-gray-200",
-  rejected: "bg-gray-400 text-gray-900 dark:bg-gray-600/50 dark:text-gray-100",
+const subscriptionColors = {
+  free: "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300",
+  premium:
+    "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300",
 };
 
 export default function AdminDashboard() {
-  const [appointments, setAppointments] =
-    useState<Appointment[]>(mockAppointments);
-  const [addressRequests, setAddressRequests] =
-    useState<AddressChangeRequest[]>(mockAddressRequests);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedFilter, setSelectedFilter] = useState<string>("all");
-  const [activeTab, setActiveTab] = useState<"appointments" | "requests">(
-    "appointments"
-  );
+  const [activeTab, setActiveTab] = useState<string>("all");
+  const [subscriptionFilter] = useState<string>("all");
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [confirmAction, setConfirmAction] = useState<{
+    user: User;
+    type: "activate" | "deactivate";
+  } | null>(null);
 
-  const filteredAppointments = appointments.filter((appointment) => {
-    const matchesSearch =
-      appointment.service.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      appointment.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      appointment.userName.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter =
-      selectedFilter === "all" || appointment.type === selectedFilter;
-    return matchesSearch && matchesFilter;
-  });
+  useEffect(() => {
+    async function fetchUsers() {
+      try {
+        const res = await fetch("/api/admin/users/readers"); // update route if needed
+        const data = await res.json();
+        setUsers(Array.isArray(data) ? data : data.users || []);
+      } catch (err) {
+        console.error("Failed to fetch users", err);
+        setUsers([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchUsers();
+  }, []);
 
-  const handleApproveRequest = (requestId: string) => {
-    setAddressRequests((prev) =>
-      prev.map((req) =>
-        req.id === requestId ? { ...req, status: "approved" } : req
-      )
-    );
+  const filteredUsers = useMemo(() => {
+    return users.filter((user) => {
+      const matchesSearch =
+        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesUserType =
+        activeTab === "all" || user.userType === activeTab;
+      const matchesSubscription =
+        subscriptionFilter === "all" ||
+        (user.userType === "reader" &&
+          user.subscription === subscriptionFilter);
+      return matchesSearch && matchesUserType && matchesSubscription;
+    });
+  }, [users, searchTerm, activeTab, subscriptionFilter]);
+
+  const stats = useMemo(() => {
+    const readers = users.filter((u) => u.userType === "reader");
+    const authors = users.filter((u) => u.userType === "author");
+    return {
+      total: users.length,
+      readers: readers.length,
+      authors: authors.length,
+      freeReaders: readers.filter((r) => r.subscription === "free").length,
+      premiumReaders: readers.filter((r) => r.subscription === "premium")
+        .length,
+    };
+  }, [users]);
+
+  const handleExport = async (format: "csv" | "json") => {
+    try {
+      const dataStr =
+        format === "json"
+          ? JSON.stringify(filteredUsers, null, 2)
+          : [
+              "Name,Email,User Type,Subscription,Created At,Active",
+              ...filteredUsers.map(
+                (u) =>
+                  `${u.name},${u.email},${u.userType},${
+                    u.subscription || "N/A"
+                  },${u.createdAt},${u.isActive ? "Active" : "Inactive"}`
+              ),
+            ].join("\n");
+
+      const blob = new Blob([dataStr], {
+        type: format === "json" ? "application/json" : "text/csv",
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `users_export_${
+        new Date().toISOString().split("T")[0]
+      }.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Export failed:", error);
+    }
   };
 
-  const handleRejectRequest = (requestId: string) => {
-    setAddressRequests((prev) =>
-      prev.map((req) =>
-        req.id === requestId ? { ...req, status: "rejected" } : req
-      )
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="w-8 h-8 border-2 border-t-transparent border-gray-600 rounded-full animate-spin"></div>
+      </div>
     );
-  };
+  }
 
   return (
-    <div className="space-y-6">
-      {/* Admin Stats */}
+    <div>
       <motion.div
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ staggerChildren: 0.1, delayChildren: 0.2 }}
-      >
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.3 }}
-        >
-          <Card className="backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-0 shadow-lg shadow-black/5 dark:shadow-black/20 hover:shadow-xl hover:shadow-black/10 dark:hover:shadow-black/30 transition-all duration-300">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Total Appointments
-              </CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">247</div>
-              <p className="text-xs text-muted-foreground">
-                +12 from yesterday
-              </p>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.4 }}
-        >
-          <Card className="backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-0 shadow-lg shadow-black/5 dark:shadow-black/20 hover:shadow-xl hover:shadow-black/10 dark:hover:shadow-black/30 transition-all duration-300">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Pending Requests
-              </CardTitle>
-              <AlertCircle className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {
-                  addressRequests.filter((req) => req.status === "pending")
-                    .length
-                }
-              </div>
-              <p className="text-xs text-muted-foreground">Address changes</p>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.5 }}
-        >
-          <Card className="backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-0 shadow-lg shadow-black/5 dark:shadow-black/20 hover:shadow-xl hover:shadow-black/10 dark:hover:shadow-black/30 transition-all duration-300">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Active Users
-              </CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">1,234</div>
-              <p className="text-xs text-muted-foreground">+89 this week</p>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.6 }}
-        >
-          <Card className="backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-0 shadow-lg shadow-black/5 dark:shadow-black/20 hover:shadow-xl hover:shadow-black/10 dark:hover:shadow-black/30 transition-all duration-300">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                System Efficiency
-              </CardTitle>
-              <Settings className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">96%</div>
-              <p className="text-xs text-muted-foreground">+2% improvement</p>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </motion.div>
-
-      {/* Tab Navigation */}
-      <motion.div
-        className="flex space-x-4 border-b border-gray-200/30 dark:border-gray-700/30"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
+        transition={{ delay: 0.2 }}
       >
-        <button
-          onClick={() => setActiveTab("appointments")}
-          className={`pb-2 px-1 border-b-2 font-medium text-sm transition-colors ${
-            activeTab === "appointments"
-              ? "border-gray-600 text-gray-900 dark:text-gray-100"
-              : "border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-          }`}
-        >
-          All Appointments
-        </button>
-        <button
-          onClick={() => setActiveTab("requests")}
-          className={`pb-2 px-1 border-b-2 font-medium text-sm transition-colors ${
-            activeTab === "requests"
-              ? "border-gray-600 text-gray-900 dark:text-gray-100"
-              : "border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-          }`}
-        >
-          Address Change Requests (
-          {addressRequests.filter((req) => req.status === "pending").length})
-        </button>
+        <Card className="backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-0 shadow-lg">
+          <CardContent className="p-6 space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="space-y-1 mb-6"
+            >
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                User Management
+              </h1>
+              <p className="text-lg text-gray-600 dark:text-gray-400">
+                Manage readers and authors, monitor subscriptions, and track
+                user activity.
+              </p>
+            </motion.div>
+
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="relative flex-1">
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <Input
+                    placeholder="Search users..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-12 h-12"
+                  />
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={() => handleExport("csv")}
+                  className="h-12 px-6"
+                >
+                  <Download className="h-5 w-5 mr-2" /> Export CSV
+                </Button>
+              </div>
+
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsList className="grid w-full grid-cols-3 h-14">
+                  <TabsTrigger
+                    value="all"
+                    className="h-12 text-base font-medium"
+                  >
+                    <Users className="h-5 w-5 mr-2" /> All Users ({stats.total})
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="reader"
+                    className="h-12 text-base font-medium"
+                  >
+                    <BookOpen className="h-5 w-5 mr-2" /> Readers (
+                    {stats.readers})
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="author"
+                    className="h-12 text-base font-medium"
+                  >
+                    <PenTool className="h-5 w-5 mr-2" /> Authors (
+                    {stats.authors})
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsContent value="all" className="mt-0">
+                  <UserTable
+                    users={filteredUsers}
+                    setSelectedUser={setSelectedUser}
+                    setConfirmAction={setConfirmAction}
+                  />
+                </TabsContent>
+                <TabsContent value="reader" className="mt-0">
+                  <UserTable
+                    users={filteredUsers.filter((u) => u.userType === "reader")}
+                    setSelectedUser={setSelectedUser}
+                    setConfirmAction={setConfirmAction}
+                  />
+                </TabsContent>
+                <TabsContent value="author" className="mt-0">
+                  <UserTable
+                    users={filteredUsers.filter((u) => u.userType === "author")}
+                    setSelectedUser={setSelectedUser}
+                    setConfirmAction={setConfirmAction}
+                  />
+                </TabsContent>
+              </Tabs>
+            </div>
+          </CardContent>
+        </Card>
       </motion.div>
 
-      {activeTab === "appointments" && (
-        <>
-          {/* Search and Filter */}
-          <motion.div
-            className="flex flex-col sm:flex-row gap-4"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Search appointments or users..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-0 shadow-lg shadow-black/5 dark:shadow-black/20"
-              />
+      {/* View Details Dialog */}
+      <Dialog open={!!selectedUser} onOpenChange={() => setSelectedUser(null)}>
+        <DialogContent className="backdrop-blur-xl bg-white/90 dark:bg-slate-900/90 max-w-md">
+          <DialogHeader>
+            <DialogTitle>User Details</DialogTitle>
+          </DialogHeader>
+          {selectedUser && (
+            <div className="space-y-6">
+              <p>
+                <strong>Name:</strong> {selectedUser.name}
+              </p>
+              <p>
+                <strong>Email:</strong> {selectedUser.email}
+              </p>
+              <p>
+                <strong>Type:</strong> {selectedUser.userType}
+              </p>
+              {selectedUser.userType === "reader" && (
+                <p>
+                  <strong>Subscription:</strong>{" "}
+                  {selectedUser.subscription || "None"}
+                </p>
+              )}
+              <p>
+                <strong>Created:</strong>{" "}
+                {new Date(selectedUser.createdAt).toLocaleString()}
+              </p>
+              <p>
+                <strong>Status:</strong>{" "}
+                {selectedUser.isActive ? "Active" : "Inactive"}
+              </p>
             </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
-            <div className="flex gap-2">
-              <Button
-                variant={selectedFilter === "all" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedFilter("all")}
-                className={
-                  selectedFilter !== "all"
-                    ? "backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-0 shadow-lg shadow-black/5 dark:shadow-black/20"
-                    : ""
+      {/* Confirm Activate/Deactivate Dialog */}
+      <Dialog
+        open={!!confirmAction}
+        onOpenChange={() => setConfirmAction(null)}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {confirmAction?.type === "activate" ? "Activate" : "Deactivate"}{" "}
+              User
+            </DialogTitle>
+          </DialogHeader>
+          <p className="mt-2">
+            Are you sure you want to {confirmAction?.type} user{" "}
+            <strong>{confirmAction?.user.name}</strong>?
+          </p>
+          <div className="mt-4 flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setConfirmAction(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant={
+                confirmAction?.type === "activate" ? "default" : "destructive"
+              }
+              onClick={async () => {
+                if (!confirmAction) return;
+                try {
+                  const res = await fetch(
+                    `/api/users/${confirmAction.user.id}/${confirmAction.type}`,
+                    { method: "PATCH" }
+                  );
+                  if (!res.ok) throw new Error("Action failed");
+                  setUsers((prev) =>
+                    prev.map((u) =>
+                      u.id === confirmAction.user.id
+                        ? { ...u, isActive: confirmAction.type === "activate" }
+                        : u
+                    )
+                  );
+                  setConfirmAction(null);
+                } catch (error) {
+                  console.error(error);
                 }
-              >
-                All
-              </Button>
-              <Button
-                variant={selectedFilter === "transport" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedFilter("transport")}
-                className={
-                  selectedFilter !== "transport"
-                    ? "backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-0 shadow-lg shadow-black/5 dark:shadow-black/20"
-                    : ""
-                }
-              >
-                Transport
-              </Button>
-              <Button
-                variant={
-                  selectedFilter === "government" ? "default" : "outline"
-                }
-                size="sm"
-                onClick={() => setSelectedFilter("government")}
-                className={
-                  selectedFilter !== "government"
-                    ? "backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-0 shadow-lg shadow-black/5 dark:shadow-black/20"
-                    : ""
-                }
-              >
-                Government
-              </Button>
-              <Button
-                variant={
-                  selectedFilter === "healthcare" ? "default" : "outline"
-                }
-                size="sm"
-                onClick={() => setSelectedFilter("healthcare")}
-                className={
-                  selectedFilter !== "healthcare"
-                    ? "backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-0 shadow-lg shadow-black/5 dark:shadow-black/20"
-                    : ""
-                }
-              >
-                Healthcare
-              </Button>
-            </div>
-          </motion.div>
-
-          {/* Appointments List */}
-          <motion.div
-            className="space-y-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ staggerChildren: 0.1 }}
-          >
-            {filteredAppointments.map((appointment, index) => {
-              const IconComponent = serviceIcons[appointment.type];
-              return (
-                <motion.div
-                  key={appointment.id}
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <Card className="backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-0 shadow-lg shadow-black/5 dark:shadow-black/20 hover:shadow-xl hover:shadow-black/10 dark:hover:shadow-black/30 hover:bg-white/80 dark:hover:bg-slate-900/80 transition-all duration-300">
-                    <CardContent className="p-6">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-start space-x-4">
-                          <div className="p-2 bg-gray-100/70 dark:bg-gray-800/30 backdrop-blur-sm rounded-lg shadow-sm">
-                            <IconComponent className="h-6 w-6 text-gray-600 dark:text-gray-400" />
-                          </div>
-
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-lg mb-1">
-                              {appointment.service}
-                            </h3>
-                            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-2">
-                              <MapPin className="h-4 w-4 mr-1" />
-                              {appointment.location}
-                            </div>
-                            <div className="flex items-center space-x-4 text-sm mb-2">
-                              <div className="flex items-center">
-                                <Calendar className="h-4 w-4 mr-1 text-gray-400" />
-                                {appointment.date}
-                              </div>
-                              <div className="flex items-center">
-                                <Clock className="h-4 w-4 mr-1 text-gray-400" />
-                                {appointment.time}
-                              </div>
-                            </div>
-                            <div className="text-sm text-gray-600 dark:text-gray-400">
-                              <strong>User:</strong> {appointment.userName} (
-                              {appointment.userEmail})
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex flex-col items-end space-y-2">
-                          <Badge className={statusColors[appointment.status]}>
-                            {appointment.status.charAt(0).toUpperCase() +
-                              appointment.status.slice(1)}
-                          </Badge>
-
-                          {appointment.queuePosition && (
-                            <div className="text-right text-sm">
-                              <div className="font-medium">
-                                Queue: #{appointment.queuePosition}
-                              </div>
-                              <div className="text-gray-500">
-                                ~{appointment.estimatedWait}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              );
-            })}
-          </motion.div>
-        </>
-      )}
-
-      {activeTab === "requests" && (
-        <motion.div
-          className="space-y-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ staggerChildren: 0.1 }}
-        >
-          {addressRequests.map((request, index) => (
-            <motion.div
-              key={request.id}
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: index * 0.1 }}
+              }}
             >
-              <Card className="backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-0 shadow-lg shadow-black/5 dark:shadow-black/20 hover:shadow-xl hover:shadow-black/10 dark:hover:shadow-black/30 transition-all duration-300">
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-lg mb-2">
-                        {request.userName}
-                      </h3>
-                      <div className="space-y-2 text-sm">
-                        <div>
-                          <strong>Email:</strong> {request.userEmail}
-                        </div>
-                        <div>
-                          <strong>Current Address:</strong>{" "}
-                          {request.currentAddress}
-                        </div>
-                        <div>
-                          <strong>New Address:</strong> {request.newAddress}
-                        </div>
-                        <div>
-                          <strong>Reason:</strong> {request.reason}
-                        </div>
-                        <div>
-                          <strong>Documents:</strong>{" "}
-                          {request.documents.join(", ")}
-                        </div>
-                        <div>
-                          <strong>Submitted:</strong> {request.submittedDate}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col items-end space-y-2">
-                      <Badge className={statusColors[request.status]}>
-                        {request.status.charAt(0).toUpperCase() +
-                          request.status.slice(1)}
-                      </Badge>
-
-                      {request.status === "pending" && (
-                        <div className="flex space-x-2">
-                          <Button
-                            size="sm"
-                            onClick={() => handleApproveRequest(request.id)}
-                            className="bg-gray-600 hover:bg-gray-700 text-white"
-                          >
-                            <CheckCircle className="h-4 w-4 mr-1" />
-                            Approve
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleRejectRequest(request.id)}
-                            className="border-gray-300 hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-800"
-                          >
-                            <XCircle className="h-4 w-4 mr-1" />
-                            Reject
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </motion.div>
-      )}
+              {confirmAction?.type === "activate" ? "Activate" : "Deactivate"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
+  );
+}
+
+// Reusable UserTable Component
+type UserTableProps = {
+  users: User[];
+  setSelectedUser: (user: User) => void;
+  setConfirmAction: (action: {
+    user: User;
+    type: "activate" | "deactivate";
+  }) => void;
+};
+
+function UserTable({
+  users,
+  setSelectedUser,
+  setConfirmAction,
+}: UserTableProps) {
+  return (
+    <Card className="backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-0 shadow-lg">
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>User</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead>Subscription</TableHead>
+              <TableHead>Created At</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {users.map((user) => (
+              <TableRow
+                key={user.id}
+                className="hover:bg-gray-50/50 dark:hover:bg-gray-800/50"
+              >
+                <TableCell>
+                  <div className="flex items-center space-x-4">
+                    <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white">
+                      {user.name.charAt(0)}
+                    </div>
+                    <span>{user.name}</span>
+                  </div>
+                </TableCell>
+                <TableCell>{user.email}</TableCell>
+                <TableCell>{user.userType}</TableCell>
+                <TableCell>
+                  {user.subscription ? (
+                    <Badge>{user.subscription}</Badge>
+                  ) : (
+                    "N/A"
+                  )}
+                </TableCell>
+                <TableCell>
+                  {new Date(user.createdAt).toLocaleDateString()}
+                </TableCell>
+                <TableCell>{user.isActive ? "Active" : "Inactive"}</TableCell>
+                <TableCell>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm">
+                        <MoreHorizontal />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => setSelectedUser(user)}>
+                        <Eye className="mr-2" />
+                        View Details
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() =>
+                          setConfirmAction({
+                            user,
+                            type: user.isActive ? "deactivate" : "activate",
+                          })
+                        }
+                      >
+                        {user.isActive ? "Deactivate" : "Activate"}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   );
 }

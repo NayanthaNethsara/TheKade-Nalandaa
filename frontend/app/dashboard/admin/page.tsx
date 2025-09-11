@@ -44,8 +44,9 @@ export type User = {
   name: string;
   email: string;
   userType: "reader" | "author";
-  subscription?: string; // Optional since authors don't have subscriptions
+  subscription?: string;
   createdAt: string;
+  isActive: boolean;
 };
 
 const subscriptionColors = {
@@ -61,11 +62,15 @@ export default function UsersPage() {
   const [activeTab, setActiveTab] = useState<string>("all");
   const [subscriptionFilter] = useState<string>("all");
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [confirmAction, setConfirmAction] = useState<{
+    user: User;
+    type: "activate" | "deactivate";
+  } | null>(null);
 
   useEffect(() => {
     async function fetchUsers() {
       try {
-        const res = await fetch("/api/admin/users");
+        const res = await fetch("/api/admin/users/readers"); // update route if needed
         const data = await res.json();
         setUsers(Array.isArray(data) ? data : data.users || []);
       } catch (err) {
@@ -96,7 +101,6 @@ export default function UsersPage() {
   const stats = useMemo(() => {
     const readers = users.filter((u) => u.userType === "reader");
     const authors = users.filter((u) => u.userType === "author");
-
     return {
       total: users.length,
       readers: readers.length,
@@ -113,12 +117,12 @@ export default function UsersPage() {
         format === "json"
           ? JSON.stringify(filteredUsers, null, 2)
           : [
-              "Name,Email,User Type,Subscription,Created At",
+              "Name,Email,User Type,Subscription,Created At,Active",
               ...filteredUsers.map(
                 (u) =>
                   `${u.name},${u.email},${u.userType},${
                     u.subscription || "N/A"
-                  },${u.createdAt}`
+                  },${u.createdAt},${u.isActive ? "Active" : "Inactive"}`
               ),
             ].join("\n");
 
@@ -171,424 +175,257 @@ export default function UsersPage() {
                 user activity.
               </p>
             </motion.div>
+
             <div className="space-y-6">
-              {/* Search and Export Row */}
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="relative flex-1">
                   <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <Input
-                    placeholder="Search users by name or email..."
+                    placeholder="Search users..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-12 h-12 bg-white/50 dark:bg-slate-800/50 border border-gray-200 dark:border-gray-700 text-base"
+                    className="pl-12 h-12"
                   />
                 </div>
-
                 <Button
                   variant="outline"
                   onClick={() => handleExport("csv")}
-                  className="h-12 px-6 bg-white/50 dark:bg-slate-800/50 border border-gray-200 dark:border-gray-700"
+                  className="h-12 px-6"
                 >
-                  <Download className="h-5 w-5 mr-2" />
-                  Export CSV
+                  <Download className="h-5 w-5 mr-2" /> Export CSV
                 </Button>
               </div>
 
-              {/* Tabs Navigation */}
-              <Tabs
-                value={activeTab}
-                onValueChange={setActiveTab}
-                className="w-full"
-              >
-                <TabsList className="grid w-full grid-cols-3 h-14 bg-gray-100/50 dark:bg-gray-800/50">
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsList className="grid w-full grid-cols-3 h-14">
                   <TabsTrigger
                     value="all"
                     className="h-12 text-base font-medium"
                   >
-                    <Users className="h-5 w-5 mr-2" />
-                    All Users ({stats.total})
+                    <Users className="h-5 w-5 mr-2" /> All Users ({stats.total})
                   </TabsTrigger>
                   <TabsTrigger
                     value="reader"
                     className="h-12 text-base font-medium"
                   >
-                    <BookOpen className="h-5 w-5 mr-2" />
-                    Readers ({stats.readers})
+                    <BookOpen className="h-5 w-5 mr-2" /> Readers (
+                    {stats.readers})
                   </TabsTrigger>
                   <TabsTrigger
                     value="author"
                     className="h-12 text-base font-medium"
                   >
-                    <PenTool className="h-5 w-5 mr-2" />
-                    Authors ({stats.authors})
+                    <PenTool className="h-5 w-5 mr-2" /> Authors (
+                    {stats.authors})
                   </TabsTrigger>
                 </TabsList>
               </Tabs>
+
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsContent value="all" className="mt-0">
+                  <UserTable
+                    users={filteredUsers}
+                    setSelectedUser={setSelectedUser}
+                    setConfirmAction={setConfirmAction}
+                  />
+                </TabsContent>
+                <TabsContent value="reader" className="mt-0">
+                  <UserTable
+                    users={filteredUsers.filter((u) => u.userType === "reader")}
+                    setSelectedUser={setSelectedUser}
+                    setConfirmAction={setConfirmAction}
+                  />
+                </TabsContent>
+                <TabsContent value="author" className="mt-0">
+                  <UserTable
+                    users={filteredUsers.filter((u) => u.userType === "author")}
+                    setSelectedUser={setSelectedUser}
+                    setConfirmAction={setConfirmAction}
+                  />
+                </TabsContent>
+              </Tabs>
             </div>
-            <Tabs
-              value={activeTab}
-              onValueChange={setActiveTab}
-              className="w-full"
-            >
-              <TabsContent value="all" className="mt-0">
-                <Card className="backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-0 shadow-lg">
-                  <CardContent className="p-0">
-                    <Table>
-                      <TableHeader>
-                        <TableRow className="border-gray-200 dark:border-gray-700">
-                          <TableHead className="py-4 px-6">User</TableHead>
-                          <TableHead className="py-4">Email</TableHead>
-                          <TableHead className="py-4">Type</TableHead>
-                          <TableHead className="py-4">Subscription</TableHead>
-                          <TableHead className="py-4">Created At</TableHead>
-                          <TableHead className="w-12 py-4"></TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {filteredUsers.map((user) => (
-                          <TableRow
-                            key={user.id}
-                            className="border-gray-200 dark:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-800/50"
-                          >
-                            <TableCell className="py-4 px-6">
-                              <div className="flex items-center space-x-4">
-                                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
-                                  {user.name.charAt(0)}
-                                </div>
-                                <span className="font-medium text-gray-900 dark:text-gray-100">
-                                  {user.name}
-                                </span>
-                              </div>
-                            </TableCell>
-                            <TableCell className="py-4">
-                              <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
-                                <Mail className="h-4 w-4" />
-                                <span>{user.email}</span>
-                              </div>
-                            </TableCell>
-                            <TableCell className="py-4">
-                              <div className="flex items-center space-x-2">
-                                {user.userType === "reader" ? (
-                                  <BookOpen className="h-4 w-4 text-blue-600" />
-                                ) : (
-                                  <PenTool className="h-4 w-4 text-green-600" />
-                                )}
-                                <span className="capitalize font-medium">
-                                  {user.userType}
-                                </span>
-                              </div>
-                            </TableCell>
-                            <TableCell className="py-4">
-                              {user.userType === "reader" &&
-                              user.subscription ? (
-                                <Badge
-                                  className={
-                                    subscriptionColors[
-                                      user.subscription as keyof typeof subscriptionColors
-                                    ]
-                                  }
-                                >
-                                  {user.subscription}
-                                </Badge>
-                              ) : (
-                                <span className="text-gray-400">N/A</span>
-                              )}
-                            </TableCell>
-                            <TableCell className="py-4">
-                              <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
-                                <Calendar className="h-4 w-4" />
-                                <span>
-                                  {new Date(
-                                    user.createdAt
-                                  ).toLocaleDateString()}
-                                </span>
-                              </div>
-                            </TableCell>
-                            <TableCell className="py-4">
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="sm">
-                                    <MoreHorizontal className="h-4 w-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  <DropdownMenuItem
-                                    onClick={() => setSelectedUser(user)}
-                                  >
-                                    <Eye className="h-4 w-4 mr-2" />
-                                    View Details
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="reader" className="mt-0">
-                <Card className="backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-0 shadow-lg">
-                  <CardContent className="p-0">
-                    <Table>
-                      <TableHeader>
-                        <TableRow className="border-gray-200 dark:border-gray-700">
-                          <TableHead className="py-6 px-8 text-base font-semibold">
-                            Reader
-                          </TableHead>
-                          <TableHead className="py-6 text-base font-semibold">
-                            Email
-                          </TableHead>
-                          <TableHead className="py-6 text-base font-semibold">
-                            Subscription
-                          </TableHead>
-                          <TableHead className="py-6 text-base font-semibold">
-                            Created At
-                          </TableHead>
-                          <TableHead className="w-12 py-6"></TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {filteredUsers
-                          .filter((user) => user.userType === "reader")
-                          .map((user) => (
-                            <TableRow
-                              key={user.id}
-                              className="border-gray-200 dark:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-800/50"
-                            >
-                              <TableCell className="py-6 px-8">
-                                <div className="flex items-center space-x-4">
-                                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-lg">
-                                    {user.name.charAt(0)}
-                                  </div>
-                                  <span className="font-medium text-gray-900 dark:text-gray-100 text-base">
-                                    {user.name}
-                                  </span>
-                                </div>
-                              </TableCell>
-                              <TableCell className="py-6">
-                                <div className="flex items-center space-x-3 text-gray-600 dark:text-gray-400">
-                                  <Mail className="h-5 w-5" />
-                                  <span className="text-base">
-                                    {user.email}
-                                  </span>
-                                </div>
-                              </TableCell>
-                              <TableCell className="py-6">
-                                {user.subscription ? (
-                                  <Badge
-                                    className={`${
-                                      subscriptionColors[
-                                        user.subscription as keyof typeof subscriptionColors
-                                      ]
-                                    } text-sm px-3 py-1`}
-                                  >
-                                    {user.subscription}
-                                  </Badge>
-                                ) : (
-                                  <span className="text-gray-400 text-base">
-                                    No subscription
-                                  </span>
-                                )}
-                              </TableCell>
-                              <TableCell className="py-6">
-                                <div className="flex items-center space-x-3 text-gray-600 dark:text-gray-400">
-                                  <Calendar className="h-5 w-5" />
-                                  <span className="text-base">
-                                    {new Date(
-                                      user.createdAt
-                                    ).toLocaleDateString()}
-                                  </span>
-                                </div>
-                              </TableCell>
-                              <TableCell className="py-6">
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-10 w-10"
-                                    >
-                                      <MoreHorizontal className="h-5 w-5" />
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end">
-                                    <DropdownMenuItem
-                                      onClick={() => setSelectedUser(user)}
-                                    >
-                                      <Eye className="h-4 w-4 mr-2" />
-                                      View Details
-                                    </DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                      </TableBody>
-                    </Table>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="author" className="mt-0">
-                <Card className="backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-0 shadow-lg">
-                  <CardContent className="p-0">
-                    <Table>
-                      <TableHeader>
-                        <TableRow className="border-gray-200 dark:border-gray-700">
-                          <TableHead className="py-6 px-8 text-base font-semibold">
-                            Author
-                          </TableHead>
-                          <TableHead className="py-6 text-base font-semibold">
-                            Email
-                          </TableHead>
-                          <TableHead className="py-6 text-base font-semibold">
-                            Created At
-                          </TableHead>
-                          <TableHead className="w-12 py-6"></TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {filteredUsers
-                          .filter((user) => user.userType === "author")
-                          .map((user) => (
-                            <TableRow
-                              key={user.id}
-                              className="border-gray-200 dark:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-800/50"
-                            >
-                              <TableCell className="py-6 px-8">
-                                <div className="flex items-center space-x-4">
-                                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center text-white font-semibold text-lg">
-                                    {user.name.charAt(0)}
-                                  </div>
-                                  <span className="font-medium text-gray-900 dark:text-gray-100 text-base">
-                                    {user.name}
-                                  </span>
-                                </div>
-                              </TableCell>
-                              <TableCell className="py-6">
-                                <div className="flex items-center space-x-3 text-gray-600 dark:text-gray-400">
-                                  <Mail className="h-5 w-5" />
-                                  <span className="text-base">
-                                    {user.email}
-                                  </span>
-                                </div>
-                              </TableCell>
-                              <TableCell className="py-6">
-                                <div className="flex items-center space-x-3 text-gray-600 dark:text-gray-400">
-                                  <Calendar className="h-5 w-5" />
-                                  <span className="text-base">
-                                    {new Date(
-                                      user.createdAt
-                                    ).toLocaleDateString()}
-                                  </span>
-                                </div>
-                              </TableCell>
-                              <TableCell className="py-6">
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-10 w-10"
-                                    >
-                                      <MoreHorizontal className="h-5 w-5" />
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end">
-                                    <DropdownMenuItem
-                                      onClick={() => setSelectedUser(user)}
-                                    >
-                                      <Eye className="h-4 w-4 mr-2" />
-                                      View Details
-                                    </DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                      </TableBody>
-                    </Table>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
           </CardContent>
         </Card>
       </motion.div>
 
+      {/* View Details Dialog */}
       <Dialog open={!!selectedUser} onOpenChange={() => setSelectedUser(null)}>
         <DialogContent className="backdrop-blur-xl bg-white/90 dark:bg-slate-900/90 max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-xl">User Details</DialogTitle>
+            <DialogTitle>User Details</DialogTitle>
           </DialogHeader>
           {selectedUser && (
             <div className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  Name
-                </label>
-                <p className="text-lg text-gray-900 dark:text-gray-100">
-                  {selectedUser.name}
-                </p>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  Email
-                </label>
-                <p className="text-lg text-gray-900 dark:text-gray-100">
-                  {selectedUser.email}
-                </p>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  User Type
-                </label>
-                <p className="text-lg text-gray-900 dark:text-gray-100 capitalize">
-                  {selectedUser.userType}
-                </p>
-              </div>
+              <p>
+                <strong>Name:</strong> {selectedUser.name}
+              </p>
+              <p>
+                <strong>Email:</strong> {selectedUser.email}
+              </p>
+              <p>
+                <strong>Type:</strong> {selectedUser.userType}
+              </p>
               {selectedUser.userType === "reader" && (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                    Subscription
-                  </label>
-                  <p className="text-lg text-gray-900 dark:text-gray-100 capitalize">
-                    {selectedUser.subscription || "None"}
-                  </p>
-                </div>
-              )}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  Created At
-                </label>
-                <p className="text-lg text-gray-900 dark:text-gray-100">
-                  {new Date(selectedUser.createdAt).toLocaleString()}
+                <p>
+                  <strong>Subscription:</strong>{" "}
+                  {selectedUser.subscription || "None"}
                 </p>
-              </div>
+              )}
+              <p>
+                <strong>Created:</strong>{" "}
+                {new Date(selectedUser.createdAt).toLocaleString()}
+              </p>
+              <p>
+                <strong>Status:</strong>{" "}
+                {selectedUser.isActive ? "Active" : "Inactive"}
+              </p>
             </div>
           )}
         </DialogContent>
       </Dialog>
 
-      {filteredUsers.length === 0 && (
-        <motion.div
-          className="text-center py-16"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-        >
-          <Users className="h-16 w-16 text-gray-400 mx-auto mb-6" />
-          <h3 className="text-xl font-medium text-gray-900 dark:text-gray-100 mb-3">
-            No users found
-          </h3>
-          <p className="text-gray-600 dark:text-gray-400 text-lg">
-            Try adjusting your search or filter criteria.
+      {/* Confirm Activate/Deactivate Dialog */}
+      <Dialog
+        open={!!confirmAction}
+        onOpenChange={() => setConfirmAction(null)}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {confirmAction?.type === "activate" ? "Activate" : "Deactivate"}{" "}
+              User
+            </DialogTitle>
+          </DialogHeader>
+          <p className="mt-2">
+            Are you sure you want to {confirmAction?.type} user{" "}
+            <strong>{confirmAction?.user.name}</strong>?
           </p>
-        </motion.div>
-      )}
+          <div className="mt-4 flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setConfirmAction(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant={
+                confirmAction?.type === "activate" ? "default" : "destructive"
+              }
+              onClick={async () => {
+                if (!confirmAction) return;
+                try {
+                  const res = await fetch(
+                    `/api/users/${confirmAction.user.id}/${confirmAction.type}`,
+                    { method: "PATCH" }
+                  );
+                  if (!res.ok) throw new Error("Action failed");
+                  setUsers((prev) =>
+                    prev.map((u) =>
+                      u.id === confirmAction.user.id
+                        ? { ...u, isActive: confirmAction.type === "activate" }
+                        : u
+                    )
+                  );
+                  setConfirmAction(null);
+                } catch (error) {
+                  console.error(error);
+                }
+              }}
+            >
+              {confirmAction?.type === "activate" ? "Activate" : "Deactivate"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
+  );
+}
+
+// Reusable UserTable Component
+type UserTableProps = {
+  users: User[];
+  setSelectedUser: (user: User) => void;
+  setConfirmAction: (action: {
+    user: User;
+    type: "activate" | "deactivate";
+  }) => void;
+};
+
+function UserTable({
+  users,
+  setSelectedUser,
+  setConfirmAction,
+}: UserTableProps) {
+  return (
+    <Card className="backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-0 shadow-lg">
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>User</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead>Subscription</TableHead>
+              <TableHead>Created At</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {users.map((user) => (
+              <TableRow
+                key={user.id}
+                className="hover:bg-gray-50/50 dark:hover:bg-gray-800/50"
+              >
+                <TableCell>
+                  <div className="flex items-center space-x-4">
+                    <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white">
+                      {user.name.charAt(0)}
+                    </div>
+                    <span>{user.name}</span>
+                  </div>
+                </TableCell>
+                <TableCell>{user.email}</TableCell>
+                <TableCell>{user.userType}</TableCell>
+                <TableCell>
+                  {user.subscription ? (
+                    <Badge>{user.subscription}</Badge>
+                  ) : (
+                    "N/A"
+                  )}
+                </TableCell>
+                <TableCell>
+                  {new Date(user.createdAt).toLocaleDateString()}
+                </TableCell>
+                <TableCell>{user.isActive ? "Active" : "Inactive"}</TableCell>
+                <TableCell>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm">
+                        <MoreHorizontal />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => setSelectedUser(user)}>
+                        <Eye className="mr-2" />
+                        View Details
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() =>
+                          setConfirmAction({
+                            user,
+                            type: user.isActive ? "deactivate" : "activate",
+                          })
+                        }
+                      >
+                        {user.isActive ? "Deactivate" : "Activate"}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   );
 }
