@@ -9,3 +9,10 @@ public record ReaderSummeryDto(
     SubscriptionStatus Subscription,
     DateTime CreatedAt
 );
+
+public record AuthorSummeryDto(
+    int Id,
+    string Name,
+    string Email,
+    DateTime CreatedAt
+);
