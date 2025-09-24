@@ -6,6 +6,7 @@ on:
     paths:
       - "backend/AuthService/**"
       - "backend/AuthService.Tests/**"
+      - ".github/workflows/ci.yml"
   pull_request:
     branches: [dev]
     paths:
@@ -89,9 +90,9 @@ jobs:
       - name: Azure Login
         uses: azure/login@v1
         with:
-          client-id: ${{ secrets.THEKADEAUTHSERVICE_AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.THEKADEAUTHSERVICE_AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.THEKADEAUTHSERVICE_AZURE_SUBSCRIPTION_ID }}
+          client-id: ${{ secrets.AUTHSERVICE_AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AUTHSERVICE_AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AUTHSERVICE_AZURE_SUBSCRIPTION_ID }}
 
       - name: Deploy to Azure Container App
         run: |
