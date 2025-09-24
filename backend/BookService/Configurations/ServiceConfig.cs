@@ -7,11 +7,7 @@ namespace BookService.Configurations
     {
         public static IServiceCollection AddAppServices(this IServiceCollection services)
         {
-            // Business/service layer
 
-            // Helpers
-
-            // Global HttpClient
             services.AddHttpClient();
 
             return services;
