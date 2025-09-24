@@ -10,7 +10,7 @@ namespace BookService.Configurations
         public static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration config)
         {
             services.AddDbContext<BookDbContext>(options =>
-                options.UseSqlServer(
+                options.UseNpgsql(
                     config.GetConnectionString("DefaultConnection")
                 )
             );
