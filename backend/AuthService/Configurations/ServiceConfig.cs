@@ -1,6 +1,7 @@
 using AuthService.Helpers;
 using AuthService.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 
 namespace AuthService.Configurations
 {
