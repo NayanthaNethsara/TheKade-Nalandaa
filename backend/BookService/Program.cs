@@ -13,8 +13,12 @@ builder.Configuration
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddEnvironmentVariables();
 
-// Add services
-builder.Services.AddSecurityServices(builder.Configuration); // JWT & CORS
+// Add services to the container.
+builder.Services.AddDatabase(builder.Configuration);
+builder.Services.AddSecurityServices(builder.Configuration);
+builder.Services.AddAppServices();
+
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

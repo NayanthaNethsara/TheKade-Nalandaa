@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 
 namespace BookService.Controllers
 {
@@ -14,8 +15,13 @@ namespace BookService.Controllers
         [Authorize]
         public IActionResult Secure()
         {
-            var userId = User.Identity?.Name ?? "unknown";
-            return Ok(new { message = "JWT valid", user = userId });
+            var claims = User.Claims.Select(c => new { c.Type, c.Value }).ToList();
+
+            return Ok(new
+            {
+                message = "JWT valid",
+                claims
+            });
         }
     }
 }
