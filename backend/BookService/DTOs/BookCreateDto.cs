@@ -8,6 +8,8 @@ namespace BookService.Dtos
         string Description,
         int AuthorId,
         string AuthorName,
-        List<string> ChunkUrls
+        List<string> ChunkUrls,
+        string TitleSlug,
+        string CoverImagePath
     );
 }

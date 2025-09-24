@@ -24,6 +24,8 @@ namespace BookService.Services
                 Description = dto.Description,
                 AuthorId = dto.AuthorId,
                 AuthorName = dto.AuthorName,
+                TitleSlug = dto.TitleSlug,
+                CoverImagePath = dto.CoverImagePath,
                 Chunks = dto.ChunkUrls.Select((url, index) => new BookChunk
                 {
                     ChunkNumber = index + 1,
@@ -39,7 +41,8 @@ namespace BookService.Services
                 created.Description,
                 created.AuthorId,
                 created.AuthorName,
-                created.Chunks.Select(c => new BookChunkDto(c.Id, c.ChunkNumber, c.StoragePath)).ToList()
+                created.TitleSlug,
+                created.CoverImagePath
             );
         }
 
@@ -54,7 +57,8 @@ namespace BookService.Services
                 book.Description,
                 book.AuthorId,
                 book.AuthorName,
-                book.Chunks.Select(c => new BookChunkDto(c.Id, c.ChunkNumber, c.StoragePath)).ToList()
+                book.TitleSlug,
+                book.CoverImagePath
             );
         }
 
@@ -67,7 +71,8 @@ namespace BookService.Services
                 b.Description,
                 b.AuthorId,
                 b.AuthorName,
-                b.Chunks.Select(c => new BookChunkDto(c.Id, c.ChunkNumber, c.StoragePath)).ToList()
+                b.TitleSlug,
+                b.CoverImagePath
             )).ToList();
         }
 
@@ -78,6 +83,8 @@ namespace BookService.Services
 
             book.Title = dto.Title;
             book.Description = dto.Description;
+            book.TitleSlug = dto.TitleSlug;
+            book.CoverImagePath = dto.CoverImagePath;
             // Optionally update chunks if needed
             await _bookRepo.UpdateAsync(book);
 

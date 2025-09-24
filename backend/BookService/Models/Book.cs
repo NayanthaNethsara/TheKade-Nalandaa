@@ -16,6 +16,14 @@ namespace BookService.Models
         [Column("title")]
         public string Title { get; set; } = null!;
 
+        [Required]
+        [Column("title_slug")]
+        public string TitleSlug { get; set; } = null!;
+
+        [Required]
+        [Column("cover_image")]
+        public string CoverImagePath { get; set; } = null!;
+
         [Column("description")]
         public string? Description { get; set; }
 
