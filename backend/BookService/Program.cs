@@ -1,11 +1,13 @@
 using BookService.Configurations;
+using DotNetEnv;
+using BookService.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Load environment variables in development
 if (builder.Environment.IsDevelopment())
 {
-    DotNetEnv.Env.Load();
+    Env.Load();
 }
 
 // Load configuration from appsettings.json and env vars

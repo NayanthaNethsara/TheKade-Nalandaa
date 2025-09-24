@@ -1,9 +1,12 @@
-namespace BookService.DTOs
+using Microsoft.AspNetCore.Http;
+
+namespace BookService.Dtos
 {
-    public record CreateBookChunkDto(
-        int ChunkNumber,
-        int StartPage,
-        int EndPage,
-        string StoragePath
+    public record BookCreateDto(
+        string Title,
+        string? Description,
+        int AuthorId,
+        string AuthorName,
+        IFormFile PdfFile
     );
 }

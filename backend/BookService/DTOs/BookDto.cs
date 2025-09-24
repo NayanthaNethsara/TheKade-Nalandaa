@@ -1,7 +1,6 @@
-using System;
 using System.Collections.Generic;
 
-namespace BookService.DTOs
+namespace BookService.Dtos
 {
     public record BookDto(
         int Id,
@@ -9,9 +8,6 @@ namespace BookService.DTOs
         string? Description,
         int AuthorId,
         string AuthorName,
-        bool IsApproved,
-        DateTime CreatedAt,
-        DateTime UpdatedAt,
         List<BookChunkDto> Chunks
     );
 }

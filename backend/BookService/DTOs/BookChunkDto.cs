@@ -1,14 +1,4 @@
-using System;
-
-namespace BookService.DTOs
+namespace BookService.Dtos
 {
-    public record BookChunkDto(
-        int Id,
-        int ChunkNumber,
-        int StartPage,
-        int EndPage,
-        string? Url,
-        DateTime CreatedAt,
-        DateTime UpdatedAt
-    );
+    public record BookChunkDto(int Id, int ChunkNumber, string FileUrl);
 }
