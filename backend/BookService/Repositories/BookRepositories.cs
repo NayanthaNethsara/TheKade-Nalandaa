@@ -1,6 +1,8 @@
 using BookService.Data;
 using BookService.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace BookService.Repositories
 {
@@ -16,17 +18,17 @@ namespace BookService.Repositories
             return book;
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
             var book = await _db.Books.FindAsync(id);
-            if (book != null)
-            {
-                _db.Books.Remove(book);
-                await _db.SaveChangesAsync();
-            }
+            if (book == null) return false;
+
+            _db.Books.Remove(book);
+            await _db.SaveChangesAsync();
+            return true;
         }
 
-        public async Task<IEnumerable<Book>> GetAllAsync()
+        public async Task<List<Book>> GetAllAsync()
         {
             return await _db.Books.Include(b => b.Chunks).ToListAsync();
         }
@@ -37,10 +39,11 @@ namespace BookService.Repositories
                                   .FirstOrDefaultAsync(b => b.Id == id);
         }
 
-        public async Task UpdateAsync(Book book)
+        public async Task<Book> UpdateAsync(Book book)
         {
             _db.Books.Update(book);
             await _db.SaveChangesAsync();
+            return book;
         }
     }
 }

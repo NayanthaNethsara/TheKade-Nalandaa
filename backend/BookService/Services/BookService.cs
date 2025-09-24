@@ -1,63 +1,38 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using BookService.Dtos;
-using BookService.Helpers;
 using BookService.Models;
 using BookService.Repositories;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace BookService.Services
 {
     public class BookServiceImpl : IBookService
     {
         private readonly IBookRepository _bookRepo;
-        private readonly IStorageHelper _storageHelper;
-        private readonly IPdfChunker _pdfChunker;
 
-        public BookServiceImpl(IBookRepository bookRepo, IStorageHelper storageHelper, IPdfChunker pdfChunker)
+        public BookServiceImpl(IBookRepository bookRepo)
         {
             _bookRepo = bookRepo;
-            _storageHelper = storageHelper;
-            _pdfChunker = pdfChunker;
         }
 
         public async Task<BookDto> CreateBookAsync(BookCreateDto dto)
         {
-            // 1. Upload original PDF
-            var pdfUpload = await _storageHelper.UploadFileAsync(dto.PdfFile, "books/original");
-            if (!pdfUpload.Success) throw new Exception(pdfUpload.Error);
-
-            // 2. Chunk PDF
-            var chunks = await _pdfChunker.SplitPdfAsync(dto.PdfFile.OpenReadStream(), 10);
-            var chunkDtos = new List<BookChunk>();
-
-            for (int i = 0; i < chunks.Count; i++)
-            {
-                var uploadResult = await _storageHelper.UploadFileAsync(chunks[i], "books/chunks", $"chunk_{i + 1}.pdf");
-                if (uploadResult.Success)
-                {
-                    chunkDtos.Add(new BookChunk
-                    {
-                        ChunkNumber = i + 1,
-                        StoragePath = uploadResult.Url!
-                    });
-                }
-            }
-
-            // 3. Save Book
             var book = new Book
             {
                 Title = dto.Title,
                 Description = dto.Description,
                 AuthorId = dto.AuthorId,
                 AuthorName = dto.AuthorName,
-                Chunks = chunkDtos
+                Chunks = dto.ChunkUrls.Select((url, index) => new BookChunk
+                {
+                    ChunkNumber = index + 1,
+                    StoragePath = url
+                }).ToList()
             };
 
             var created = await _bookRepo.AddAsync(book);
 
-            // 4. Return DTO
             return new BookDto(
                 created.Id,
                 created.Title,
@@ -98,13 +73,36 @@ namespace BookService.Services
 
         public async Task<BookDto?> UpdateBookAsync(int id, BookCreateDto dto)
         {
-            // Implement update logic if needed
-            return null;
+            var book = await _bookRepo.GetByIdAsync(id);
+            if (book == null) return null;
+
+            book.Title = dto.Title;
+            book.Description = dto.Description;
+            // Optionally update chunks if needed
+            await _bookRepo.UpdateAsync(book);
+
+            return await GetBookByIdAsync(id);
         }
 
         public async Task<bool> DeleteBookAsync(int id)
         {
-            return await _bookRepo.DeleteAsync(id); // Make sure DeleteAsync returns Task<bool>
+            var book = await _bookRepo.GetByIdAsync(id);
+            if (book == null) return false;
+
+            await _bookRepo.DeleteAsync(id);
+            return true;
+        }
+
+        // New method to fetch a single chunk
+        public async Task<BookChunkDto?> GetChunkAsync(int bookId, int chunkNumber)
+        {
+            var book = await _bookRepo.GetByIdAsync(bookId);
+            if (book == null) return null;
+
+            var chunk = book.Chunks.FirstOrDefault(c => c.ChunkNumber == chunkNumber);
+            if (chunk == null) return null;
+
+            return new BookChunkDto(chunk.Id, chunk.ChunkNumber, chunk.StoragePath);
         }
     }
 }

@@ -1,7 +1,6 @@
-using BookService.Helpers;
 using BookService.Services;
+using BookService.Repositories;  // <-- add this
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
 
 namespace BookService.Configurations
 {
@@ -11,17 +10,11 @@ namespace BookService.Configurations
         {
             services.AddHttpClient();
 
-            services.AddSingleton<IStorageHelper, SupabaseStorageHelper>();
-
-
-            // Pdf chunker
-            services.AddSingleton<IPdfChunker, PdfChunker>();
+            // Register repository
+            services.AddScoped<IBookRepository, BookRepository>();
 
             // Book service
             services.AddScoped<IBookService, BookServiceImpl>();
-
-            // Later: add BookChunk service if needed
-            // services.AddScoped<IBookChunkService, BookChunkService>();
 
             return services;
         }

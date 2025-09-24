@@ -1,9 +1,13 @@
-namespace BookService.DTOs
+using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
+
+namespace BookService.Dtos
 {
-    public record CreateBookDto(
+    public record BookCreateDto(
         string Title,
-        string? Description,
+        string Description,
         int AuthorId,
-        string AuthorName
+        string AuthorName,
+        List<string> ChunkUrls
     );
 }

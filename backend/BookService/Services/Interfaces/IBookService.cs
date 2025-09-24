@@ -1,5 +1,6 @@
-using System.Threading.Tasks;
 using BookService.Dtos;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace BookService.Services
 {
@@ -10,5 +11,8 @@ namespace BookService.Services
         Task<List<BookDto>> GetAllBooksAsync();
         Task<BookDto?> UpdateBookAsync(int id, BookCreateDto dto);
         Task<bool> DeleteBookAsync(int id);
+
+        // New method to get single chunk
+        Task<BookChunkDto?> GetChunkAsync(int bookId, int chunkNumber);
     }
 }
