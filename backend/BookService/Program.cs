@@ -1,29 +1,31 @@
-using AuthService.Configurations;
+using BookService.Configurations;
 using DotNetEnv;
-using AuthService.Data;
+using BookService.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Load environment variables in development
 if (builder.Environment.IsDevelopment())
 {
     Env.Load();
 }
 
+// Load configuration from appsettings.json and env vars
 builder.Configuration
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-    .AddEnvironmentVariables(); // load env vars from Azure or GitHub secrets
+    .AddEnvironmentVariables();
 
-// Add configs
+// Add services to the container.
 builder.Services.AddDatabase(builder.Configuration);
 builder.Services.AddSecurityServices(builder.Configuration);
 builder.Services.AddAppServices();
+
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
-
 
 // Middleware
 app.UseSwagger();
@@ -36,13 +38,5 @@ app.UseAuthorization();
 
 app.UseHttpsRedirection();
 app.MapControllers();
-
-
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
-    await DbSeeder.SeedAdminAsync(db);
-}
-
 
 app.Run();
