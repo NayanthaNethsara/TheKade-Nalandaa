@@ -1,0 +1,49 @@
+name: Trigger auto deployment for book-service
+
+# When this action will be executed
+on:
+  # Automatically trigger it when detected changes in repo
+  push:
+    branches: 
+      [ dev ]
+    paths:
+    - '**'
+    - '.github/workflows/book-service-AutoDeployTrigger-c960602c-e847-42de-bd91-daa18f82b249.yml'
+
+  # Allow manual trigger 
+  workflow_dispatch:      
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions: 
+      id-token: write #This is required for requesting the OIDC JWT Token
+      contents: read #Required when GH token is used to authenticate with private repo
+
+    steps:
+      - name: Checkout to the branch
+        uses: actions/checkout@v2
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.BOOKSERVICE_AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.BOOKSERVICE_AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.BOOKSERVICE_AZURE_SUBSCRIPTION_ID }}
+
+      - name: Build and push container image to registry
+        uses: azure/container-apps-deploy-action@v2
+        with:
+          appSourcePath: ${{ github.workspace }}
+          _dockerfilePathKey_: _dockerfilePath_
+          _targetLabelKey_: _targetLabel_
+          registryUrl: ghcr.io
+          registryUsername: ${{ secrets.BOOKSERVICE_REGISTRY_USERNAME }}
+          registryPassword: ${{ secrets.BOOKSERVICE_REGISTRY_PASSWORD }}
+          containerAppName: book-service
+          resourceGroup: thekade-nalandaa
+          imageToBuild: ghcr.io/book-service:${{ github.sha }}
+          _buildArgumentsKey_: |
+            _buildArgumentsValues_
+
+
