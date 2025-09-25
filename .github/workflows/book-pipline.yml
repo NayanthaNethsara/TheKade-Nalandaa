@@ -90,9 +90,9 @@ jobs:
       - name: Azure Login
         uses: azure/login@v1
         with:
-          client-id: ${{ secrets.BookService_AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.BookService_AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.BookService_AZURE_SUBSCRIPTION_ID }}
+          client-id: ${{ secrets.BOOKSERVICE_AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.BOOKSERVICE_AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.BOOKSERVICE_AZURE_SUBSCRIPTION_ID }}
 
       - name: Deploy to Azure Container App
         run: |
