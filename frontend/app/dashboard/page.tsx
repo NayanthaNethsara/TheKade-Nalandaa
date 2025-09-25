@@ -1,39 +1,27 @@
-"use client";
+import { BookGrid } from "@/components/book-grid";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import Link from "next/link";
 
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import CitizenDashboard from "@/components/citizen-dashboard";
-import AdminDashboard from "@/components/admin-dashboard";
-
-export default function Dashboard() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (status === "loading") return; // Still loading
-
-    if (!session) {
-      router.push("/");
-      return;
-    }
-  }, [session, status, router]);
-
-  if (status === "loading") {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="w-8 h-8 border-2 border-t-transparent border-gray-600 rounded-full animate-spin"></div>
+export default function HomePage() {
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-balance">Book Collection</h1>
+          <p className="text-muted-foreground mt-2">
+            Manage and explore your digital book library
+          </p>
+        </div>
+        <Link href="/books/new">
+          <Button className="gap-2">
+            <Plus className="h-4 w-4" />
+            Add Book
+          </Button>
+        </Link>
       </div>
-    );
-  }
 
-  if (!session) {
-    return null;
-  }
-
-  return session.user.role === "Admin" ? (
-    <AdminDashboard />
-  ) : (
-    <CitizenDashboard />
+      <BookGrid />
+    </div>
   );
 }
