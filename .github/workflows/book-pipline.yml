@@ -200,6 +200,6 @@ jobs:
       - name: Deploy to Azure Container App
         run: |
           az containerapp update \
-            --name auth-service \
+            --name book-service \
             --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
             --image ghcr.io/nayanthanethsara/BookService:latest
