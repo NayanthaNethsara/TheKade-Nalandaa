@@ -100,3 +100,106 @@ jobs:
             --name book-service \
             --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
             --image ghcr.io/nayanthanethsara/bookservice:latest
+
+name: Build, Test & Deploy BookService
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - "backend/BookService/**"
+      - "backend/BookService.Tests/**"
+      - ".github/workflows/ci.yml"
+  pull_request:
+    branches: [dev]
+    paths:
+      - "backend/BookService/**"
+      - "backend/BookService.Tests/**"
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+  packages: write
+
+jobs:
+  # Build & Test job
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Restore dependencies
+        run: dotnet restore ./backend/BookService/BookService.csproj
+
+      - name: Build
+        run: dotnet build ./backend/BookService/BookService.csproj --configuration Release --no-restore
+
+      - name: Run Tests
+        run: dotnet test ./backend/BookService.Tests/BookService.Tests.csproj --no-build --logger:"junit;LogFilePath=backend/BookService.Tests/TestResults/TestResults.xml;AssemblyName=BookService.Tests"
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: ./backend/BookService.Tests/TestResults/TestResults.xml
+
+      - name: Publish Test Report
+        uses: dorny/test-reporter@v2
+        with:
+          name: BookService Tests
+          path: ./backend/BookService.Tests/TestResults/TestResults.xml
+          reporter: jest-junit
+
+  # 2️ Build Docker & Push to GHCR
+  docker-build-and-push:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_PAT }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          tags: ghcr.io/nayanthanethsara/BookService:latest
+          context: ./backend/BookService
+          file: ./backend/BookService/Dockerfile
+
+  # Deploy to Azure
+  deploy:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    needs: docker-build-and-push
+    steps:
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.BookService_AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.BookService_AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.BookService_AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy to Azure Container App
+        run: |
+          az containerapp update \
+            --name auth-service \
+            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+            --image ghcr.io/nayanthanethsara/BookService:latest
