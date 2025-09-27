@@ -1,130 +1,135 @@
-# 📚 Nalandaa - cloud-based eBook platform
+# TheKade Nalandaa
 
-A cloud-based eBook platform that enables authors to
-publish books and readers to discover and read them online. The system provides a modern, subscription-style
-model where free and premium readers can access digital content. Admins regulate uploaded books, users, and
-system activity.
-
-![Ui](./docs/assets/ui.png)
-
----
-## Architecture Overview
-
-![Architecture Diagram](./docs/assets/arch.jpeg)
-
----
-## Tech Stack
-
-### Frontend
-- **Framework**: Next.js 15.5.2 with App Router
-- **Core Library**: React 19.1.0
-- **Language**: TypeScript 5.9.2
-- **Styling**: Tailwind CSS 4.1.12 
-- **UI Components**: Radix UI + Custom Components
-- **Deployment**: Vercel 
-
-### Backend Services
-- **Runtime**: .NET 9.0
-- **Framework**: ASP.NET Core 9.0
-- **Database**: Azure SQL DB
-- **ORM**: Entity Framework Core 9.0.8
-- **Authentication**: JWT + Google OAuth 2.0
-- **API Documentation**: Swagger
-- **Containerization**: Docker
-- **Deployment**: Azure Container Apps
+A microservices-based system built with **.NET backend** and **Next.js frontend**.
 
 ---
 
-### DevOps & Infrastructure
-- **CI/CD**: GitHub Actions 
-- **Container Registry**: GitHub Container Registry (GHCR)
-- **Infrastructure**: Azure Container Apps 
-- **Database**: Azure SQL DB
-- **Frontend Hosting**: Vercel
+## Overview
 
-![cicd](./docs/assets/ci.png)
+- **Backend:** .NET microservices (Auth, Book, Subscription, Analytic)
+- **Frontend:** Next.js (App Router, TypeScript)
+- **Databases:** SQL Server & PostgreSQL
+- **Other:** Redis, JWT Auth, Dockerized deployment
 
 ---
-## 📁 Project Structure
+
+## Repository Structure
 
 ```
-
-TheKade-Nalandaa/
-├── README.md
-├── .github/
-│   └── workflows/
-│       └── ci.yml
-├── backend/
-│   ├── docker-compose.yml
-│   ├── AuthService/
-|   |   ├── Configurations/
-│   │   ├── Controllers/
-│   │   ├── Models/
-│   │   ├── DTOs/
-│   │   ├── Helpers/
-│   │   ├── Repositories/
-│   │   ├── Properties
-│   │   ├── Services/
-│   │   ├── Data/
-│   │   ├── Migrations/
-│   │   └── Dockerfile
-│   ├── AuthService.Tests/
-│   └── BookService/
-└── frontend/
-    ├── package.json
-    ├── app/
-    ├── components/
-    ├── lib/
-    ├── Config/
-    ├── Public/
-    ├── hooks/
-    └── types/
-
+/backend    -> All microservices (.NET)
+   /AuthService
+   /BookService
+   /SubscriptionService
+   /AnalyticService
+/frontend   -> Next.js app
+/docs       -> Architecture, deployment, API docs
 ```
 
 ---
 
-## Deployment Strategy
+## 📘 Documentation
 
-
-  ### Vercel Deployment (Frontend)
-1. **Connect Repository**: Link GitHub repo to Vercel
-2. **Environment Variables**: Set production environment variables
-3. **Automatic Deployment**: Every push to `dev` triggers deployment
-4. **Custom Domain**: Configure the domain in Vercel dashboard
-
-![vercel](./docs/assets/vercel.png)
-
-  ### Azure Deployment (Backend)
-1. **GitHub Secrets**: Configure Azure credentials
-2. **Push to Dev**: GitHub Actions deploys AuthService, BookService
-3. **Container Deployment**: Azure Container Apps
- 
----
-
-## Quick Start
-
-### Prerequisites
-- **Node.js** 18.17+ and npm/yarn
-- **.NET 9.0 SDK**
-- **SQL Server** (LocalDB or server)
-- **Docker**  
-- **Git**
- ---
-## Acknowledgments
-
-- **Microsoft** for .NET and Azure platform
-- **Vercel** for Next.js hosting
-- **Google** for OAuth services
-- **GitHub** for Actions and Container Registry
+- [Backend Documentation](./backend/README.md)
+- [Frontend Documentation](./frontend/README.md)
+- [Architecture & System Design](./docs/ARCHITECTURE.md)
+- [Deployment Guide](./docs/DEPLOYMENT.md)
+- [API Guide](./docs/API_GUIDE.md)
 
 ---
 
- [Branching Strategy](docs/branching-strategy.md)
+## Architecture Diagram
 
- 
+```mermaid
+graph TD
+    subgraph Frontend
+        FE[Next.js Frontend]
+    end
+
+    subgraph Gateway
+        GW[API Gateway]
+    end
+
+    subgraph Backend
+        AS[AuthService]
+        BS[BookService]
+        SS[SubscriptionService]
+        AN[AnalyticService]
+    end
+
+    subgraph Databases
+        SQL1[(SQL Server - Auth)]
+        SQL2[(SQL Server - Subscription)]
+        PG1[(Postgres - Book)]
+        PG2[(Postgres - Analytic)]
+    end
+
+    FE --> GW
+    GW --> AS
+    GW --> BS
+    GW --> SS
+    GW --> AN
+
+    AS --> SQL1
+    SS --> SQL2
+    BS --> PG1
+    AN --> PG2
+```
+
 ### 1. Clone Repository
+
 ```bash
 git clone https://github.com/NayanthaNethsara/TheKade-Nalandaa.git
 Cd  TheKade-Nalandaa
 ```
+
+## Quick Start (Local)
+
+### Prerequisites
+
+- **Node.js** 18.17+ and npm/yarn
+- **.NET 9.0 SDK**
+- **SQL Server** (LocalDB or server)
+- **Docker**
+- ## **Git**
+
+### 1. Backend (Microservices)
+
+1. Go to the backend folder:
+   ```bash
+   cd backend
+   ```
+2. Copy environment variables:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+   Update `.env` with your local config if needed.
+
+3. Start all backend services:
+   ```bash
+   docker-compose up --build
+   ```
+   - AuthService → http://localhost:5001
+   - BookService → http://localhost:5002
+   - SubscriptionService → http://localhost:5003
+   - AnalyticService → http://localhost:5004
+   - API Gateway → http://localhost:8000
+
+### 2. Frontend (Next.js)
+
+1. Go to the frontend folder:
+   ```bash
+   cd frontend
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start development server:
+   ```bash
+   npm run dev
+   ```
+   Open → http://localhost:3000
+
+---
