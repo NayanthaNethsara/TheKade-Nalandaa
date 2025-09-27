@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Frontend - TheKade
 
-## Getting Started
+Built with **Next.js 15 (App Router, TypeScript)**.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🚀 Overview
+
+The frontend is a **Next.js 15** application using the App Router.  
+It communicates with backend microservices via the **API Gateway**.
+
+### Key Libraries & Tools
+
+- **shadcn/ui** → UI components
+- **NextAuth.js** → JWT-based authentication management
+- **Tailwind CSS** → Styling
+- **TypeScript** → Type safety
+
+---
+
+## 📂 Project Structure
+
+```
+/app/api        -> API routes (proxy to API Gateway)
+/components/ui  -> shadcn UI components
+/components     -> Project-specific React components
+/lib            -> Utilities & helpers
+/util           -> Utility functions
+/types          -> TypeScript type definitions
+/config         -> Configuration files (constants, envs)
+/hooks          -> Custom React hooks
+/public         -> Static assets
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## ⚡ Setup & Run
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Copy environment variables:
 
-## Learn More
+   ```bash
+   cp .env.example .env
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+2. Install dependencies:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   ```bash
+   npm install
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+3. Start development server:
+   ```bash
+   npm run dev
+   ```
 
-## Deploy on Vercel
+The app will run at → `http://localhost:3000`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🔑 Authentication
+
+- Authentication is handled via **NextAuth.js**.
+- JWT tokens (issued by the AuthService) are stored and managed automatically.
+- Use `useSession()` hook from NextAuth to access the current logged-in user.
+
+---
+
+## 🎨 UI Components
+
+- The project uses **shadcn/ui** for reusable UI components.
+- New components should be placed inside `/components/ui` or `/components` depending on scope.
+
+---
+
+## 📘 Notes
+
+- All API requests go through `/app/api/*` which acts as a proxy to the backend API Gateway.
+- Ensure your backend (microservices) is running before using the frontend.
