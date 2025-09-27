@@ -1,6 +1,11 @@
 # TheKade Nalandaa
 
-A microservices-based system built with **.NET backend** and **Next.js frontend**.
+A cloud-based eBook platform that enables authors to
+publish books and readers to discover and read them online. The system provides a modern, subscription-style
+model where free and premium readers can access digital content. Admins regulate uploaded books, users, and
+system activity.
+
+![Ui](./docs/assets/ui.png)
 
 ---
 
@@ -27,13 +32,14 @@ A microservices-based system built with **.NET backend** and **Next.js frontend*
 
 ---
 
-## 📘 Documentation
+## Documentation
 
 - [Backend Documentation](./backend/README.md)
 - [Frontend Documentation](./frontend/README.md)
-- [Architecture & System Design](./docs/ARCHITECTURE.md)
-- [Deployment Guide](./docs/DEPLOYMENT.md)
 - [API Guide](./docs/API_GUIDE.md)
+- [Branching Guide](./docs/BRANCHING.md)
+- [Architecture & System Design](./docs/AZURE_SETUP.md)
+- [Deployment Guide](./docs/DEPLOYMENT.md)
 
 ---
 
@@ -90,7 +96,7 @@ Cd  TheKade-Nalandaa
 - **.NET 9.0 SDK**
 - **SQL Server** (LocalDB or server)
 - **Docker**
-- ## **Git**
+- **Git**
 
 ### 1. Backend (Microservices)
 
