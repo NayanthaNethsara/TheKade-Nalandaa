@@ -2,10 +2,12 @@ import { jwtDecode } from "jwt-decode";
 
 interface JwtPayload {
   role: string;
-  sub: string;
+  sub: number;
   iat: number;
   exp: number;
-  userId: number;
+  name: string;
+  email: string;
+  subscription: string;
 }
 export const readRoleFromJwt = (accessToken: string): string | null => {
   try {
@@ -19,7 +21,7 @@ export const readRoleFromJwt = (accessToken: string): string | null => {
 export const readNameFromJwt = (accessToken: string): string | null => {
   try {
     const decoded: JwtPayload = jwtDecode<JwtPayload>(accessToken);
-    return decoded.sub;
+    return decoded.name;
   } catch {
     return null;
   }
@@ -28,7 +30,7 @@ export const readNameFromJwt = (accessToken: string): string | null => {
 export const readIdFromJwt = (accessToken: string): number | null => {
   try {
     const decoded: JwtPayload = jwtDecode<JwtPayload>(accessToken);
-    return decoded.userId;
+    return decoded.sub;
   } catch {
     return null;
   }

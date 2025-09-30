@@ -7,8 +7,10 @@ declare module "next-auth" {
       accessToken: string;
       role: string;
       subscription: string;
-      userId: number;
+      sub: number;
       accessTokenExpires: number;
+      name: string;
+      email: string;
     };
   }
 }
@@ -18,7 +20,9 @@ declare module "next-auth/jwt" {
     accessToken: string;
     role: string;
     subscription: string;
-    userId: number;
+    sub: number;
     accessTokenExpires: number;
+    name: string;
+    email: string;
   }
 }
