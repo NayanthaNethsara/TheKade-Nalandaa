@@ -1,17 +1,52 @@
 <testsuites>
-  <testsuite name="AuthService.Tests.dll" tests="4" skipped="0" failures="0" errors="0" time="0.47558979999999995" timestamp="2025-09-09T14:10:41" hostname="nayanthanethsaras-MacBook-Air" id="0" package="AuthService.Tests.dll">
+  <testsuite name="BookService.Tests.dll" tests="39" skipped="0" failures="0" errors="0" time="1.0140381999999994" timestamp="2025-09-30T18:32:57" hostname="nayanthanethsaras-MacBook-Air" id="0" package="BookService.Tests.dll">
     <properties />
-    <testcase classname="AuthService.Tests.Services.JwtServiceTests" name="GenerateToken_ReturnsTokenString" time="0.0186811" />
-    <testcase classname="AuthService.Tests.Helpers.GoogleOAuthHelperTests" name="ExchangeCodeAsync_ReturnsUserInfo" time="0.0430679" />
-    <testcase classname="AuthService.Tests.UserServiceTests" name="Cannot_Add_Duplicate_Email" time="0.3287305" />
-    <testcase classname="AuthService.Tests.UserServiceTests" name="Can_Add_User" time="0.0851103" />
+    <testcase classname="BookService.Tests.BooksControllerTests" name="GetAll_ShouldReturnOkResult_WithBookList" time="0.0547082" />
+    <testcase classname="BookService.Tests.BooksControllerTests" name="GetChunk_ShouldReturnOkResult_WhenChunkExists" time="0.0072305" />
+    <testcase classname="BookService.Tests.BooksControllerTests" name="GetById_ShouldReturnNotFound_WhenBookDoesNotExist" time="0.0017632" />
+    <testcase classname="BookService.Tests.BooksControllerTests" name="GetChunk_ShouldCallServiceOnce_WithCorrectParameters" time="0.0030448" />
+    <testcase classname="BookService.Tests.BooksControllerTests" name="Create_ShouldCallServiceOnce_WithCorrectDto" time="0.0052298" />
+    <testcase classname="BookService.Tests.BooksControllerTests" name="GetChunk_ShouldReturnNotFound_WhenChunkDoesNotExist" time="0.0005571" />
+    <testcase classname="BookService.Tests.BooksControllerTests" name="GetById_ShouldReturnOkResult_WhenBookExists" time="0.0005687" />
+    <testcase classname="BookService.Tests.BooksControllerTests" name="GetById_ShouldCallServiceOnce_WithCorrectId" time="0.0004211" />
+    <testcase classname="BookService.Tests.BooksControllerTests" name="GetAll_ShouldReturnOkResult_WithEmptyList_WhenNoBooksExist" time="0.0007776" />
+    <testcase classname="BookService.Tests.BooksControllerTests" name="Create_ShouldReturnCreatedResult_WithValidBook" time="0.0016381" />
+    <testcase classname="BookService.Tests.BookRepositoryTests" name="UpdateAsync_ShouldUpdateBook_WhenBookExists" time="0.2477944" />
+    <testcase classname="BookService.Tests.BookChunkRepositoryTests" name="AddAsync_ShouldAddChunkToBook" time="0.2546236" />
+    <testcase classname="BookService.Tests.BookChunkRepositoryTests" name="GetByBookIdAsync_ShouldReturnChunks_WhenChunksExist" time="0.0447408" />
+    <testcase classname="BookService.Tests.BookRepositoryTests" name="GetByIdAsync_ShouldReturnBook_WhenBookExists" time="0.0515274" />
+    <testcase classname="BookService.Tests.BookServiceTests" name="GetAllBooksAsync_ShouldReturnAllBooks_WhenBooksExist" time="0.2996078" />
+    <testcase classname="BookService.Tests.BookRepositoryTests" name="AddAsync_ShouldAddBookToDatabase" time="0.0005844" />
+    <testcase classname="BookService.Tests.BookServiceTests" name="GetAllBooksAsync_ShouldReturnEmptyList_WhenNoBooksExist" time="0.0009685" />
+    <testcase classname="BookService.Tests.BookChunkRepositoryTests" name="GetByBookIdAsync_ShouldReturnEmptyCollection_WhenBookHasNoChunks" time="0.0014019" />
+    <testcase classname="BookService.Tests.BookServiceTests" name="UpdateBookAsync_ShouldUpdateBook_WhenBookExists" time="0.0010934" />
+    <testcase classname="BookService.Tests.BookChunkRepositoryTests" name="UpdateAsync_ShouldUpdateExistingChunk" time="0.0008147" />
+    <testcase classname="BookService.Tests.BookChunkRepositoryTests" name="GetByBookIdAsync_ShouldReturnEmptyCollection_WhenBookDoesNotExist" time="0.0002761" />
+    <testcase classname="BookService.Tests.BookServiceTests" name="GetBookByIdAsync_ShouldReturnNull_WhenBookDoesNotExist" time="0.0004441" />
+    <testcase classname="BookService.Tests.BookChunkRepositoryTests" name="GetByIdAsync_ShouldReturnChunk_WhenChunkExists" time="0.0005605" />
+    <testcase classname="BookService.Tests.BookChunkRepositoryTests" name="DeleteAsync_ShouldDeleteChunk_WhenChunkExists" time="0.0048767" />
+    <testcase classname="BookService.Tests.BookServiceTests" name="DeleteBookAsync_ShouldDeleteBook_WhenBookExists" time="0.0054093" />
+    <testcase classname="BookService.Tests.BookRepositoryTests" name="DeleteAsync_ShouldDeleteBook_WhenBookExists" time="0.0075810" />
+    <testcase classname="BookService.Tests.BookRepositoryTests" name="GetByIdAsync_ShouldReturnNull_WhenBookDoesNotExist" time="0.0003502" />
+    <testcase classname="BookService.Tests.BookChunkRepositoryTests" name="GetByBookIdAsync_ShouldReturnChunksOrderedByChunkNumber" time="0.0007170" />
+    <testcase classname="BookService.Tests.BookServiceTests" name="DeleteBookAsync_ShouldReturnFalse_WhenBookDoesNotExist" time="0.0007015" />
+    <testcase classname="BookService.Tests.BookChunkRepositoryTests" name="GetByIdAsync_ShouldReturnNull_WhenChunkDoesNotExist" time="0.0002716" />
+    <testcase classname="BookService.Tests.BookRepositoryTests" name="GetAllAsync_ShouldReturnAllBooks_WhenBooksExist" time="0.0006129" />
+    <testcase classname="BookService.Tests.BookServiceTests" name="UpdateBookAsync_ShouldReturnNull_WhenBookDoesNotExist" time="0.0003122" />
+    <testcase classname="BookService.Tests.BookRepositoryTests" name="DeleteAsync_ShouldReturnFalse_WhenBookDoesNotExist" time="0.0002384" />
+    <testcase classname="BookService.Tests.BookServiceTests" name="GetBookByIdAsync_ShouldReturnBook_WhenBookExists" time="0.0005390" />
+    <testcase classname="BookService.Tests.BookServiceTests" name="CreateBookAsync_ShouldCreateBookSuccessfully" time="0.0042825" />
+    <testcase classname="BookService.Tests.BookRepositoryTests" name="AddAsync_ShouldAddBookWithChunks" time="0.0049795" />
+    <testcase classname="BookService.Tests.BookServiceTests" name="CreateBookAsync_ShouldCreateBookWithChunks_WhenChunkUrlsProvided" time="0.0010054" />
+    <testcase classname="BookService.Tests.BookRepositoryTests" name="GetByIdAsync_ShouldIncludeAllChunks" time="0.0015058" />
+    <testcase classname="BookService.Tests.BookRepositoryTests" name="GetAllAsync_ShouldReturnEmptyList_WhenNoBooksExist" time="0.0002785" />
     <system-out>
 Test Framework Informational Messages:
 [xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.8.2+699d445a1a (64-bit .NET 9.0.7)
-[xUnit.net 00:00:00.03]   Discovering: AuthService.Tests
-[xUnit.net 00:00:00.04]   Discovered:  AuthService.Tests
-[xUnit.net 00:00:00.04]   Starting:    AuthService.Tests
-[xUnit.net 00:00:00.47]   Finished:    AuthService.Tests
+[xUnit.net 00:00:00.03]   Discovering: BookService.Tests
+[xUnit.net 00:00:00.04]   Discovered:  BookService.Tests
+[xUnit.net 00:00:00.05]   Starting:    BookService.Tests
+[xUnit.net 00:00:00.38]   Finished:    BookService.Tests
 </system-out>
     <system-err></system-err>
   </testsuite>
