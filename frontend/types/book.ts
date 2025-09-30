@@ -10,6 +10,10 @@ export interface Book {
   updatedAt?: string;
 }
 
+export interface BookWithChunk extends Book {
+  chunkPath: string;
+}
+
 export interface BookChunk {
   chunkNumber: number;
   url: string;
