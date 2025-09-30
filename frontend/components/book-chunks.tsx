@@ -1,92 +1,134 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { ExternalLink, FileText } from "lucide-react"
+import { useState, useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FileText } from "lucide-react";
+
+// Dynamically import react-pdf components to avoid SSR issues
+const PDFDocument = dynamic(
+  async () => {
+    const { Document, pdfjs } = await import("react-pdf");
+
+    // Set local worker
+    pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+      "pdfjs-dist/build/pdf.worker.min.mjs",
+      import.meta.url
+    ).toString();
+
+    return Document;
+  },
+  { ssr: false }
+);
+
+const PDFPage = dynamic(
+  async () => {
+    const { Page } = await import("react-pdf");
+    return Page;
+  },
+  { ssr: false }
+);
 
 interface BookChunksProps {
-  chunkUrls: string[]
-  title: string
+  chunkUrl: string;
+  title: string;
 }
 
-export function BookChunks({ chunkUrls, title }: BookChunksProps) {
-  const [loadingChunk, setLoadingChunk] = useState<string | null>(null)
+export function BookChunks({ chunkUrl, title }: BookChunksProps) {
+  const [numPages, setNumPages] = useState<number>(0);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [scale, setScale] = useState(1);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [containerWidth, setContainerWidth] = useState(600);
 
-  const handleChunkClick = async (url: string) => {
-    setLoadingChunk(url)
-    try {
-      // Open PDF in new tab
-      window.open(url, "_blank")
-    } catch (error) {
-      console.error("Error opening chunk:", error)
-    } finally {
-      setLoadingChunk(null)
-    }
-  }
+  // Update container width for responsive rendering
+  useEffect(() => {
+    if (!containerRef.current) return;
 
-  if (chunkUrls.length === 0) {
-    return (
-      <Card>
-        <CardContent className="pt-6">
-          <div className="text-center py-8">
-            <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No chunks available</h3>
-            <p className="text-muted-foreground">This book doesn't have any PDF chunks yet.</p>
-          </div>
-        </CardContent>
-      </Card>
-    )
-  }
+    const handleResize = () => {
+      const width = containerRef.current?.clientWidth || 600;
+      setContainerWidth(Math.min(width, 800));
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") nextPage();
+      if (e.key === "ArrowLeft") prevPage();
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [pageNumber, numPages]);
+
+  const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
+    setNumPages(numPages);
+  };
+
+  const nextPage = () => {
+    if (pageNumber < numPages) setPageNumber(pageNumber + 1);
+  };
+
+  const prevPage = () => {
+    if (pageNumber > 1) setPageNumber(pageNumber - 1);
+  };
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <FileText className="h-5 w-5" />
-          Book Chunks
-          <Badge variant="secondary">{chunkUrls.length}</Badge>
+          {title} - Reader
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-3">
-          {chunkUrls.map((url, index) => (
-            <div
-              key={index}
-              className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 bg-red-100 dark:bg-red-900/20 rounded-lg flex items-center justify-center">
-                  <FileText className="h-5 w-5 text-red-600 dark:text-red-400" />
-                </div>
-                <div>
-                  <p className="font-medium">
-                    {title} - Part {index + 1}
-                  </p>
-                  <p className="text-sm text-muted-foreground">PDF Document</p>
-                </div>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleChunkClick(url)}
-                disabled={loadingChunk === url}
-                className="gap-2"
-              >
-                {loadingChunk === url ? (
-                  "Opening..."
-                ) : (
-                  <>
-                    <ExternalLink className="h-4 w-4" />
-                    Open
-                  </>
-                )}
-              </Button>
-            </div>
-          ))}
+      <CardContent ref={containerRef} className="flex flex-col items-center">
+        <PDFDocument file={chunkUrl} onLoadSuccess={onDocumentLoadSuccess}>
+          <PDFPage
+            pageNumber={pageNumber}
+            width={containerWidth}
+            scale={scale}
+            renderAnnotationLayer={false}
+            renderTextLayer={false} // removes warnings
+          />
+        </PDFDocument>
+
+        <div className="flex gap-2 mt-2 items-center">
+          <button
+            onClick={prevPage}
+            disabled={pageNumber === 1}
+            className="px-3 py-1 border rounded disabled:opacity-50"
+          >
+            Prev
+          </button>
+          <span>
+            Page {pageNumber} of {numPages}
+          </span>
+          <button
+            onClick={nextPage}
+            disabled={pageNumber === numPages}
+            className="px-3 py-1 border rounded disabled:opacity-50"
+          >
+            Next
+          </button>
+
+          <button
+            onClick={() => setScale(scale + 0.1)}
+            className="px-3 py-1 border rounded"
+          >
+            Zoom In
+          </button>
+          <button
+            onClick={() => setScale(scale - 0.1)}
+            className="px-3 py-1 border rounded"
+          >
+            Zoom Out
+          </button>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
