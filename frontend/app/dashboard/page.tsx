@@ -1,38 +1,36 @@
 "use client";
 
-import { BookGrid } from "@/components/book-grid";
-import { SearchFilters } from "@/components/search-filters";
-import { BookOpen } from "lucide-react";
-import { useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import ReaderDashboard from "@/components/dashboard/reader-dashboard";
 
-export default function HomePage() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [activeFilters, setActiveFilters] = useState<string[]>([]);
+export default function Dashboard() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
 
-  return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <SearchFilters
-            onSearch={setSearchQuery}
-            onFilterChange={setActiveFilters}
-          />
-        </div>
+  useEffect(() => {
+    if (status === "loading") return; // Still loading
 
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold text-foreground mb-2">
-            {searchQuery || activeFilters.length > 0
-              ? "Search Results"
-              : "All Books"}
-          </h2>
-          <p className="text-muted-foreground text-sm">
-            {activeFilters.length > 0 &&
-              `Filtered by: ${activeFilters.join(", ")}`}
-          </p>
-        </div>
+    if (!session) {
+      router.push("/");
+      return;
+    }
+  }, [session, status, router]);
 
-        <BookGrid searchQuery={searchQuery} filters={activeFilters} />
+  if (status === "loading") {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="w-8 h-8 border-2 border-t-transparent border-gray-600 rounded-full animate-spin"></div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  if (!session) {
+    return null;
+  }
+
+  console.log("User Role:", session.user.role);
+
+  return <ReaderDashboard />;
 }

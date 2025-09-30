@@ -186,7 +186,7 @@ export function AppSidebar() {
               className="flex items-center gap-2 w-full text-sm"
             >
               <LogOut className="h-4 w-4" />
-              <span>Logout</span>
+              <span>Logout {user.role}</span>
             </button>
           </SidebarMenuButton>
         </motion.div>
