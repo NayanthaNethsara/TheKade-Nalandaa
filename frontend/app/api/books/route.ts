@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 
-const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:5064";
+const BACKEND_URL = process.env.BOOK_API_BASE_URL || "http://localhost:5064";
 
 export async function GET() {
   try {
