@@ -4,9 +4,9 @@ const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:5064";
 
 export async function GET(
   request: Request,
-  { params }: { params: { bookId: string } }
+  { params }: { params: Promise<{ bookId: string }> }
 ) {
-  const { bookId } = params;
+  const bookId = (await params).bookId;
   try {
     const response = await fetch(`${BACKEND_URL}/api/Books/${bookId}`, {
       headers: {
@@ -20,10 +20,8 @@ export async function GET(
     }
 
     const book = await response.json();
-    console.log("[v0] Successfully fetched book from backend:", book);
     return NextResponse.json(book);
   } catch (error) {
-    console.error("Error fetching book from backend:", error);
     return NextResponse.json({});
   }
 }

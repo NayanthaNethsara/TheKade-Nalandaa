@@ -9,7 +9,7 @@ const supabase = createClient(
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { type: string } }
+  { params }: { params: Promise<{ type: string }> }
 ) {
   try {
     const formData = await req.formData();
@@ -19,7 +19,7 @@ export async function POST(
       return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
     }
 
-    const bucket = params.type === "cover" ? "cover-photo" : "books";
+    const bucket = (await params).type === "cover" ? "cover-photo" : "books";
     const ext = file.name.split(".").pop();
     const filePath = `${Date.now()}-${crypto.randomUUID()}.${ext}`;
 

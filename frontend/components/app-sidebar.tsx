@@ -103,12 +103,12 @@ export function AppSidebar() {
   }
 
   const user = {
-    username: session.user.userId || "Guest",
-    role: session.user.role?.toUpperCase() || "CITIZEN",
+    username: session.user.name || "Guest",
+    role: session.user.role || "Reader",
   };
 
   // Show items based on role
-  const visibleItems = user.role === "ADMIN" ? adminItems : citizenItems;
+  const visibleItems = user.role === "Admin" ? adminItems : citizenItems;
 
   return (
     <Sidebar

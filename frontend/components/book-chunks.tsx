@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText } from "lucide-react";
@@ -55,6 +55,14 @@ export function BookChunks({ chunkUrl, title }: BookChunksProps) {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const nextPage = useCallback(() => {
+    if (pageNumber < numPages) setPageNumber(pageNumber + 1);
+  }, [pageNumber, numPages]);
+
+  const prevPage = useCallback(() => {
+    if (pageNumber > 1) setPageNumber(pageNumber - 1);
+  }, [pageNumber]);
+
   // Keyboard navigation
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -63,18 +71,10 @@ export function BookChunks({ chunkUrl, title }: BookChunksProps) {
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [pageNumber, numPages]);
+  }, [pageNumber, numPages, scale, nextPage, prevPage]);
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
-  };
-
-  const nextPage = () => {
-    if (pageNumber < numPages) setPageNumber(pageNumber + 1);
-  };
-
-  const prevPage = () => {
-    if (pageNumber > 1) setPageNumber(pageNumber - 1);
   };
 
   return (
