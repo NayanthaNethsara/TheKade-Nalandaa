@@ -10,6 +10,12 @@ export interface Book {
   updatedAt?: string;
 }
 
+export interface BookChunk {
+  chunkNumber: number;
+  url: string;
+  bookId: number;
+}
+
 export interface BookFormData {
   title: string;
   description: string;

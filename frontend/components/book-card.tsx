@@ -22,7 +22,7 @@ export function BookCard({ book }: BookCardProps) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <Link href={`/book/${book.titleSlug}`}>
+      <Link href={`/books/${book.titleSlug}`}>
         <div className="aspect-[3/4] relative overflow-hidden cursor-pointer">
           <Image
             src={

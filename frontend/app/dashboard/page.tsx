@@ -44,13 +44,6 @@ export default function Dashboard() {
   const userName = session.user.name;
   const userEmail = session.user.email;
 
-  console.log("User Name:", userName);
-  console.log("User Email:", userEmail);
-  console.log("User Subscription:", userSubscription);
-
-  console.log("User ID:", userId);
-  console.log("User Role:", userRole);
-
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-6 sm:py-8">
@@ -65,7 +58,9 @@ export default function Dashboard() {
                 Your personal reading collection
               </p>
             </div>
-            <AddBookModal authorId={0} authorName={""} />
+            {userRole === "Author" && (
+              <AddBookModal authorId={userId} authorName={userName} />
+            )}
           </div>
         </div>
 

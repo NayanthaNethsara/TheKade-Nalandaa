@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import type { Book } from "@/lib/types";
+import type { Book } from "@/types/book";
 import { BookChunks } from "@/components/book-chunks";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -19,11 +19,14 @@ import { ArrowLeft, User, Calendar } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
-export default function BookDetailPage() {
-  const params = useParams();
-  const router = useRouter();
-  const slug = params.slug as string;
+interface BookDetailPageProps {
+  params: {
+    slug: string;
+  };
+}
 
+export default function BookDetailPage({ params }: BookDetailPageProps) {
+  const { slug } = params;
   const [book, setBook] = useState<Book | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
