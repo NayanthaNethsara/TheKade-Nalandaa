@@ -14,7 +14,6 @@ export async function GET(req: NextRequest) {
     if (!session)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const { searchParams } = new URL(req.url);
     const id = req.nextUrl.pathname.split("/").pop();
 
     const res = await fetch(`${API_BASE_URL}/api/users/author/${id}`, {

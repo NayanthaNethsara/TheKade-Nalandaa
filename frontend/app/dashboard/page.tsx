@@ -1,11 +1,8 @@
 "use client";
 
 import { BookGrid } from "@/components/book-grid";
-import { SearchFilters } from "@/components/search-filters";
 import { AddBookModal } from "@/components/model/add-book-model";
 import { Library } from "lucide-react";
-import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -13,9 +10,6 @@ import { useEffect } from "react";
 export default function Dashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [activeFilters, setActiveFilters] = useState<string[]>([]);
-  const [sortBy, setSortBy] = useState<string>("recent");
 
   useEffect(() => {
     if (status === "loading") return; // Still loading
@@ -62,33 +56,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="mb-8">
-          <SearchFilters
-            onSearch={setSearchQuery}
-            onFilterChange={setActiveFilters}
-            onSortChange={setSortBy}
-          />
-        </div>
-
-        {/* Results Header */}
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h2 className="text-xl sm:text-2xl font-semibold text-foreground mb-1">
-              {searchQuery ? `Results for "${searchQuery}"` : "All Books"}
-            </h2>
-            {activeFilters.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-2">
-                {activeFilters.map((filter) => (
-                  <Badge key={filter} variant="secondary" className="text-xs">
-                    {filter}
-                  </Badge>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <BookGrid searchQuery={searchQuery} filters={activeFilters} />
+        <BookGrid />
       </div>
     </div>
   );
