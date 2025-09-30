@@ -4,6 +4,7 @@ using BookService.Repositories;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace BookService.Services
 {
@@ -46,19 +47,22 @@ namespace BookService.Services
             );
         }
 
-        public async Task<BookDto?> GetBookByIdAsync(int id)
+        public async Task<BookWithChunkDto?> GetBookByIdAsync(int id)
         {
             var book = await _bookRepo.GetByIdAsync(id);
             if (book == null) return null;
 
-            return new BookDto(
+            var firstChunkPath = book.Chunks.FirstOrDefault()?.StoragePath ?? string.Empty;
+
+            return new BookWithChunkDto(
                 book.Id,
                 book.Title,
                 book.Description,
                 book.AuthorId,
                 book.AuthorName,
                 book.TitleSlug,
-                book.CoverImagePath
+                book.CoverImagePath,
+                firstChunkPath
             );
         }
 
@@ -88,7 +92,15 @@ namespace BookService.Services
             // Optionally update chunks if needed
             await _bookRepo.UpdateAsync(book);
 
-            return await GetBookByIdAsync(id);
+            return new BookDto(
+                book.Id,
+                book.Title,
+                book.Description,
+                book.AuthorId,
+                book.AuthorName,
+                book.TitleSlug,
+                book.CoverImagePath
+            );
         }
 
         public async Task<bool> DeleteBookAsync(int id)
