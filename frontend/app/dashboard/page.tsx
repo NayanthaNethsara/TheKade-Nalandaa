@@ -38,6 +38,19 @@ export default function Dashboard() {
     return null;
   }
 
+  const userId = session.user.sub;
+  const userRole = session.user.role;
+  const userSubscription = session.user.subscription;
+  const userName = session.user.name;
+  const userEmail = session.user.email;
+
+  console.log("User Name:", userName);
+  console.log("User Email:", userEmail);
+  console.log("User Subscription:", userSubscription);
+
+  console.log("User ID:", userId);
+  console.log("User Role:", userRole);
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-6 sm:py-8">

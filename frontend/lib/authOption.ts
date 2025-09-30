@@ -36,7 +36,7 @@ export const authOptions: NextAuthOptions = {
 
           const username = readNameFromJwt(data.token);
           const role = readRoleFromJwt(data.token);
-          const userId = readIdFromJwt(data.token);
+          const sub = readIdFromJwt(data.token);
 
           if (!username || !role) return null;
 
@@ -45,7 +45,7 @@ export const authOptions: NextAuthOptions = {
             accessToken: data.token,
             username,
             role,
-            userId,
+            sub,
           };
         } catch (error) {
           console.error("Error in authorize:", error);
@@ -64,12 +64,20 @@ export const authOptions: NextAuthOptions = {
           accessToken: string;
           username: string;
           role: string;
+          sub: number;
+          subscription: string;
+          name: string;
+          email: string;
         };
         const decoded = jwtDecode<DecodedJWT>(typedUser.accessToken);
 
         token.accessToken = typedUser.accessToken;
         token.role = typedUser.role;
         token.accessTokenExpires = decoded.exp * 1000;
+        token.subscription = decoded.subscription;
+        token.sub = decoded.sub;
+        token.name = decoded.name;
+        token.email = decoded.email;
       }
 
       // Check if token is still valid
@@ -84,9 +92,11 @@ export const authOptions: NextAuthOptions = {
       session.user = {
         role: token.role as string,
         accessToken: token.accessToken as string,
-        userId: token.userId as number,
+        sub: token.sub as number,
         subscription: token.subscription as string,
         accessTokenExpires: token.accessTokenExpires as number,
+        name: token.name as string,
+        email: token.email as string,
       };
       return session;
     },
