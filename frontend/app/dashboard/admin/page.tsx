@@ -6,8 +6,6 @@ import {
   Search,
   Users,
   Eye,
-  Mail,
-  Calendar,
   Download,
   MoreHorizontal,
   BookOpen,
@@ -47,12 +45,6 @@ export type User = {
   subscription?: string;
   createdAt: string;
   isActive: boolean;
-};
-
-const subscriptionColors = {
-  free: "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300",
-  premium:
-    "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300",
 };
 
 export default function UsersPage() {

@@ -103,12 +103,12 @@ export function AppSidebar() {
   }
 
   const user = {
-    username: session.user.userId || "Guest",
-    role: session.user.role?.toUpperCase() || "CITIZEN",
+    username: session.user.name || "Guest",
+    role: session.user.role || "Reader",
   };
 
   // Show items based on role
-  const visibleItems = user.role === "ADMIN" ? adminItems : citizenItems;
+  const visibleItems = user.role === "Admin" ? adminItems : citizenItems;
 
   return (
     <Sidebar
@@ -186,7 +186,7 @@ export function AppSidebar() {
               className="flex items-center gap-2 w-full text-sm"
             >
               <LogOut className="h-4 w-4" />
-              <span>Logout</span>
+              <span>Logout {user.role}</span>
             </button>
           </SidebarMenuButton>
         </motion.div>
