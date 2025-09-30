@@ -40,12 +40,10 @@ export default function Dashboard() {
 
   const userId = session.user.sub;
   const userRole = session.user.role;
-  const userSubscription = session.user.subscription;
   const userName = session.user.name;
-  const userEmail = session.user.email;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <div className="container mx-auto px-4 py-6 sm:py-8">
         <div className="mb-8 sm:mb-12">
           <div className="flex items-center gap-3 mb-4">
