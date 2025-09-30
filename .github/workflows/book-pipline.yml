@@ -38,8 +38,11 @@ jobs:
       - name: Build
         run: dotnet build ./backend/BookService/BookService.csproj --configuration Release --no-restore
 
+      - name: Create TestResults folder
+        run: mkdir -p ./backend/BookService.Tests/TestResults
+
       - name: Run Tests
-        run: dotnet test ./backend/BookService.Tests/BookService.Tests.csproj --no-build --logger:"junit;LogFilePath=backend/BookService.Tests/TestResults/TestResults.xml;AssemblyName=BookService.Tests"
+        run: dotnet test ./backend/BookService.Tests/BookService.Tests.csproj --no-build --logger "junit;LogFilePath=backend/BookService.Tests/TestResults/TestResults.xml;AssemblyName=BookService.Tests"
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
