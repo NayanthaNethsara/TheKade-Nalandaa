@@ -43,7 +43,8 @@ namespace BookService.Services
                 created.AuthorId,
                 created.AuthorName,
                 created.TitleSlug,
-                created.CoverImagePath
+                created.CoverImagePath,
+                created.IsApproved
             );
         }
 
@@ -62,7 +63,8 @@ namespace BookService.Services
                 book.AuthorName,
                 book.TitleSlug,
                 book.CoverImagePath,
-                firstChunkPath
+                firstChunkPath,
+                book.IsApproved
             );
         }
 
@@ -76,7 +78,38 @@ namespace BookService.Services
                 b.AuthorId,
                 b.AuthorName,
                 b.TitleSlug,
-                b.CoverImagePath
+                b.CoverImagePath,
+                b.IsApproved
+            )).ToList();
+        }
+
+        public async Task<List<BookDto>> GetApprovedBooksAsync()
+        {
+            var books = await _bookRepo.GetApprovedAsync();
+            return books.Select(b => new BookDto(
+                b.Id,
+                b.Title,
+                b.Description,
+                b.AuthorId,
+                b.AuthorName,
+                b.TitleSlug,
+                b.CoverImagePath,
+                b.IsApproved
+            )).ToList();
+        }
+
+        public async Task<List<BookDto>> GetPendingBooksAsync()
+        {
+            var books = await _bookRepo.GetPendingApprovalAsync();
+            return books.Select(b => new BookDto(
+                b.Id,
+                b.Title,
+                b.Description,
+                b.AuthorId,
+                b.AuthorName,
+                b.TitleSlug,
+                b.CoverImagePath,
+                b.IsApproved
             )).ToList();
         }
 
@@ -99,7 +132,8 @@ namespace BookService.Services
                 book.AuthorId,
                 book.AuthorName,
                 book.TitleSlug,
-                book.CoverImagePath
+                book.CoverImagePath,
+                book.IsApproved
             );
         }
 
@@ -122,6 +156,11 @@ namespace BookService.Services
             if (chunk == null) return null;
 
             return new BookChunkDto(chunk.Id, chunk.ChunkNumber, chunk.StoragePath);
+        }
+
+        public async Task<bool> ApproveBookAsync(int id)
+        {
+            return await _bookRepo.ApproveAsync(id);
         }
     }
 }

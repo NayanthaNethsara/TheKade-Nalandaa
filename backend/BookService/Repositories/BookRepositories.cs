@@ -33,6 +33,20 @@ namespace BookService.Repositories
             return await _db.Books.Include(b => b.Chunks).ToListAsync();
         }
 
+        public async Task<List<Book>> GetApprovedAsync()
+        {
+            return await _db.Books.Where(b => b.IsApproved)
+                                   .Include(b => b.Chunks)
+                                   .ToListAsync();
+        }
+
+        public async Task<List<Book>> GetPendingApprovalAsync()
+        {
+            return await _db.Books.Where(b => !b.IsApproved)
+                                   .Include(b => b.Chunks)
+                                   .ToListAsync();
+        }
+
         public async Task<Book?> GetByIdAsync(int id)
         {
             return await _db.Books.Include(b => b.Chunks)
@@ -44,6 +58,17 @@ namespace BookService.Repositories
             _db.Books.Update(book);
             await _db.SaveChangesAsync();
             return book;
+        }
+
+        public async Task<bool> ApproveAsync(int id)
+        {
+            var book = await _db.Books.FirstOrDefaultAsync(b => b.Id == id);
+            if (book == null) return false;
+            if (book.IsApproved) return true; // already approved
+            book.IsApproved = true;
+            _db.Books.Update(book);
+            await _db.SaveChangesAsync();
+            return true;
         }
     }
 }

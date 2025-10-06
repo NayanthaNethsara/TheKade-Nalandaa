@@ -10,6 +10,7 @@ namespace BookService.Dtos
         string AuthorName,
         string TitleSlug,
         string CoverImagePath,
-        string ChunkPath
+        string ChunkPath,
+        bool IsApproved
     );
 }
