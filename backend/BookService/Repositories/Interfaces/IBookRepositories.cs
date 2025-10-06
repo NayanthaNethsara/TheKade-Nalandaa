@@ -9,6 +9,9 @@ namespace BookService.Repositories
         Task<List<Book>> GetAllAsync();
         Task<Book> UpdateAsync(Book book);  // must return updated Book
         Task<bool> DeleteAsync(int id);     // must return Task<bool>
+        Task<List<Book>> GetApprovedAsync();
+        Task<List<Book>> GetPendingApprovalAsync();
+        Task<bool> ApproveAsync(int id);
     }
 
 }

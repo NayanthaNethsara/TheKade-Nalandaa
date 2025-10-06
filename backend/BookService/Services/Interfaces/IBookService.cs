@@ -14,5 +14,8 @@ namespace BookService.Services
 
         // New method to get single chunk
         Task<BookChunkDto?> GetChunkAsync(int bookId, int chunkNumber);
+        Task<List<BookDto>> GetApprovedBooksAsync();
+        Task<List<BookDto>> GetPendingBooksAsync();
+        Task<bool> ApproveBookAsync(int id);
     }
 }
