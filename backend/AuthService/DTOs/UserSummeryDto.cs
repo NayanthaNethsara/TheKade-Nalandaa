@@ -7,12 +7,14 @@ public record ReaderSummeryDto(
     string Name,
     string Email,
     SubscriptionStatus Subscription,
-    DateTime CreatedAt
+    DateTime CreatedAt,
+    bool Active
 );
 
 public record AuthorSummeryDto(
     int Id,
     string Name,
     string Email,
-    DateTime CreatedAt
+    DateTime CreatedAt,
+    bool Active
 );
