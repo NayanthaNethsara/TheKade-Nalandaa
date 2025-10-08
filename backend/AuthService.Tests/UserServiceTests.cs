@@ -25,8 +25,8 @@ namespace AuthService.Tests
         {
             var fakeReaders = new List<ReaderSummeryDto>
             {
-                new ReaderSummeryDto(1, "Alice", "alice@test.com", SubscriptionStatus.Free, System.DateTime.UtcNow),
-                new ReaderSummeryDto(2, "Bob", "bob@test.com", SubscriptionStatus.Premium, System.DateTime.UtcNow)
+                new ReaderSummeryDto(1, "Alice", "alice@test.com", SubscriptionStatus.Free, System.DateTime.UtcNow, true),
+                new ReaderSummeryDto(2, "Bob", "bob@test.com", SubscriptionStatus.Premium, System.DateTime.UtcNow, true)
             };
 
             _mockService.Setup(s => s.GetAllReadersAsync())
@@ -57,7 +57,7 @@ namespace AuthService.Tests
         [Fact]
         public async Task GetReaderByIdAsync_ShouldReturnSingleReader()
         {
-            var fakeReader = new ReaderSummeryDto(1, "Alice", "alice@test.com", SubscriptionStatus.Free, System.DateTime.UtcNow);
+            var fakeReader = new ReaderSummeryDto(1, "Alice", "alice@test.com", SubscriptionStatus.Free, System.DateTime.UtcNow, true);
 
             _mockService.Setup(s => s.GetReaderByIdAsync(1))
                         .ReturnsAsync(fakeReader);
