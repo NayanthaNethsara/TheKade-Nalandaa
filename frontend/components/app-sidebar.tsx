@@ -13,6 +13,7 @@ import {
   LogOut,
   Grid3X3,
   User,
+  BookOpen,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -40,48 +41,38 @@ const citizenItems = [
     icon: Home,
   },
   {
-    title: "Services",
-    url: "/services",
-    icon: Grid3X3,
+    title: "Browse Books",
+    url: "/",
+    icon: BookOpen,
   },
   {
     title: "Profile",
-    url: "/profile",
+    url: "/dashboard/profile",
     icon: User,
-  },
-  {
-    title: "Appointments",
-    url: "/dashboard/appointments",
-    icon: Calendar,
-  },
-  {
-    title: "Queue Management",
-    url: "/dashboard/queue",
-    icon: Clock,
-  },
-  {
-    title: "Locations",
-    url: "/dashboard/locations",
-    icon: MapPin,
-  },
-  {
-    title: "Transport",
-    url: "/dashboard/transport",
-    icon: Bus,
-  },
-  {
-    title: "Analytics",
-    url: "/dashboard/analytics",
-    icon: BarChart3,
   },
 ];
 
 // Admin menu items
 const adminItems = [
   {
+    title: "Dashboard",
+    url: "/dashboard",
+    icon: Home,
+  },
+  {
+    title: "Book Management",
+    url: "/dashboard/admin/books",
+    icon: BookOpen,
+  },
+  {
     title: "Users",
-    url: "/dashboard/users",
+    url: "/dashboard/admin",
     icon: Users,
+  },
+  {
+    title: "Profile",
+    url: "/dashboard/profile",
+    icon: User,
   },
   {
     title: "Settings",
