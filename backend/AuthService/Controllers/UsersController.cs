@@ -104,6 +104,24 @@ public class UserController : ControllerBase
         }
     }
 
+    // ----------------- Change Reader Subscription -----------------
+    [HttpPatch("readers/{id}/subscription")]
+    public async Task<IActionResult> ChangeReaderSubscription(int id, [FromBody] ChangeSubscriptionDto dto)
+    {
+        if (id != dto.UserId)
+            return BadRequest(new { error = "User ID mismatch" });
+
+        try
+        {
+            await _userService.ChangeReaderSubscriptionAsync(dto.UserId, dto.Subscription);
+            return Ok(new { message = "Subscription updated successfully" });
+        }
+        catch (Exception ex)
+        {
+            return NotFound(new { error = ex.Message });
+        }
+    }
+
     // ----------------- Change Profile Picture -----------------
     [HttpPatch("{id}/profile-picture")]
     public async Task<IActionResult> ChangeProfilePicture(int id, [FromBody] UserProfilePictureDto dto)
