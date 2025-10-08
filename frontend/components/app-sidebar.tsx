@@ -65,8 +65,13 @@ const adminItems = [
     icon: BookOpen,
   },
   {
-    title: "Users",
-    url: "/dashboard/admin",
+    title: "Author Approval",
+    url: "/dashboard/admin/authors-approval",
+    icon: User,
+  },
+  {
+    title: "User Management",
+    url: "/dashboard/admin/user-management",
     icon: Users,
   },
   {
