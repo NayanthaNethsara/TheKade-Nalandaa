@@ -1,17 +1,11 @@
 "use client";
 
 import {
-  Calendar,
   Home,
   Settings,
   Users,
-  Bus,
-  MapPin,
-  Clock,
-  BarChart3,
   Bell,
   LogOut,
-  Grid3X3,
   User,
   BookOpen,
 } from "lucide-react";
