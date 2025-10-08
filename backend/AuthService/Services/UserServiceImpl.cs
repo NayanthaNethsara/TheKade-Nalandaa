@@ -25,7 +25,8 @@ public class UserService : IUserService
                 u.Name,
                 u.Email,
                 u.Subscription,
-                u.CreatedAt
+                u.CreatedAt,
+                u.Active
             ))
             .ToListAsync();
     }
@@ -39,7 +40,8 @@ public class UserService : IUserService
                 u.Name,
                 u.Email,
                 u.Subscription,
-                u.CreatedAt
+                u.CreatedAt,
+                u.Active
             ))
             .FirstOrDefaultAsync();
     }
@@ -53,7 +55,8 @@ public class UserService : IUserService
                 u.Id,
                 u.Name,
                 u.Email,
-                u.CreatedAt
+                u.CreatedAt,
+                u.Active
             ))
             .ToListAsync();
     }
@@ -66,7 +69,8 @@ public class UserService : IUserService
                 u.Id,
                 u.Name,
                 u.Email,
-                u.CreatedAt
+                u.CreatedAt,
+                u.Active
             ))
             .FirstOrDefaultAsync();
     }
