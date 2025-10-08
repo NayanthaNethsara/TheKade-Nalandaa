@@ -7,7 +7,7 @@ const BACKEND_URL = process.env.BOOK_API_BASE_URL || "http://localhost:5064";
 // POST approve book (admin only)
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -32,7 +32,7 @@ export async function POST(
     }
 
     const response = await fetch(
-      `${BACKEND_URL}/api/Books/${params.id}/approve`,
+      `${BACKEND_URL}/api/Books/${(await params).id}/approve`,
       {
         method: "POST",
         headers: {
