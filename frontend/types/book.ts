@@ -6,6 +6,7 @@ export interface Book {
   authorName: string;
   titleSlug: string;
   coverImagePath: string;
+  isApproved?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
