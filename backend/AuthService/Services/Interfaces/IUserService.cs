@@ -1,4 +1,5 @@
 using AuthService.DTOs;
+using AuthService.Models;
 
 namespace AuthService.Services
 {
@@ -16,5 +17,6 @@ namespace AuthService.Services
         Task DeactivateUserAsync(int userId);
 
         Task ChangeProfilePictureAsync(UserProfilePictureDto dto);
+        Task ChangeReaderSubscriptionAsync(int userId, SubscriptionStatus subscription);
     }
 }

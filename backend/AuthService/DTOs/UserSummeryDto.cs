@@ -1,6 +1,11 @@
+namespace AuthService.DTOs;
+
 using AuthService.Models;
 
-namespace AuthService.DTOs;
+public record ChangeSubscriptionDto(
+    int UserId,
+    SubscriptionStatus Subscription
+);
 
 public record ReaderSummeryDto(
     int Id,
