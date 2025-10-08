@@ -11,6 +11,9 @@ public static class PasswordHelper
     // Hash password with random salt, return "salt:hash"
     public static string HashPassword(string password)
     {
+        if (string.IsNullOrWhiteSpace(password))
+            throw new ArgumentNullException(nameof(password), "Password cannot be null or empty.");
+
         using var rng = RandomNumberGenerator.Create();
         var salt = new byte[SaltSize];
         rng.GetBytes(salt);

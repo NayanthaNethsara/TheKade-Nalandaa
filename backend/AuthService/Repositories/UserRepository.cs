@@ -25,7 +25,15 @@ namespace AuthService.Repositories
 
         public async Task<User> AddAsync(User user)
         {
+            // Check for duplicate email since InMemory provider doesn't enforce constraints
+            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == user.Email);
+            if (existingUser != null)
+            {
+                throw new InvalidOperationException("A user with this email already exists.");
+            }
+
             await _context.Users.AddAsync(user);
+            await _context.SaveChangesAsync();
             return user;
         }
 

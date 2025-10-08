@@ -11,6 +11,7 @@ namespace AuthService.Configurations
         {
             // Business/service layer
             services.AddScoped<IAuthService, AuthServiceImpl>();
+            services.AddScoped<IJwtService, JwtService>();
 
             services.AddScoped<IUserService, UserService>();
 
