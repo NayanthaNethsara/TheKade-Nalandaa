@@ -16,6 +16,14 @@ public class GoogleOAuthHelper : IGoogleOAuthHelper
 
     public async Task<JsonElement> ExchangeCodeAsync(string code, string redirectUri)
     {
+        if (string.IsNullOrWhiteSpace(code))
+            throw new ArgumentException("Code cannot be null or empty.", nameof(code));
+
+        if (string.IsNullOrWhiteSpace(redirectUri))
+            throw new ArgumentException("Redirect URI cannot be null or empty.", nameof(redirectUri));
+
+        if (!Uri.TryCreate(redirectUri, UriKind.Absolute, out _))
+            throw new ArgumentException("Invalid redirect URI format.", nameof(redirectUri));
 
         var content = new FormUrlEncodedContent(new Dictionary<string, string>
         {
