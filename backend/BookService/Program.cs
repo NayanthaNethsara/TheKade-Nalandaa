@@ -1,6 +1,7 @@
 using BookService.Configurations;
 using DotNetEnv;
 using BookService.Data;
+using BookService.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,8 @@ builder.Configuration
 builder.Services.AddDatabase(builder.Configuration);
 builder.Services.AddSecurityServices(builder.Configuration);
 builder.Services.AddAppServices();
+builder.Services.Configure<FreeReaderLimits>(builder.Configuration.GetSection("FreeReaderLimits"));
+builder.Services.AddScoped<IUsageService, UsageService>();
 
 
 builder.Services.AddControllers();

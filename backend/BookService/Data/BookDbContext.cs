@@ -9,6 +9,7 @@ namespace BookService.Data
 
         public DbSet<Book> Books { get; set; } = null!;
         public DbSet<BookChunk> BookChunks { get; set; } = null!;
+        public DbSet<ReaderUsage> ReaderUsages { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
