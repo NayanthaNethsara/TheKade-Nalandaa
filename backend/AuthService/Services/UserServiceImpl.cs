@@ -3,6 +3,7 @@ using AuthService.Data;
 using AuthService.DTOs;
 using AuthService.Helpers;
 using AuthService.Models;
+using AuthService.Services;
 
 namespace AuthService.Services;
 
@@ -25,7 +26,8 @@ public class UserService : IUserService
                 u.Name,
                 u.Email,
                 u.Subscription,
-                u.CreatedAt
+                u.CreatedAt,
+                u.Active
             ))
             .ToListAsync();
     }
@@ -39,7 +41,8 @@ public class UserService : IUserService
                 u.Name,
                 u.Email,
                 u.Subscription,
-                u.CreatedAt
+                u.CreatedAt,
+                u.Active
             ))
             .FirstOrDefaultAsync();
     }
@@ -53,7 +56,8 @@ public class UserService : IUserService
                 u.Id,
                 u.Name,
                 u.Email,
-                u.CreatedAt
+                u.CreatedAt,
+                u.Active
             ))
             .ToListAsync();
     }
@@ -66,7 +70,8 @@ public class UserService : IUserService
                 u.Id,
                 u.Name,
                 u.Email,
-                u.CreatedAt
+                u.CreatedAt,
+                u.Active
             ))
             .FirstOrDefaultAsync();
     }
@@ -85,6 +90,16 @@ public class UserService : IUserService
         var user = await _dbContext.Users.FindAsync(userId);
         if (user == null) throw new Exception("User not found");
         user.Active = false;
+        await _dbContext.SaveChangesAsync();
+    }
+
+    // ----------------- Change Reader Subscription -----------------
+    public async Task ChangeReaderSubscriptionAsync(int userId, SubscriptionStatus subscription)
+    {
+        var user = await _dbContext.Users.FindAsync(userId);
+        if (user == null) throw new Exception("User not found");
+        if (user.Role != Roles.Reader) throw new Exception("User is not a reader");
+        user.Subscription = subscription;
         await _dbContext.SaveChangesAsync();
     }
 

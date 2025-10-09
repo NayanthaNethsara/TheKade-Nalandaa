@@ -1,17 +1,118 @@
 <testsuites>
-  <testsuite name="AuthService.Tests.dll" tests="4" skipped="0" failures="0" errors="0" time="0.47558979999999995" timestamp="2025-09-09T14:10:41" hostname="nayanthanethsaras-MacBook-Air" id="0" package="AuthService.Tests.dll">
+  <testsuite name="AuthService.Tests.dll" tests="79" skipped="0" failures="0" errors="0" time="1.3954649000000006" timestamp="2025-10-09T17:09:55" hostname="nayanthanethsaras-MacBook-Air" id="0" package="AuthService.Tests.dll">
     <properties />
-    <testcase classname="AuthService.Tests.Services.JwtServiceTests" name="GenerateToken_ReturnsTokenString" time="0.0186811" />
-    <testcase classname="AuthService.Tests.Helpers.GoogleOAuthHelperTests" name="ExchangeCodeAsync_ReturnsUserInfo" time="0.0430679" />
-    <testcase classname="AuthService.Tests.UserServiceTests" name="Cannot_Add_Duplicate_Email" time="0.3287305" />
-    <testcase classname="AuthService.Tests.UserServiceTests" name="Can_Add_User" time="0.0851103" />
+    <testcase classname="AuthService.Tests.Helper.PasswordHelperTests" name="HashPassword_EmptyOrNullPassword_ThrowsArgumentException(password: &quot; &quot;)" time="0.0044917" />
+    <testcase classname="AuthService.Tests.Helper.PasswordHelperTests" name="HashPassword_EmptyOrNullPassword_ThrowsArgumentException(password: null)" time="0.0000894" />
+    <testcase classname="AuthService.Tests.Helper.PasswordHelperTests" name="HashPassword_EmptyOrNullPassword_ThrowsArgumentException(password: &quot;&quot;)" time="0.0000125" />
+    <testcase classname="AuthService.Tests.Helper.PasswordHelperTests" name="VerifyPassword_WrongPassword_ReturnsFalse" time="0.0105949" />
+    <testcase classname="AuthService.Tests.Helper.PasswordHelperTests" name="HashPassword_VariousPasswords_GeneratesValidHashes(password: &quot;パスワード&quot;)" time="0.0110461" />
+    <testcase classname="AuthService.Tests.Services.JwtServiceTests" name="GenerateToken_ReturnsTokenString" time="0.0288081" />
+    <testcase classname="AuthService.Tests.Helper.PasswordHelperTests" name="HashPassword_VariousPasswords_GeneratesValidHashes(password: &quot;Special@#$%^&amp;*()Characters&quot;)" time="0.0107672" />
+    <testcase classname="AuthService.Tests.Controllers.UserControllerTests" name="ActivateUser_ExistingId_ReturnsOkResult" time="0.0416865" />
+    <testcase classname="AuthService.Tests.Controllers.UserControllerTests" name="GetReaderById_ExistingId_ReturnsOkResult" time="0.0030799" />
+    <testcase classname="AuthService.Tests.Controllers.UserControllerTests" name="ActivateUser_NonExistingId_ReturnsNotFound" time="0.0007735" />
+    <testcase classname="AuthService.Tests.Controllers.AuthControllerTests" name="ResetPassword_ValidInput_ReturnsOkResult" time="0.0163940" />
+    <testcase classname="AuthService.Tests.Controllers.UserControllerTests" name="DeactivateUser_ExistingId_ReturnsOkResult" time="0.0004335" />
+    <testcase classname="AuthService.Tests.Controllers.UserControllerTests" name="DeactivateUser_NonExistingId_ReturnsNotFound" time="0.0002489" />
+    <testcase classname="AuthService.Tests.Controllers.UserControllerTests" name="GetAllReaders_ReturnsOkResult" time="0.0005162" />
+    <testcase classname="AuthService.Tests.Controllers.AuthControllerTests" name="RegisterAuthor_ValidInput_ReturnsOkResult" time="0.0010536" />
+    <testcase classname="AuthService.Tests.Controllers.UserControllerTests" name="GetReaderById_NonExistingId_ReturnsNotFound" time="0.0003073" />
+    <testcase classname="AuthService.Tests.Controllers.UserControllerTests" name="GetAllAuthors_ReturnsOkResult" time="0.0005477" />
+    <testcase classname="AuthService.Tests.Controllers.AuthControllerTests" name="LoginWithGoogle_InvalidInput_ReturnsBadRequest" time="0.0007033" />
+    <testcase classname="AuthService.Tests.Controllers.AuthControllerTests" name="LoginLocal_ValidCredentials_ReturnsOkResult" time="0.0006202" />
+    <testcase classname="AuthService.Tests.Controllers.UserControllerTests" name="GetAuthorById_ExistingId_ReturnsOkResult" time="0.0009335" />
+    <testcase classname="AuthService.Tests.Controllers.UserControllerTests" name="GetAuthorById_NonExistingId_ReturnsNotFound" time="0.0002285" />
+    <testcase classname="AuthService.Tests.Controllers.AuthControllerTests" name="RegisterLocal_ValidInput_ReturnsOkResult" time="0.0009918" />
+    <testcase classname="AuthService.Tests.Helper.PasswordHelperTests" name="HashPassword_VariousPasswords_GeneratesValidHashes(password: &quot;VeryLongPasswordThatIsStillValid123!&quot;)" time="0.0109193" />
+    <testcase classname="AuthService.Tests.Helpers.GoogleOAuthHelperTests" name="ExchangeCodeAsync_InvalidRedirectUri_ThrowsArgumentException(redirectUri: &quot; &quot;)" time="0.0499014" />
+    <testcase classname="AuthService.Tests.Controllers.AuthControllerTests" name="ForgotPassword_ValidEmail_ReturnsOkResult" time="0.0005042" />
+    <testcase classname="AuthService.Tests.UserServiceMockTests" name="GetReaderByIdAsync_ShouldReturnSingleReader" time="0.0005738">
+      <system-out><![CDATA[Found reader: Alice (alice@test.com)
+
+]]></system-out>
+    </testcase>
+    <testcase classname="AuthService.Tests.Helpers.GoogleOAuthHelperTests" name="ExchangeCodeAsync_InvalidRedirectUri_ThrowsArgumentException(redirectUri: &quot;&quot;)" time="0.0002745" />
+    <testcase classname="AuthService.Tests.Controllers.AuthControllerTests" name="LoginWithGoogle_ValidInput_ReturnsOkResult" time="0.0002850" />
+    <testcase classname="AuthService.Tests.Helpers.GoogleOAuthHelperTests" name="ExchangeCodeAsync_InvalidRedirectUri_ThrowsArgumentException(redirectUri: &quot;invalid-url&quot;)" time="0.0000719" />
+    <testcase classname="AuthService.Tests.UserServiceMockTests" name="GetReaderByIdAsync_ShouldReturnNull_IfNotFound" time="0.0002652">
+      <system-out><![CDATA[No reader found for ID 99 (expected)
+
+]]></system-out>
+    </testcase>
+    <testcase classname="AuthService.Tests.Helpers.GoogleOAuthHelperTests" name="ExchangeCodeAsync_InvalidRedirectUri_ThrowsArgumentException(redirectUri: null)" time="0.0000595" />
+    <testcase classname="AuthService.Tests.UserServiceMockTests" name="DeactivateUser_ShouldPass" time="0.0001771">
+      <system-out><![CDATA[User 1 deactivated successfully
+
+]]></system-out>
+    </testcase>
+    <testcase classname="AuthService.Tests.UserServiceMockTests" name="GetAllReadersAsync_ShouldReturnReaders" time="0.0009836">
+      <system-out><![CDATA[Returned 2 readers
+- 1: Alice (alice@test.com) [Free]
+- 2: Bob (bob@test.com) [Premium]
+
+]]></system-out>
+    </testcase>
+    <testcase classname="AuthService.Tests.UserServiceMockTests" name="ActivateUser_ShouldPass" time="0.0001979">
+      <system-out><![CDATA[User 1 activated successfully
+
+]]></system-out>
+    </testcase>
+    <testcase classname="AuthService.Tests.UserServiceMockTests" name="GetAllReadersAsync_ShouldReturnEmptyList" time="0.0012382">
+      <system-out><![CDATA[Readers list is empty as expected
+
+]]></system-out>
+    </testcase>
+    <testcase classname="AuthService.Tests.Helper.PasswordHelperTests" name="HashPassword_VariousPasswords_GeneratesValidHashes(password: &quot;Password With Spaces&quot;)" time="0.0104475" />
+    <testcase classname="AuthService.Tests.Helpers.GoogleOAuthHelperTests" name="ExchangeCodeAsync_UserInfoRequestFails_ThrowsException" time="0.0120127" />
+    <testcase classname="AuthService.Tests.Helpers.GoogleOAuthHelperTests" name="ExchangeCodeAsync_SuccessfulExchange_ReturnsUserInfo" time="0.0013406" />
+    <testcase classname="AuthService.Tests.Helpers.GoogleOAuthHelperTests" name="ExchangeCodeAsync_InvalidCode_ThrowsArgumentException(code: &quot;&quot;)" time="0.0002750" />
+    <testcase classname="AuthService.Tests.Helpers.GoogleOAuthHelperTests" name="ExchangeCodeAsync_InvalidCode_ThrowsArgumentException(code: &quot; &quot;)" time="0.0000949" />
+    <testcase classname="AuthService.Tests.Helpers.GoogleOAuthHelperTests" name="ExchangeCodeAsync_InvalidCode_ThrowsArgumentException(code: null)" time="0.0000636" />
+    <testcase classname="AuthService.Tests.Helpers.GoogleOAuthHelperTests" name="ExchangeCodeAsync_TokenRequestFails_ThrowsException" time="0.0008269" />
+    <testcase classname="AuthService.Tests.Helper.PasswordHelperTests" name="HashPassword_VariousPasswords_GeneratesValidHashes(password: &quot;Short&quot;)" time="0.0101391" />
+    <testcase classname="AuthService.Tests.Helper.PasswordHelperTests" name="HashPassword_VariousPasswords_GeneratesValidHashes(password: &quot;12345678901234567890&quot;)" time="0.0103634" />
+    <testcase classname="AuthService.Tests.Helper.PasswordHelperTests" name="HashPassword_GeneratesValidBase64Strings" time="0.0049852" />
+    <testcase classname="AuthService.Tests.Helper.PasswordHelperTests" name="HashPassword_GeneratesDifferentHashesForSamePassword" time="0.0118996" />
+    <testcase classname="AuthService.Tests.Helper.PasswordHelperTests" name="VerifyPassword_InvalidHashFormat_ReturnsFalse" time="0.0000381" />
+    <testcase classname="AuthService.Tests.Helper.PasswordHelperTests" name="VerifyPassword_CorrectPassword_ReturnsTrue" time="0.0103598" />
+    <testcase classname="AuthService.Tests.Services.UserServiceTests" name="GetAllAuthorsAsync_ReturnsOnlyAuthors" time="0.2515886" />
+    <testcase classname="AuthService.Tests.Services.AuthServiceTests" name="RegisterLocal_ExistingEmail_ThrowsException" time="0.2517955" />
+    <testcase classname="AuthService.Tests.Services.UserRepositoryTests" name="AddAsync_DuplicateEmail_ThrowsInvalidOperationException" time="0.2518055" />
+    <testcase classname="AuthService.Tests.Repositories.UserRepositoryTests" name="AddAsync_NewUser_AddsToContext" time="0.2544637" />
+    <testcase classname="AuthService.Tests.Services.UserRepositoryTests" name="AddAsync_UniqueEmail_AddsUserSuccessfully" time="0.0099468" />
+    <testcase classname="AuthService.Tests.Services.UserServiceTests" name="GetAllReadersAsync_ReturnsOnlyReaders" time="0.0102782" />
+    <testcase classname="AuthService.Tests.Services.UserServiceTests" name="GetReaderByIdAsync_NonExistingId_ReturnsNull" time="0.0027902" />
+    <testcase classname="AuthService.Tests.Services.AuthServiceTests" name="RegisterLocal_ValidInput_CreatesUserAndReturnsToken" time="0.0143036" />
+    <testcase classname="AuthService.Tests.Services.UserServiceTests" name="GetAuthorByIdAsync_ExistingId_ReturnsAuthor" time="0.0022680" />
+    <testcase classname="AuthService.Tests.Services.UserServiceTests" name="GetAuthorByIdAsync_NonExistingId_ReturnsNull" time="0.0005276" />
+    <testcase classname="AuthService.Tests.Services.UserServiceTests" name="ChangeReaderSubscriptionAsync_NonExistingUser_ThrowsException" time="0.0038459" />
+    <testcase classname="AuthService.Tests.Services.UserServiceTests" name="ActivateUserAsync_InactiveUser_ActivatesUser" time="0.0009639" />
+    <testcase classname="AuthService.Tests.Services.AuthServiceTests" name="LoginWithGoogle_NewUser_CreatesUserAndReturnsToken" time="0.0065261" />
+    <testcase classname="AuthService.Tests.Repositories.UserRepositoryTests" name="SaveChangesAsync_PersistsChanges" time="0.0188584" />
+    <testcase classname="AuthService.Tests.Services.UserServiceTests" name="GetReaderByIdAsync_ExistingId_ReturnsReader" time="0.0013464" />
+    <testcase classname="AuthService.Tests.Repositories.UserRepositoryTests" name="GetByGoogleIdAsync_NonExistingGoogleId_ReturnsNull" time="0.0005607" />
+    <testcase classname="AuthService.Tests.Repositories.UserRepositoryTests" name="AddAsync_DuplicateEmail_ThrowsException" time="0.0004047" />
+    <testcase classname="AuthService.Tests.Services.UserServiceTests" name="DeactivateUserAsync_ActiveUser_DeactivatesUser" time="0.0005651" />
+    <testcase classname="AuthService.Tests.Services.UserServiceTests" name="ChangeReaderSubscriptionAsync_ValidUpdate_UpdatesSubscription" time="0.0048767" />
+    <testcase classname="AuthService.Tests.Services.UserServiceTests" name="DeactivateUserAsync_NonExistingUser_ThrowsException" time="0.0004148" />
+    <testcase classname="AuthService.Tests.Services.UserServiceTests" name="GetAuthorByIdAsync_ReaderId_ReturnsNull" time="0.0003226" />
+    <testcase classname="AuthService.Tests.Services.UserServiceTests" name="ActivateUserAsync_NonExistingUser_ThrowsException" time="0.0003377" />
+    <testcase classname="AuthService.Tests.Repositories.UserRepositoryTests" name="GetByEmailAsync_NonExistingEmail_ReturnsNull" time="0.0063605" />
+    <testcase classname="AuthService.Tests.Services.UserServiceTests" name="GetReaderByIdAsync_AuthorId_ReturnsNull" time="0.0003022" />
+    <testcase classname="AuthService.Tests.Services.UserServiceTests" name="ChangeReaderSubscriptionAsync_AuthorUser_ThrowsException" time="0.0003200" />
+    <testcase classname="AuthService.Tests.Repositories.UserRepositoryTests" name="GetByGoogleIdAsync_ExistingGoogleId_ReturnsUser" time="0.0003479" />
+    <testcase classname="AuthService.Tests.Repositories.UserRepositoryTests" name="GetByEmailAsync_ExistingEmail_ReturnsUser" time="0.0002847" />
+    <testcase classname="AuthService.Tests.Services.AuthServiceTests" name="LoginLocal_ValidCredentials_ReturnsToken" time="0.0142658" />
+    <testcase classname="AuthService.Tests.Services.AuthServiceTests" name="LoginWithGoogle_ExistingUser_ReturnsToken" time="0.0009011" />
+    <testcase classname="AuthService.Tests.Services.AuthServiceTests" name="LoginLocal_InvalidCredentials_ThrowsException" time="0.0004926" />
+    <testcase classname="AuthService.Tests.Services.AuthServiceTests" name="LoginLocal_InactiveAccount_ThrowsException" time="0.0107731" />
     <system-out>
 Test Framework Informational Messages:
-[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.8.2+699d445a1a (64-bit .NET 9.0.7)
-[xUnit.net 00:00:00.03]   Discovering: AuthService.Tests
-[xUnit.net 00:00:00.04]   Discovered:  AuthService.Tests
-[xUnit.net 00:00:00.04]   Starting:    AuthService.Tests
-[xUnit.net 00:00:00.47]   Finished:    AuthService.Tests
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 9.0.7)
+[xUnit.net 00:00:00.04]   Discovering: AuthService.Tests
+[xUnit.net 00:00:00.06]   Discovered:  AuthService.Tests
+[xUnit.net 00:00:00.07]   Starting:    AuthService.Tests
+[xUnit.net 00:00:00.38]   Finished:    AuthService.Tests
 </system-out>
     <system-err></system-err>
   </testsuite>

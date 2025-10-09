@@ -1,11 +1,24 @@
+import { authOptions } from "@/lib/authOption";
+import { getServerSession } from "next-auth";
 import { type NextRequest, NextResponse } from "next/server";
 
 const BACKEND_URL = process.env.BOOK_API_BASE_URL || "http://localhost:5064";
 
 export async function GET() {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (!BACKEND_URL) {
+      console.error("BOOK_API_BASE_URL is not defined");
+      return NextResponse.json([], { status: 500 });
+    }
+
     const response = await fetch(`${BACKEND_URL}/api/Books`, {
       headers: {
+        Authorization: `Bearer ${session.user.accessToken}`,
         accept: "*/*",
       },
       // Add timeout to prevent hanging
