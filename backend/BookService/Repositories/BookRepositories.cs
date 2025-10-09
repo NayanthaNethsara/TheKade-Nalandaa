@@ -35,7 +35,7 @@ namespace BookService.Repositories
 
         public async Task<Book?> GetByIdAsync(int id)
         {
-            return await _db.Books.Include(b => b.Chunks)
+            return await _db.Books
                                   .FirstOrDefaultAsync(b => b.Id == id);
         }
 
