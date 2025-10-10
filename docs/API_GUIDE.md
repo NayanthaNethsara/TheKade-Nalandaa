@@ -9,7 +9,7 @@ This document explains how to interact with the APIs in **TheKade Platform**.
 All requests go through the **API Gateway**:
 
 ```
-http://localhost:8000/api/v1/
+https://the-kade-nalandaa.vercel.app/api/v1/
 ```
 
 Each service has its own route prefix:
