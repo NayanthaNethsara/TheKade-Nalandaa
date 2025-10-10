@@ -40,11 +40,24 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const bookData = await request.json();
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (!BACKEND_URL) {
+      console.error("BOOK_API_BASE_URL is not defined");
+      return NextResponse.json(
+        { error: "Backend URL not configured" },
+        { status: 500 }
+      );
+    }
 
     const response = await fetch(`${BACKEND_URL}/api/Books`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${session.user.accessToken}`,
         accept: "*/*",
       },
       body: JSON.stringify(bookData),

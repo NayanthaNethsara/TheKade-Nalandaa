@@ -72,7 +72,7 @@ export default function AdminAuthorsApprovalPage() {
   const handleApprove = async (authorId: string) => {
     setApproving(authorId);
     try {
-      const response = await fetch(`/api/users/${authorId}/activate`, {
+      const response = await fetch(`/api/admin/users/${authorId}/activate`, {
         method: "PATCH",
       });
       if (response.ok) {
