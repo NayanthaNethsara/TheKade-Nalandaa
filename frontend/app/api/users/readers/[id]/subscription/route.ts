@@ -1,3 +1,5 @@
+import { authOptions } from "@/lib/authOption";
+import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 
 export async function PATCH(
@@ -7,12 +9,28 @@ export async function PATCH(
   try {
     const body = await request.json();
     const { userId, subscription } = body;
+    const session = await getServerSession(authOptions);
+
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (!userId || !subscription) {
+      return NextResponse.json(
+        { error: "Missing userId or subscription in request body" },
+        { status: 400 }
+      );
+    }
+
     // Call backend API
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/users/readers/${userId}/subscription`,
       {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.user.accessToken}`,
+        },
         body: JSON.stringify({ userId, subscription }),
       }
     );
