@@ -1,5 +1,6 @@
 using BookService.Services;
 using BookService.Repositories;  // <-- add this
+using BookService.Repositories.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BookService.Configurations
@@ -10,8 +11,9 @@ namespace BookService.Configurations
         {
             services.AddHttpClient();
 
-            // Register repository
+            // Register repositories
             services.AddScoped<IBookRepository, BookRepository>();
+            services.AddScoped<IBookReviewRepository, BookReviewRepository>();
 
             // Book service
             services.AddScoped<IBookService, BookServiceImpl>();

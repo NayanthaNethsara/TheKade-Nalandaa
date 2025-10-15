@@ -89,6 +89,8 @@ Authorization: Bearer <token>
 [
   {
     "id": 1,
+For the complete Book Service API (including Reviews), see: [BOOK_SERVICE_API.md](./BOOK_SERVICE_API.md)
+
     "title": "Intro to .NET",
     "author": "Jane Doe"
   }
