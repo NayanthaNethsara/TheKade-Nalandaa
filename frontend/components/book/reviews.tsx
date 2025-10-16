@@ -177,13 +177,23 @@ export default function Reviews({ bookId }: ReviewsProps) {
   }
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="shadow-xl border-2">
+      <CardHeader className="border-b bg-muted/30">
         <CardTitle className="flex items-center justify-between">
-          <span>Reviews</span>
-          <span className="text-sm text-muted-foreground">
-            Avg {average.toFixed(1)} · {total} review{total === 1 ? "" : "s"}
-          </span>
+          <div className="flex items-center gap-2">
+            <Star className="h-5 w-5 text-yellow-400 fill-yellow-400" />
+            <span>Reader Reviews</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="text-right">
+              <div className="text-2xl font-bold text-primary">
+                {average.toFixed(1)}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {total} review{total === 1 ? "" : "s"}
+              </div>
+            </div>
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -194,169 +204,234 @@ export default function Reviews({ bookId }: ReviewsProps) {
         ) : (
           <div className="space-y-4">
             {/* Ratings Breakdown */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                {[5, 4, 3, 2, 1].map((n) => {
-                  const count = breakdown[n as 1 | 2 | 3 | 4 | 5] || 0;
-                  const pct = total ? Math.round((count / total) * 100) : 0;
-                  return (
-                    <div key={n} className="flex items-center gap-2 text-sm">
-                      <span className="w-8">{n}★</span>
-                      <div className="flex-1 h-2 bg-muted rounded">
-                        <div
-                          className="h-2 bg-primary rounded"
-                          style={{ width: `${pct}%` }}
-                        />
+            {total > 0 && (
+              <div className="p-4 bg-gradient-to-br from-muted/50 to-muted/20 rounded-lg border">
+                <h3 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wide">
+                  Rating Distribution
+                </h3>
+                <div className="space-y-2">
+                  {[5, 4, 3, 2, 1].map((n) => {
+                    const count = breakdown[n as 1 | 2 | 3 | 4 | 5] || 0;
+                    const pct = total ? Math.round((count / total) * 100) : 0;
+                    return (
+                      <div key={n} className="flex items-center gap-3 text-sm">
+                        <span className="w-8 font-medium">{n}★</span>
+                        <div className="flex-1 h-3 bg-muted rounded-full overflow-hidden">
+                          <div
+                            className="h-3 bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full transition-all duration-500"
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
+                        <span className="w-12 text-right tabular-nums font-medium text-muted-foreground">
+                          {count}
+                        </span>
                       </div>
-                      <span className="w-12 text-right tabular-nums">
-                        {count}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {reviews.length === 0 ? (
-              <div className="text-sm text-muted-foreground">
-                No reviews yet. Be the first to review!
-              </div>
-            ) : (
-              pageItems.map((r) => (
-                <div key={r.id} className="border rounded-md p-3">
-                  <div className="flex items-center justify-between">
-                    <div className="font-medium">{r.userName}</div>
-                    <Stars value={r.rating} />
-                  </div>
-                  {editingId === r.id ? (
-                    <div className="space-y-2 mt-2">
-                      <Label htmlFor="editRating">Edit Rating (1-5)</Label>
-                      <Input
-                        id="editRating"
-                        type="number"
-                        min={1}
-                        max={5}
-                        value={editRating}
-                        onChange={(e) =>
-                          setEditRating(parseInt(e.target.value || "5", 10))
-                        }
-                      />
-                      <Label htmlFor="editText">Edit Review</Label>
-                      <Textarea
-                        id="editText"
-                        value={editText}
-                        onChange={(e) => setEditText(e.target.value)}
-                      />
-                      <div className="flex gap-2">
-                        <Button size="sm" onClick={saveEdit}>
-                          Save
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => setEditingId(null)}
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    r.reviewText && (
-                      <div className="text-sm mt-2">{r.reviewText}</div>
-                    )
-                  )}
-                  <div className="text-xs text-muted-foreground mt-2">
-                    {new Date(r.createdAt).toLocaleString()}
-                  </div>
-                  {currentUserId && r.userId === String(currentUserId) && (
-                    <div className="mt-2 flex gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => startEdit(r)}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => deleteReview(r.id)}
-                        disabled={busyDeleteId === r.id}
-                      >
-                        {busyDeleteId === r.id ? "Deleting…" : "Delete"}
-                      </Button>
-                    </div>
-                  )}
+                    );
+                  })}
                 </div>
-              ))
+              </div>
             )}
 
-            {/* Pagination Controls */}
-            {reviews.length > pageSize && (
-              <div className="flex items-center justify-between pt-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={page === 1}
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                >
-                  Previous
-                </Button>
-                <div className="text-xs text-muted-foreground">
-                  Page {page} of {totalPages}
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={page === totalPages}
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                >
-                  Next
-                </Button>
+            {reviews.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                <Star className="h-12 w-12 mx-auto mb-3 opacity-20" />
+                <p className="text-sm font-medium">No reviews yet</p>
+                <p className="text-xs">Be the first to share your thoughts!</p>
               </div>
+            ) : (
+              <>
+                <div className="space-y-3">
+                  {pageItems.map((r) => (
+                    <div
+                      key={r.id}
+                      className="border-2 rounded-lg p-4 hover:border-primary/50 transition-colors bg-card"
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center font-semibold text-sm">
+                            {r.userName.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <div className="font-semibold">{r.userName}</div>
+                            <div className="text-xs text-muted-foreground">
+                              {new Date(r.createdAt).toLocaleDateString(
+                                "en-US",
+                                {
+                                  year: "numeric",
+                                  month: "short",
+                                  day: "numeric",
+                                }
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <Stars value={r.rating} />
+                      </div>
+
+                      {editingId === r.id ? (
+                        <div className="space-y-2 mt-3">
+                          <Label htmlFor="editRating">Edit Rating (1-5)</Label>
+                          <Input
+                            id="editRating"
+                            type="number"
+                            min={1}
+                            max={5}
+                            value={editRating}
+                            onChange={(e) =>
+                              setEditRating(parseInt(e.target.value || "5", 10))
+                            }
+                          />
+                          <Label htmlFor="editText">Edit Review</Label>
+                          <Textarea
+                            id="editText"
+                            value={editText}
+                            onChange={(e) => setEditText(e.target.value)}
+                          />
+                          <div className="flex gap-2">
+                            <Button size="sm" onClick={saveEdit}>
+                              Save
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => setEditingId(null)}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        r.reviewText && (
+                          <div className="text-sm mt-3 leading-relaxed text-muted-foreground">
+                            {r.reviewText}
+                          </div>
+                        )
+                      )}
+
+                      {currentUserId && r.userId === String(currentUserId) && (
+                        <div className="mt-3 pt-3 border-t flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => startEdit(r)}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => deleteReview(r.id)}
+                            disabled={busyDeleteId === r.id}
+                          >
+                            {busyDeleteId === r.id ? "Deleting…" : "Delete"}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Pagination Controls */}
+                {reviews.length > pageSize && (
+                  <div className="flex items-center justify-between pt-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={page === 1}
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    >
+                      Previous
+                    </Button>
+                    <div className="text-xs text-muted-foreground font-medium">
+                      Page {page} of {totalPages}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={page === totalPages}
+                      onClick={() =>
+                        setPage((p) => Math.min(totalPages, p + 1))
+                      }
+                    >
+                      Next
+                    </Button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         )}
 
-        <form onSubmit={submitReview} className="space-y-3">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            {!currentUserId && (
+        <div className="border-t pt-6">
+          <h3 className="text-sm font-semibold mb-4 text-muted-foreground uppercase tracking-wide">
+            Write a Review
+          </h3>
+          <form onSubmit={submitReview} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {!currentUserId && (
+                <div>
+                  <Label htmlFor="name">Your Name</Label>
+                  <Input
+                    id="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Enter your name"
+                    className="mt-1"
+                  />
+                </div>
+              )}
               <div>
-                <Label htmlFor="name">Your Name</Label>
-                <Input
-                  id="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Jane"
-                />
+                <Label htmlFor="rating">Your Rating</Label>
+                <div className="flex items-center gap-2 mt-1">
+                  <Input
+                    id="rating"
+                    type="number"
+                    min={1}
+                    max={5}
+                    value={rating}
+                    onChange={(e) =>
+                      setRating(parseInt(e.target.value || "5", 10))
+                    }
+                    className="w-20"
+                  />
+                  <div className="flex gap-0.5">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`h-5 w-5 cursor-pointer transition-colors ${
+                          i < rating
+                            ? "fill-yellow-400 text-yellow-400"
+                            : "text-muted-foreground"
+                        }`}
+                        onClick={() => setRating(i + 1)}
+                      />
+                    ))}
+                  </div>
+                </div>
               </div>
-            )}
+            </div>
             <div>
-              <Label htmlFor="rating">Rating (1-5)</Label>
-              <Input
-                id="rating"
-                type="number"
-                min={1}
-                max={5}
-                value={rating}
-                onChange={(e) => setRating(parseInt(e.target.value || "5", 10))}
+              <Label htmlFor="text">Your Review</Label>
+              <Textarea
+                id="text"
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                placeholder="Share your thoughts about this book..."
+                className="mt-1 min-h-[100px]"
               />
             </div>
-          </div>
-          <div>
-            <Label htmlFor="text">Review</Label>
-            <Textarea
-              id="text"
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              placeholder="Share your thoughts"
-            />
-          </div>
-          <div className="flex items-center gap-3">
-            <Button type="submit">Submit Review</Button>
-            {error && <div className="text-sm text-destructive">{error}</div>}
-          </div>
-        </form>
+            <div className="flex items-center gap-3">
+              <Button type="submit" className="px-6">
+                Submit Review
+              </Button>
+              {error && (
+                <div className="text-sm text-destructive font-medium">
+                  {error}
+                </div>
+              )}
+            </div>
+          </form>
+        </div>
       </CardContent>
     </Card>
   );
