@@ -1,88 +1,102 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { signIn } from "next-auth/react"
-import { Eye, EyeOff, Lock, User, AlertCircle, HelpCircle, Phone, Mail } from "lucide-react"
-import Image from "next/image"
-import { motion } from "framer-motion"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
+import {
+  Eye,
+  EyeOff,
+  Lock,
+  User,
+  AlertCircle,
+  HelpCircle,
+  Phone,
+  Mail,
+} from "lucide-react";
+import Image from "next/image";
+import { motion } from "framer-motion";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function Login() {
-  const [username, setUsername] = useState("")
-  const [password, setPassword] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    setError(null)
+    setError(null);
 
     if (!username.trim()) {
-      setError("Username is required")
-      return
+      setError("Username is required");
+      return;
     }
 
     if (!password) {
-      setError("Password is required")
-      return
+      setError("Password is required");
+      return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
       const result = await signIn("credentials", {
         email: username,
         password,
         redirect: false,
-      })
+      });
 
       if (result?.error) {
-        setError("Invalid username or password")
+        setError("Invalid username or password");
       } else {
-        router.push("/dashboard")
+        router.push("/dashboard");
       }
     } catch {
-      setError("An error occurred. Please try again.")
+      setError("An error occurred. Please try again.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword)
-  }
+    setShowPassword(!showPassword);
+  };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 dark:from-gray-950 dark:via-gray-900 dark:to-gray-800 p-4">
+    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950 p-4">
       <motion.div
-        className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 rounded-3xl overflow-hidden backdrop-blur-xl bg-white/70 dark:bg-gray-900/70 shadow-2xl shadow-gray-200/50 dark:shadow-gray-950/50 border border-white/20 dark:border-gray-700/30"
+        className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 rounded-3xl overflow-hidden backdrop-blur-xl bg-white/90 dark:bg-slate-900/90 shadow-2xl shadow-blue-500/10 dark:shadow-blue-900/30 border border-slate-200/50 dark:border-slate-700/50"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
       >
         {/* Left Panel - Login Form */}
         <motion.div
-          className="backdrop-blur-sm bg-white/80 dark:bg-gray-900/80 p-8 md:p-12 flex flex-col justify-center relative"
+          className="backdrop-blur-sm bg-white/95 dark:bg-slate-900/95 p-8 md:p-12 flex flex-col justify-center relative"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/5 to-gray-50/20 dark:from-transparent dark:via-gray-800/5 dark:to-gray-950/20 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 via-transparent to-indigo-50/30 dark:from-blue-950/20 dark:via-transparent dark:to-indigo-950/20 pointer-events-none" />
 
           <div className="relative z-10">
-            <motion.div className="mb-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
-              <h2 className="text-4xl font-black bg-gradient-to-r from-gray-800 to-gray-600 dark:from-gray-200 dark:to-gray-400 bg-clip-text text-transparent">
+            <motion.div
+              className="mb-8"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              <h2 className="text-4xl font-black bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 dark:from-blue-400 dark:via-indigo-400 dark:to-blue-500 bg-clip-text text-transparent">
                 NoPolin HUB
               </h2>
-              <div className="h-1 w-16 bg-gradient-to-r from-gray-600 to-gray-500 rounded-full mt-2" />
+              <div className="h-1 w-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full mt-2" />
             </motion.div>
 
             <motion.div
@@ -91,15 +105,16 @@ export default function Login() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
             >
-              <p className="text-gray-600 dark:text-gray-300 text-base leading-relaxed">
-                Your centralized solution to reduce queues and optimize transport across Sri Lanka.
+              <p className="text-slate-600 dark:text-slate-300 text-base leading-relaxed">
+                Your centralized solution to reduce queues and optimize
+                transport across Sri Lanka.
               </p>
             </motion.div>
 
             {/* Error message display */}
             {error && (
               <motion.div
-                className="mb-6 p-4 backdrop-blur-sm bg-red-50/80 dark:bg-red-950/30 border border-red-200/50 dark:border-red-800/30 rounded-2xl flex items-start gap-3 text-red-700 dark:text-red-300 shadow-lg shadow-red-100/20 dark:shadow-red-950/20"
+                className="mb-6 p-4 backdrop-blur-sm bg-red-50/90 dark:bg-red-950/40 border border-red-200/70 dark:border-red-800/50 rounded-2xl flex items-start gap-3 text-red-700 dark:text-red-300 shadow-lg shadow-red-100/20 dark:shadow-red-950/20"
                 initial={{ opacity: 0, y: -10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ type: "spring", stiffness: 500, damping: 30 }}
@@ -107,7 +122,9 @@ export default function Login() {
                 <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-medium">{error}</p>
-                  <p className="text-xs mt-1 opacity-80">Please check your credentials and try again.</p>
+                  <p className="text-xs mt-1 opacity-80">
+                    Please check your credentials and try again.
+                  </p>
                 </div>
               </motion.div>
             )}
@@ -125,11 +142,14 @@ export default function Login() {
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.6 }}
               >
-                <Label htmlFor="username" className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                <Label
+                  htmlFor="username"
+                  className="text-sm font-semibold text-slate-700 dark:text-slate-200"
+                >
                   Username
                 </Label>
                 <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-gray-400 dark:text-gray-500 group-focus-within:text-gray-600 dark:group-focus-within:text-gray-300 transition-colors">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-slate-400 dark:text-slate-500 group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 transition-colors">
                     <User className="h-5 w-5" />
                   </div>
                   <Input
@@ -139,14 +159,14 @@ export default function Login() {
                     required
                     value={username}
                     onChange={(e) => {
-                      setUsername(e.target.value)
-                      if (error) setError(null)
+                      setUsername(e.target.value);
+                      if (error) setError(null);
                     }}
-                    className={`pl-12 h-14 backdrop-blur-sm bg-white/60 dark:bg-gray-800/60 border-2 ${
+                    className={`pl-12 h-14 backdrop-blur-sm bg-white dark:bg-slate-800 border-2 ${
                       error && !username.trim()
                         ? "border-red-300 dark:border-red-700 focus-visible:ring-red-500/20"
-                        : "border-gray-200/50 dark:border-gray-700/50 focus-visible:ring-gray-500/20 focus-visible:border-gray-400"
-                    } text-gray-900 dark:text-gray-100 rounded-2xl focus-visible:ring-4 focus-visible:ring-offset-0 shadow-lg shadow-gray-200/20 dark:shadow-gray-950/20 transition-all duration-200 hover:shadow-xl hover:shadow-gray-200/30 dark:hover:shadow-gray-950/30`}
+                        : "border-slate-200 dark:border-slate-700 focus-visible:ring-blue-500/20 focus-visible:border-blue-500"
+                    } text-slate-900 dark:text-slate-100 rounded-xl focus-visible:ring-4 focus-visible:ring-offset-0 shadow-sm transition-all duration-200 hover:shadow-md`}
                     aria-invalid={error && !username.trim() ? "true" : "false"}
                   />
                 </div>
@@ -158,11 +178,14 @@ export default function Login() {
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.7 }}
               >
-                <Label htmlFor="password" className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                <Label
+                  htmlFor="password"
+                  className="text-sm font-semibold text-slate-700 dark:text-slate-200"
+                >
                   Password
                 </Label>
                 <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-gray-400 dark:text-gray-500 group-focus-within:text-gray-600 dark:group-focus-within:text-gray-300 transition-colors">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-slate-400 dark:text-slate-500 group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 transition-colors">
                     <Lock className="h-5 w-5" />
                   </div>
                   <Input
@@ -172,22 +195,26 @@ export default function Login() {
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => {
-                      setPassword(e.target.value)
-                      if (error) setError(null)
+                      setPassword(e.target.value);
+                      if (error) setError(null);
                     }}
-                    className={`pl-12 pr-12 h-14 backdrop-blur-sm bg-white/60 dark:bg-gray-800/60 border-2 ${
+                    className={`pl-12 pr-12 h-14 backdrop-blur-sm bg-white dark:bg-slate-800 border-2 ${
                       error && !password
                         ? "border-red-300 dark:border-red-700 focus-visible:ring-red-500/20"
-                        : "border-gray-200/50 dark:border-gray-700/50 focus-visible:ring-gray-500/20 focus-visible:border-gray-400"
-                    } text-gray-900 dark:text-gray-100 rounded-2xl focus-visible:ring-4 focus-visible:ring-offset-0 shadow-lg shadow-gray-200/20 dark:shadow-gray-950/20 transition-all duration-200 hover:shadow-xl hover:shadow-gray-200/30 dark:hover:shadow-gray-950/30`}
+                        : "border-slate-200 dark:border-slate-700 focus-visible:ring-blue-500/20 focus-visible:border-blue-500"
+                    } text-slate-900 dark:text-slate-100 rounded-xl focus-visible:ring-4 focus-visible:ring-offset-0 shadow-sm transition-all duration-200 hover:shadow-md`}
                     aria-invalid={error && !password ? "true" : "false"}
                   />
                   <button
                     type="button"
                     onClick={togglePasswordVisibility}
-                    className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                    className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                   >
-                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5" />
+                    ) : (
+                      <Eye className="h-5 w-5" />
+                    )}
                   </button>
                 </div>
               </motion.div>
@@ -203,9 +230,12 @@ export default function Login() {
                     id="remember-me"
                     name="remember-me"
                     type="checkbox"
-                    className="h-4 w-4 text-gray-600 focus:ring-gray-500/20 focus:ring-4 border-gray-300 dark:border-gray-600 rounded transition-all"
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500/20 focus:ring-4 border-slate-300 dark:border-slate-600 rounded transition-all"
                   />
-                  <label htmlFor="remember-me" className="ml-3 block text-sm text-gray-600 dark:text-gray-300">
+                  <label
+                    htmlFor="remember-me"
+                    className="ml-3 block text-sm text-slate-600 dark:text-slate-300"
+                  >
                     Remember me
                   </label>
                 </div>
@@ -213,18 +243,22 @@ export default function Login() {
                 <div className="text-sm">
                   <a
                     href="/forget-password"
-                    className="font-medium text-gray-600 hover:text-gray-500 dark:text-gray-400 dark:hover:text-gray-300 transition-colors"
+                    className="font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
                   >
                     Forgot password?
                   </a>
                 </div>
               </motion.div>
 
-              <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.9 }}>
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.9 }}
+              >
                 <motion.button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full h-14 backdrop-blur-sm bg-gradient-to-r from-gray-800 to-gray-700 hover:from-gray-700 hover:to-gray-600 dark:from-gray-700 dark:to-gray-600 dark:hover:from-gray-600 dark:hover:to-gray-500 text-white rounded-2xl shadow-xl shadow-gray-900/20 dark:shadow-gray-950/40 transition-all duration-300 font-semibold text-base disabled:opacity-50 disabled:cursor-not-allowed border border-gray-600/20"
+                  className="w-full h-14 backdrop-blur-sm bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl shadow-lg shadow-blue-500/25 dark:shadow-blue-900/40 transition-all duration-300 font-semibold text-base disabled:opacity-50 disabled:cursor-not-allowed"
                   whileHover={{ scale: 1.02, y: -2 }}
                   whileTap={{ scale: 0.98 }}
                   transition={{ type: "spring", stiffness: 400, damping: 10 }}
@@ -235,14 +269,16 @@ export default function Login() {
                       Logging in...
                     </div>
                   ) : (
-                    <div className="flex items-center justify-center">Login</div>
+                    <div className="flex items-center justify-center">
+                      Login
+                    </div>
                   )}
                 </motion.button>
               </motion.div>
             </motion.form>
 
             <motion.div
-              className="mt-10 pt-8 border-t border-gray-200/30 dark:border-gray-700/30"
+              className="mt-10 pt-8 border-t border-slate-200/50 dark:border-slate-700/50"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.8 }}
@@ -255,7 +291,9 @@ export default function Login() {
                   transition={{ delay: 0.9, type: "spring", stiffness: 200 }}
                 >
                   <ThemeToggle />
-                  <span className="text-sm font-medium text-gray-600 dark:text-gray-300">Theme</span>
+                  <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                    Theme
+                  </span>
                 </motion.div>
 
                 <motion.div
@@ -317,7 +355,9 @@ export default function Login() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.8 }}
             >
-              <h2 className="text-3xl font-bold text-white drop-shadow-2xl">Smarter Transport, Fewer Queues</h2>
+              <h2 className="text-3xl font-bold text-white drop-shadow-2xl">
+                Smarter Transport, Fewer Queues
+              </h2>
             </motion.div>
 
             <motion.div
@@ -333,17 +373,20 @@ export default function Login() {
                 transition={{ delay: 0.9, type: "spring" }}
               >
                 <div className="inline-flex items-center px-8 py-3 rounded-full backdrop-blur-md bg-white/20 text-white border border-white/30 shadow-xl shadow-gray-900/20">
-                  <span className="text-sm font-semibold">Centralized Control</span>
+                  <span className="text-sm font-semibold">
+                    Centralized Control
+                  </span>
                 </div>
               </motion.div>
 
               <p className="text-white text-base drop-shadow-lg leading-relaxed max-w-md">
-                Track vehicles, manage lines, and improve efficiency across Sri Lanka — all in one unified platform.
+                Track vehicles, manage lines, and improve efficiency across Sri
+                Lanka — all in one unified platform.
               </p>
             </motion.div>
           </div>
         </motion.div>
       </motion.div>
     </div>
-  )
+  );
 }

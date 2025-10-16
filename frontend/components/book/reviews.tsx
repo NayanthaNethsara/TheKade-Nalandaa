@@ -13,21 +13,6 @@ interface ReviewsProps {
   bookId: number;
 }
 
-const Stars: React.FC<{ value: number }> = ({ value }) => (
-  <div className="flex items-center gap-1">
-    {Array.from({ length: 5 }).map((_, i) => (
-      <Star
-        key={i}
-        className={`h-4 w-4 ${
-          i < value
-            ? "fill-yellow-400 text-yellow-400"
-            : "text-muted-foreground"
-        }`}
-      />
-    ))}
-  </div>
-);
-
 export default function Reviews({ bookId }: ReviewsProps) {
   const { data: session } = useSession();
   const currentUserId = session?.user?.sub ? String(session.user.sub) : null;
@@ -177,19 +162,23 @@ export default function Reviews({ bookId }: ReviewsProps) {
   }
 
   return (
-    <Card className="shadow-xl border-2">
-      <CardHeader className="border-b bg-muted/30">
+    <Card className="shadow-2xl border-2 border-amber-200/50 dark:border-amber-500/20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md">
+      <CardHeader className="border-b bg-gradient-to-r from-amber-50 via-yellow-50 to-orange-50 dark:from-amber-950/50 dark:via-yellow-950/50 dark:to-orange-950/50">
         <CardTitle className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Star className="h-5 w-5 text-yellow-400 fill-yellow-400" />
-            <span>Reader Reviews</span>
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
+              <Star className="h-5 w-5 text-white fill-white" />
+            </div>
+            <span className="text-xl font-bold bg-gradient-to-r from-blue-700 to-indigo-700 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">
+              Reader Reviews
+            </span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="text-right">
-              <div className="text-2xl font-bold text-primary">
+          <div className="flex items-center gap-3">
+            <div className="text-right bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/50 dark:to-indigo-900/50 px-4 py-2 rounded-xl border border-blue-300/50 dark:border-blue-600/30 shadow-sm">
+              <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">
                 {average.toFixed(1)}
               </div>
-              <div className="text-xs text-muted-foreground">
+              <div className="text-xs font-semibold text-blue-700 dark:text-blue-300">
                 {total} review{total === 1 ? "" : "s"}
               </div>
             </div>
@@ -198,31 +187,46 @@ export default function Reviews({ bookId }: ReviewsProps) {
       </CardHeader>
       <CardContent className="space-y-6">
         {loading ? (
-          <div className="text-sm text-muted-foreground">Loading reviews…</div>
+          <div className="text-sm text-slate-600 dark:text-slate-400">
+            Loading reviews…
+          </div>
         ) : error ? (
-          <div className="text-sm text-destructive">{error}</div>
+          <div className="text-sm text-red-600 dark:text-red-400">{error}</div>
         ) : (
           <div className="space-y-4">
             {/* Ratings Breakdown */}
             {total > 0 && (
-              <div className="p-4 bg-gradient-to-br from-muted/50 to-muted/20 rounded-lg border">
-                <h3 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wide">
+              <div className="p-5 bg-gradient-to-br from-blue-50 via-indigo-50/50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/20 dark:to-blue-950/30 rounded-xl border border-blue-200/50 dark:border-blue-800/50 shadow-sm">
+                <h3 className="text-sm font-bold mb-4 text-blue-700 dark:text-blue-300 uppercase tracking-wide flex items-center gap-2">
+                  <div className="h-1 w-1 rounded-full bg-blue-500"></div>
                   Rating Distribution
+                  <div className="h-1 w-1 rounded-full bg-blue-500"></div>
                 </h3>
                 <div className="space-y-2">
                   {[5, 4, 3, 2, 1].map((n) => {
                     const count = breakdown[n as 1 | 2 | 3 | 4 | 5] || 0;
                     const pct = total ? Math.round((count / total) * 100) : 0;
+                    const colors = {
+                      5: "from-emerald-400 to-green-500",
+                      4: "from-blue-400 to-cyan-500",
+                      3: "from-indigo-400 to-blue-500",
+                      2: "from-orange-400 to-amber-500",
+                      1: "from-red-400 to-rose-500",
+                    };
                     return (
                       <div key={n} className="flex items-center gap-3 text-sm">
-                        <span className="w-8 font-medium">{n}★</span>
-                        <div className="flex-1 h-3 bg-muted rounded-full overflow-hidden">
+                        <span className="w-10 font-bold text-slate-700 dark:text-slate-300">
+                          {n}★
+                        </span>
+                        <div className="flex-1 h-3 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                           <div
-                            className="h-3 bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full transition-all duration-500"
+                            className={`h-3 bg-gradient-to-r ${
+                              colors[n as keyof typeof colors]
+                            } rounded-full transition-all duration-500`}
                             style={{ width: `${pct}%` }}
                           />
                         </div>
-                        <span className="w-12 text-right tabular-nums font-medium text-muted-foreground">
+                        <span className="w-14 text-right tabular-nums font-bold text-slate-700 dark:text-slate-300">
                           {count}
                         </span>
                       </div>
@@ -233,27 +237,35 @@ export default function Reviews({ bookId }: ReviewsProps) {
             )}
 
             {reviews.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">
-                <Star className="h-12 w-12 mx-auto mb-3 opacity-20" />
-                <p className="text-sm font-medium">No reviews yet</p>
-                <p className="text-xs">Be the first to share your thoughts!</p>
+              <div className="text-center py-16 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900/50 dark:to-slate-800/50 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700">
+                <div className="h-16 w-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/50 dark:to-orange-900/50 flex items-center justify-center">
+                  <Star className="h-8 w-8 text-amber-500 dark:text-amber-400" />
+                </div>
+                <p className="text-base font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  No reviews yet
+                </p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  Be the first to share your thoughts!
+                </p>
               </div>
             ) : (
               <>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {pageItems.map((r) => (
                     <div
                       key={r.id}
-                      className="border-2 rounded-lg p-4 hover:border-primary/50 transition-colors bg-card"
+                      className="border rounded-xl p-5 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md transition-all bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700"
                     >
-                      <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center font-semibold text-sm">
+                          <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center font-bold text-lg text-white shadow-md">
                             {r.userName.charAt(0).toUpperCase()}
                           </div>
                           <div>
-                            <div className="font-semibold">{r.userName}</div>
-                            <div className="text-xs text-muted-foreground">
+                            <div className="font-bold text-slate-900 dark:text-slate-100">
+                              {r.userName}
+                            </div>
+                            <div className="text-xs font-medium text-slate-500 dark:text-slate-400">
                               {new Date(r.createdAt).toLocaleDateString(
                                 "en-US",
                                 {
@@ -265,30 +277,63 @@ export default function Reviews({ bookId }: ReviewsProps) {
                             </div>
                           </div>
                         </div>
-                        <Stars value={r.rating} />
+                        <div className="flex items-center gap-1">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`h-5 w-5 ${
+                                i < r.rating
+                                  ? "fill-blue-500 text-blue-500"
+                                  : "text-slate-300 dark:text-slate-600"
+                              }`}
+                            />
+                          ))}
+                        </div>
                       </div>
 
                       {editingId === r.id ? (
-                        <div className="space-y-2 mt-3">
-                          <Label htmlFor="editRating">Edit Rating (1-5)</Label>
-                          <Input
-                            id="editRating"
-                            type="number"
-                            min={1}
-                            max={5}
-                            value={editRating}
-                            onChange={(e) =>
-                              setEditRating(parseInt(e.target.value || "5", 10))
-                            }
-                          />
-                          <Label htmlFor="editText">Edit Review</Label>
-                          <Textarea
-                            id="editText"
-                            value={editText}
-                            onChange={(e) => setEditText(e.target.value)}
-                          />
+                        <div className="space-y-3 mt-3 p-4 bg-blue-50/50 dark:bg-blue-950/20 rounded-lg">
+                          <div>
+                            <Label
+                              htmlFor="editRating"
+                              className="text-sm font-semibold text-slate-700 dark:text-slate-300"
+                            >
+                              Edit Rating (1-5)
+                            </Label>
+                            <Input
+                              id="editRating"
+                              type="number"
+                              min={1}
+                              max={5}
+                              value={editRating}
+                              onChange={(e) =>
+                                setEditRating(
+                                  parseInt(e.target.value || "5", 10)
+                                )
+                              }
+                              className="mt-2"
+                            />
+                          </div>
+                          <div>
+                            <Label
+                              htmlFor="editText"
+                              className="text-sm font-semibold text-slate-700 dark:text-slate-300"
+                            >
+                              Edit Review
+                            </Label>
+                            <Textarea
+                              id="editText"
+                              value={editText}
+                              onChange={(e) => setEditText(e.target.value)}
+                              className="mt-2"
+                            />
+                          </div>
                           <div className="flex gap-2">
-                            <Button size="sm" onClick={saveEdit}>
+                            <Button
+                              size="sm"
+                              onClick={saveEdit}
+                              className="bg-blue-600 hover:bg-blue-700"
+                            >
                               Save
                             </Button>
                             <Button
@@ -302,18 +347,19 @@ export default function Reviews({ bookId }: ReviewsProps) {
                         </div>
                       ) : (
                         r.reviewText && (
-                          <div className="text-sm mt-3 leading-relaxed text-muted-foreground">
+                          <div className="text-sm mt-3 leading-relaxed text-slate-700 dark:text-slate-300">
                             {r.reviewText}
                           </div>
                         )
                       )}
 
                       {currentUserId && r.userId === String(currentUserId) && (
-                        <div className="mt-3 pt-3 border-t flex gap-2">
+                        <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700 flex gap-2">
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => startEdit(r)}
+                            className="border-blue-300 dark:border-blue-700 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/30"
                           >
                             Edit
                           </Button>
@@ -322,6 +368,7 @@ export default function Reviews({ bookId }: ReviewsProps) {
                             size="sm"
                             onClick={() => deleteReview(r.id)}
                             disabled={busyDeleteId === r.id}
+                            className="border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30"
                           >
                             {busyDeleteId === r.id ? "Deleting…" : "Delete"}
                           </Button>
@@ -333,16 +380,17 @@ export default function Reviews({ bookId }: ReviewsProps) {
 
                 {/* Pagination Controls */}
                 {reviews.length > pageSize && (
-                  <div className="flex items-center justify-between pt-4">
+                  <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-700">
                     <Button
                       variant="outline"
                       size="sm"
                       disabled={page === 1}
                       onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      className="border-slate-300 dark:border-slate-600"
                     >
                       Previous
                     </Button>
-                    <div className="text-xs text-muted-foreground font-medium">
+                    <div className="text-xs text-slate-600 dark:text-slate-400 font-medium">
                       Page {page} of {totalPages}
                     </div>
                     <Button
@@ -352,6 +400,7 @@ export default function Reviews({ bookId }: ReviewsProps) {
                       onClick={() =>
                         setPage((p) => Math.min(totalPages, p + 1))
                       }
+                      className="border-slate-300 dark:border-slate-600"
                     >
                       Next
                     </Button>
@@ -362,27 +411,43 @@ export default function Reviews({ bookId }: ReviewsProps) {
           </div>
         )}
 
-        <div className="border-t pt-6">
-          <h3 className="text-sm font-semibold mb-4 text-muted-foreground uppercase tracking-wide">
-            Write a Review
-          </h3>
-          <form onSubmit={submitReview} className="space-y-4">
+        <div className="border-t border-slate-200 dark:border-slate-700 pt-6 mt-6">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="h-8 w-1 bg-gradient-to-b from-blue-500 to-indigo-600 rounded-full"></div>
+            <h3 className="text-lg font-bold bg-gradient-to-r from-blue-700 to-indigo-700 dark:from-blue-300 dark:to-indigo-300 bg-clip-text text-transparent uppercase tracking-wide">
+              Write Your Review
+            </h3>
+          </div>
+          <form
+            onSubmit={submitReview}
+            className="space-y-5 p-5 bg-gradient-to-br from-blue-50/30 to-indigo-50/30 dark:from-blue-950/10 dark:to-indigo-950/10 rounded-xl border border-blue-200/50 dark:border-blue-800/30"
+          >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {!currentUserId && (
                 <div>
-                  <Label htmlFor="name">Your Name</Label>
+                  <Label
+                    htmlFor="name"
+                    className="text-slate-700 dark:text-slate-300 font-semibold"
+                  >
+                    Your Name
+                  </Label>
                   <Input
                     id="name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Enter your name"
-                    className="mt-1"
+                    className="mt-2 border-slate-300 dark:border-slate-600 focus:ring-blue-500/20"
                   />
                 </div>
               )}
               <div>
-                <Label htmlFor="rating">Your Rating</Label>
-                <div className="flex items-center gap-2 mt-1">
+                <Label
+                  htmlFor="rating"
+                  className="text-slate-700 dark:text-slate-300 font-semibold"
+                >
+                  Your Rating
+                </Label>
+                <div className="flex items-center gap-3 mt-2">
                   <Input
                     id="rating"
                     type="number"
@@ -392,16 +457,16 @@ export default function Reviews({ bookId }: ReviewsProps) {
                     onChange={(e) =>
                       setRating(parseInt(e.target.value || "5", 10))
                     }
-                    className="w-20"
+                    className="w-20 border-slate-300 dark:border-slate-600 focus:ring-blue-500/20 font-bold text-blue-700 dark:text-blue-300"
                   />
-                  <div className="flex gap-0.5">
+                  <div className="flex gap-1 p-2 bg-white dark:bg-slate-900 rounded-lg border border-slate-300 dark:border-slate-600">
                     {Array.from({ length: 5 }).map((_, i) => (
                       <Star
                         key={i}
-                        className={`h-5 w-5 cursor-pointer transition-colors ${
+                        className={`h-6 w-6 cursor-pointer transition-all hover:scale-110 ${
                           i < rating
-                            ? "fill-yellow-400 text-yellow-400"
-                            : "text-muted-foreground"
+                            ? "fill-blue-500 text-blue-500"
+                            : "text-slate-300 dark:text-slate-600"
                         }`}
                         onClick={() => setRating(i + 1)}
                       />
@@ -411,21 +476,29 @@ export default function Reviews({ bookId }: ReviewsProps) {
               </div>
             </div>
             <div>
-              <Label htmlFor="text">Your Review</Label>
+              <Label
+                htmlFor="text"
+                className="text-slate-700 dark:text-slate-300 font-semibold"
+              >
+                Your Review
+              </Label>
               <Textarea
                 id="text"
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 placeholder="Share your thoughts about this book..."
-                className="mt-1 min-h-[100px]"
+                className="mt-2 min-h-[120px] border-slate-300 dark:border-slate-600 focus:ring-blue-500/20"
               />
             </div>
             <div className="flex items-center gap-3">
-              <Button type="submit" className="px-6">
+              <Button
+                type="submit"
+                className="px-8 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold shadow-lg hover:shadow-xl transition-all"
+              >
                 Submit Review
               </Button>
               {error && (
-                <div className="text-sm text-destructive font-medium">
+                <div className="text-sm text-red-600 dark:text-red-400 font-semibold bg-red-50 dark:bg-red-950/30 px-3 py-2 rounded-lg border border-red-300 dark:border-red-700">
                   {error}
                 </div>
               )}

@@ -1,57 +1,61 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Skeleton } from "@/components/ui/skeleton"
-import { FileText, ExternalLink, AlertCircle } from "lucide-react"
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
+import { FileText, ExternalLink, AlertCircle } from "lucide-react";
 
 interface PDFViewerProps {
-  bookId: number
-  chunkNumber?: number
-  title: string
+  bookId: number;
+  chunkNumber?: number;
+  title: string;
 }
 
 export function PDFViewer({ bookId, chunkNumber = 1, title }: PDFViewerProps) {
-  const [chunkUrl, setChunkUrl] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [chunkUrl, setChunkUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchChunk() {
       try {
-        setLoading(true)
-        setError(null)
+        setLoading(true);
+        setError(null);
 
-        console.log(`[v0] Fetching chunk ${chunkNumber} for book ${bookId}`)
+        // fetching chunk
 
-        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5064"
-        const response = await fetch(`${backendUrl}/api/Books/${bookId}/chunks/${chunkNumber}`, {
-          signal: AbortSignal.timeout(5000),
-        })
+        const backendUrl =
+          process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5064";
+        const response = await fetch(
+          `${backendUrl}/api/Books/${bookId}/chunks/${chunkNumber}`,
+          {
+            signal: AbortSignal.timeout(5000),
+          }
+        );
 
         if (!response.ok) {
-          throw new Error(`Failed to fetch chunk ${chunkNumber}`)
+          throw new Error(`Failed to fetch chunk ${chunkNumber}`);
         }
 
         // Assuming the API returns the PDF URL or blob
-        const chunkData = await response.text()
-        setChunkUrl(chunkData)
-        console.log(`[v0] Successfully loaded chunk ${chunkNumber}`)
-      } catch (err) {
-        console.error(`[v0] Error loading chunk ${chunkNumber}:`, err)
-        setChunkUrl("/pdf-document-placeholder.jpg")
-        setError("Backend not available - showing placeholder")
+        const chunkData = await response.text();
+        setChunkUrl(chunkData);
+        // loaded chunk
+      } catch {
+        // error loading chunk
+        setChunkUrl("/pdf-document-placeholder.jpg");
+        setError("Backend not available - showing placeholder");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
 
     if (bookId) {
-      fetchChunk()
+      fetchChunk();
     }
-  }, [bookId, chunkNumber])
+  }, [bookId, chunkNumber]);
 
   if (loading) {
     return (
@@ -66,7 +70,7 @@ export function PDFViewer({ bookId, chunkNumber = 1, title }: PDFViewerProps) {
           <Skeleton className="h-96 w-full" />
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -78,7 +82,12 @@ export function PDFViewer({ bookId, chunkNumber = 1, title }: PDFViewerProps) {
             {title} - Chunk {chunkNumber}
           </div>
           {chunkUrl && (
-            <Button variant="outline" size="sm" onClick={() => window.open(chunkUrl, "_blank")} className="gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => window.open(chunkUrl, "_blank")}
+              className="gap-2"
+            >
               <ExternalLink className="h-4 w-4" />
               Open in New Tab
             </Button>
@@ -99,12 +108,20 @@ export function PDFViewer({ bookId, chunkNumber = 1, title }: PDFViewerProps) {
               <div className="flex h-full items-center justify-center">
                 <div className="text-center">
                   <FileText className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">PDF Chunk {chunkNumber}</h3>
-                  <p className="text-muted-foreground">Connect your backend to view actual PDF content</p>
+                  <h3 className="text-lg font-semibold mb-2">
+                    PDF Chunk {chunkNumber}
+                  </h3>
+                  <p className="text-muted-foreground">
+                    Connect your backend to view actual PDF content
+                  </p>
                 </div>
               </div>
             ) : (
-              <iframe src={chunkUrl} className="w-full h-full" title={`${title} - Chunk ${chunkNumber}`} />
+              <iframe
+                src={chunkUrl}
+                className="w-full h-full"
+                title={`${title} - Chunk ${chunkNumber}`}
+              />
             )}
           </div>
         ) : (
@@ -115,5 +132,5 @@ export function PDFViewer({ bookId, chunkNumber = 1, title }: PDFViewerProps) {
         )}
       </CardContent>
     </Card>
-  )
+  );
 }
