@@ -15,6 +15,7 @@ import {
   CardContent,
 } from "../ui/card";
 import { Skeleton } from "../ui/skeleton";
+import Reviews from "./reviews";
 
 interface ReaderProps {
   bookId: string;
@@ -149,8 +150,9 @@ export default function Reader({ bookId, bookName }: ReaderProps) {
         </div>
 
         {/* Book Chunks */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 space-y-6">
           <BookChunks chunkUrl={book.chunkPath} title={book.title} />
+          <Reviews bookId={Number(book.id ?? bookId)} />
         </div>
       </div>
     </div>
