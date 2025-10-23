@@ -11,10 +11,12 @@ namespace BookService.Services
     public class BookServiceImpl : IBookService
     {
         private readonly IBookRepository _bookRepo;
+        private readonly IBookmarkRepository _bookmarkRepo;
 
-        public BookServiceImpl(IBookRepository bookRepo)
+        public BookServiceImpl(IBookRepository bookRepo, IBookmarkRepository bookmarkRepo)
         {
             _bookRepo = bookRepo;
+            _bookmarkRepo = bookmarkRepo;
         }
 
         public async Task<BookDto> CreateBookAsync(BookCreateDto dto)
@@ -161,6 +163,34 @@ namespace BookService.Services
         public async Task<bool> ApproveBookAsync(int id)
         {
             return await _bookRepo.ApproveAsync(id);
+        }
+
+        // Bookmark methods
+        public async Task<BookmarkDto?> AddBookmarkAsync(int userId, CreateBookmarkDto dto)
+        {
+            // prevent duplicates
+            if (await _bookmarkRepo.ExistsAsync(userId, dto.BookId)) return null;
+
+            var bm = new Models.Bookmark
+            {
+                UserId = userId,
+                BookId = dto.BookId
+            };
+
+            var created = await _bookmarkRepo.AddAsync(bm);
+
+            return new BookmarkDto(created.Id, created.UserId, created.BookId, created.CreatedAt);
+        }
+
+        public async Task<bool> RemoveBookmarkAsync(int userId, int bookId)
+        {
+            return await _bookmarkRepo.DeleteAsync(userId, bookId);
+        }
+
+        public async Task<List<BookmarkDto>> GetUserBookmarksAsync(int userId)
+        {
+            var list = await _bookmarkRepo.GetByUserAsync(userId);
+            return list.Select(b => new BookmarkDto(b.Id, b.UserId, b.BookId, b.CreatedAt)).ToList();
         }
     }
 }

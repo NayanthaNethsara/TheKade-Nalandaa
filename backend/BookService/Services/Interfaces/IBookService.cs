@@ -17,5 +17,9 @@ namespace BookService.Services
         Task<List<BookDto>> GetApprovedBooksAsync();
         Task<List<BookDto>> GetPendingBooksAsync();
         Task<bool> ApproveBookAsync(int id);
+        // Bookmark related
+        Task<BookmarkDto?> AddBookmarkAsync(int userId, CreateBookmarkDto dto);
+        Task<bool> RemoveBookmarkAsync(int userId, int bookId);
+        Task<List<BookmarkDto>> GetUserBookmarksAsync(int userId);
     }
 }

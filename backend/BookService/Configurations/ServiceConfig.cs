@@ -10,10 +10,11 @@ namespace BookService.Configurations
         {
             services.AddHttpClient();
 
-            // Register repository
+            // Register repositories
             services.AddScoped<IBookRepository, BookRepository>();
+            services.AddScoped<IBookmarkRepository, BookmarkRepository>();
 
-            // Book service
+            // Book service (depends on bookmark repo as well)
             services.AddScoped<IBookService, BookServiceImpl>();
 
             return services;
