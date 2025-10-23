@@ -32,18 +32,9 @@ export async function POST(
       return NextResponse.json({ error: "Upload failed" }, { status: 500 });
     }
 
-    const { data, error: urlError } = await supabase.storage
-      .from(bucket)
-      .createSignedUrl(filePath, 60 * 60 * 24);
+    const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
 
-    if (urlError) {
-      return NextResponse.json(
-        { error: "Failed to get signed URL" },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json({ url: data.signedUrl, path: filePath });
+    return NextResponse.json({ url: data.publicUrl, path: filePath });
   } catch (e) {
     console.error(e);
     return NextResponse.json(

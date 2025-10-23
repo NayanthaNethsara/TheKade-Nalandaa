@@ -24,15 +24,15 @@ namespace BookService.Tests
             // Arrange
             var books = new List<BookDto>
             {
-                new BookDto(1, "Book 1", "Description 1", 1, "Author 1", "book-1", "/images/book1.jpg"),
-                new BookDto(2, "Book 2", "Description 2", 2, "Author 2", "book-2", "/images/book2.jpg")
+                new BookDto(1, "Book 1", "Description 1", 1, "Author 1", "book-1", "/images/book1.jpg", true),
+                new BookDto(2, "Book 2", "Description 2", 2, "Author 2", "book-2", "/images/book2.jpg", true)
             };
 
             _mockBookService.Setup(s => s.GetAllBooksAsync())
                 .ReturnsAsync(books);
 
             // Act
-            var result = await _controller.GetAll();
+            var result = await _controller.GetApproved();
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
@@ -46,11 +46,11 @@ namespace BookService.Tests
         public async Task GetAll_ShouldReturnOkResult_WithEmptyList_WhenNoBooksExist()
         {
             // Arrange
-            _mockBookService.Setup(s => s.GetAllBooksAsync())
+            _mockBookService.Setup(s => s.GetApprovedBooksAsync())
                 .ReturnsAsync(new List<BookDto>());
 
             // Act
-            var result = await _controller.GetAll();
+            var result = await _controller.GetApproved();
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
@@ -71,7 +71,8 @@ namespace BookService.Tests
                 "Test Author",
                 "test-book",
                 "/images/test.jpg",
-                "/chunks/chunk1.pdf"
+                "/chunks/chunk1.pdf",
+                true
             );
 
             _mockBookService.Setup(s => s.GetBookByIdAsync(bookId))
@@ -123,7 +124,8 @@ namespace BookService.Tests
                 1,
                 "New Author",
                 "new-book",
-                "/images/new.jpg"
+                "/images/new.jpg",
+                false
             );
 
             _mockBookService.Setup(s => s.CreateBookAsync(createDto))
@@ -193,7 +195,7 @@ namespace BookService.Tests
                 "/images/test.jpg"
             );
 
-            var createdBook = new BookDto(1, "Test Book", "Test Description", 1, "Test Author", "test-book", "/images/test.jpg");
+            var createdBook = new BookDto(1, "Test Book", "Test Description", 1, "Test Author", "test-book", "/images/test.jpg", false);
 
             _mockBookService.Setup(s => s.CreateBookAsync(It.IsAny<BookCreateDto>()))
                 .ReturnsAsync(createdBook);
