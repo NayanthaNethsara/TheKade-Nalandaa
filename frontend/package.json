@@ -9,7 +9,17 @@
     "lint": "eslint",
     "test": "playwright test",
     "test:ui": "playwright test --ui",
-    "test:headed": "playwright test --headed"
+    "test:headed": "playwright test --headed",
+    "test:auth": "playwright test tests/auth.spec.ts --project=chromium",
+    "test:auth:all": "playwright test tests/auth*.spec.ts",
+    "test:auth:headed": "playwright test tests/auth.spec.ts --headed --project=chromium",
+    "test:auth:ui": "playwright test tests/auth.spec.ts --ui",
+    "test:auth:debug": "playwright test tests/auth.spec.ts --debug --project=chromium",
+    "test:api": "playwright test tests/auth-api.spec.ts --project=chromium",
+    "test:middleware": "playwright test tests/middleware.spec.ts --project=chromium",
+    "test:integration": "playwright test tests/auth-integration.spec.ts --project=chromium",
+    "test:report": "playwright show-report",
+    "test:ci": "playwright test --reporter=html,json,junit,github"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.10",
