@@ -69,7 +69,10 @@ The app will run at → `http://localhost:3000`
 
 - Users can manage their subscription plans (Free, Premium, Author) via the `/dashboard/subscription` page.
 - **Mock Payment System**: Use discount code `test-discount` to test subscription upgrades without actual payment.
-- The subscription status is stored in the user's session and updated in real-time.
+- **Real-time Updates**: Subscription status is fetched directly from the backend API (`GET /api/users/readers/{id}`) and updates immediately after changes.
+- **API Endpoints Used**:
+  - `GET /api/users/readers/{id}` - Fetches current user subscription
+  - `PATCH /api/users/readers/{id}/subscription` - Updates user subscription
 - See [Subscription Documentation](../docs/SUBSCRIPTION.md) for detailed information.
 
 ---

@@ -69,6 +69,7 @@ export default function ProfilePage() {
   const router = useRouter();
   const [editMode, setEditMode] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [subscription, setSubscription] = useState<SubscriptionStatus>("Free");
   const [profile, setProfile] = useState<UserProfile>({
     name: "",
     email: "",
@@ -78,6 +79,35 @@ export default function ProfilePage() {
     profilePictureUrl: "",
   });
   const [formData, setFormData] = useState<UserProfile>(profile);
+
+  // Fetch subscription from API
+  useEffect(() => {
+    const fetchSubscription = async () => {
+      if (!session?.user?.sub) return;
+
+      try {
+        const response = await fetch(
+          `${
+            process.env.NEXT_PUBLIC_AUTH_API_BASE_URL || "http://localhost:5218"
+          }/api/users/readers/${session.user.sub}`
+        );
+
+        if (response.ok) {
+          const userData = await response.json();
+          const subscriptionMap: Record<number, SubscriptionStatus> = {
+            0: "Free",
+            1: "Premium",
+            2: "Author",
+          };
+          setSubscription(subscriptionMap[userData.subscription] || "Free");
+        }
+      } catch (error) {
+        console.error("Error fetching subscription:", error);
+      }
+    };
+
+    fetchSubscription();
+  }, [session?.user?.sub]);
 
   useEffect(() => {
     if (session?.user) {
@@ -94,8 +124,6 @@ export default function ProfilePage() {
     }
   }, [session]);
 
-  const subscription =
-    (session?.user?.subscription as SubscriptionStatus) || "Free";
   const role = session?.user?.role || "Reader";
   const userId = session?.user?.sub;
   const Icon = subscriptionIcons[subscription];

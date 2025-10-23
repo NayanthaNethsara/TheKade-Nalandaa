@@ -1,6 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Card,
@@ -14,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Crown, Zap, Star, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import type { SubscriptionStatus } from "@/types/subscription";
 
 const subscriptionIcons = {
   Free: Zap,
@@ -36,10 +38,39 @@ const subscriptionBadgeColors = {
 
 export function SubscriptionWidget() {
   const { data: session } = useSession();
+  const [subscription, setSubscription] = useState<SubscriptionStatus>("Free");
+
+  // Fetch subscription from API
+  useEffect(() => {
+    const fetchSubscription = async () => {
+      if (!session?.user?.sub) return;
+
+      try {
+        const response = await fetch(
+          `${
+            process.env.NEXT_PUBLIC_AUTH_API_BASE_URL || "http://localhost:5218"
+          }/api/users/readers/${session.user.sub}`
+        );
+
+        if (response.ok) {
+          const userData = await response.json();
+          const subscriptionMap: Record<number, SubscriptionStatus> = {
+            0: "Free",
+            1: "Premium",
+            2: "Author",
+          };
+          setSubscription(subscriptionMap[userData.subscription] || "Free");
+        }
+      } catch (error) {
+        console.error("Error fetching subscription:", error);
+      }
+    };
+
+    fetchSubscription();
+  }, [session?.user?.sub]);
 
   if (!session) return null;
 
-  const subscription = session.user.subscription || "Free";
   const Icon =
     subscriptionIcons[subscription as keyof typeof subscriptionIcons] || Zap;
   const iconColor =

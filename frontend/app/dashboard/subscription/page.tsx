@@ -53,7 +53,7 @@ const subscriptionPlans: SubscriptionPlan[] = [
 ];
 
 export default function SubscriptionPage() {
-  const { data: session, update } = useSession();
+  const { data: session } = useSession();
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(
     null
   );
@@ -62,11 +62,35 @@ export default function SubscriptionPage() {
     useState<SubscriptionStatus>("Free");
   const [loading, setLoading] = useState(false);
 
+  // Fetch current subscription from API
   useEffect(() => {
-    if (session?.user?.subscription) {
-      setCurrentSubscription(session.user.subscription as SubscriptionStatus);
-    }
-  }, [session]);
+    const fetchSubscription = async () => {
+      if (!session?.user?.sub) return;
+
+      try {
+        const response = await fetch(
+          `${
+            process.env.NEXT_PUBLIC_AUTH_API_BASE_URL || "http://localhost:5218"
+          }/api/users/readers/${session.user.sub}`
+        );
+
+        if (response.ok) {
+          const userData = await response.json();
+          // Map subscription number to status string
+          const subscriptionMap: Record<number, SubscriptionStatus> = {
+            0: "Free",
+            1: "Premium",
+            2: "Author",
+          };
+          setCurrentSubscription(subscriptionMap[userData.subscription] || "Free");
+        }
+      } catch (error) {
+        console.error("Error fetching subscription:", error);
+      }
+    };
+
+    fetchSubscription();
+  }, [session?.user?.sub]);
 
   const handleSelectPlan = (plan: SubscriptionPlan) => {
     setSelectedPlan(plan);
@@ -142,17 +166,24 @@ export default function SubscriptionPage() {
         throw new Error(errorMessage);
       }
 
-      // Update the session with new subscription
-      await update({
-        ...session,
-        user: {
-          ...session.user,
-          subscription: newSubscription,
-        },
-      });
-
-      setCurrentSubscription(newSubscription);
       toast.success(`Successfully changed to ${newSubscription} plan!`);
+      
+      // Refetch subscription from API to update UI
+      const getUserResponse = await fetch(
+        `${
+          process.env.NEXT_PUBLIC_AUTH_API_BASE_URL || "http://localhost:5218"
+        }/api/users/readers/${session.user.sub}`
+      );
+
+      if (getUserResponse.ok) {
+        const userData = await getUserResponse.json();
+        const subscriptionMap: Record<number, SubscriptionStatus> = {
+          0: "Free",
+          1: "Premium",
+          2: "Author",
+        };
+        setCurrentSubscription(subscriptionMap[userData.subscription] || "Free");
+      }
     } catch (error) {
       console.error("Error updating subscription:", error);
       const errorMessage =

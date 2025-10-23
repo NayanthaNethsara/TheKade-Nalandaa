@@ -4,19 +4,50 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Crown, Sparkles, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import type { SubscriptionStatus } from "@/types/subscription";
 
 export function SubscriptionBanner() {
   const { data: session } = useSession();
   const [dismissed, setDismissed] = useState(false);
+  const [subscription, setSubscription] = useState<SubscriptionStatus>("Free");
+
+  // Fetch subscription from API
+  useEffect(() => {
+    const fetchSubscription = async () => {
+      if (!session?.user?.sub) return;
+
+      try {
+        const response = await fetch(
+          `${
+            process.env.NEXT_PUBLIC_AUTH_API_BASE_URL || "http://localhost:5218"
+          }/api/users/readers/${session.user.sub}`
+        );
+
+        if (response.ok) {
+          const userData = await response.json();
+          const subscriptionMap: Record<number, SubscriptionStatus> = {
+            0: "Free",
+            1: "Premium",
+            2: "Author",
+          };
+          setSubscription(subscriptionMap[userData.subscription] || "Free");
+        }
+      } catch (error) {
+        console.error("Error fetching subscription:", error);
+      }
+    };
+
+    fetchSubscription();
+  }, [session?.user?.sub]);
 
   // Don't show banner if user is Premium or Author, or if dismissed
   if (
     !session ||
     dismissed ||
-    session.user.subscription === "Premium" ||
-    session.user.subscription === "Author"
+    subscription === "Premium" ||
+    subscription === "Author"
   ) {
     return null;
   }
