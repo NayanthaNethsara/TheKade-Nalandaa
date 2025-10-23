@@ -10,15 +10,15 @@ const BACKEND_URL = process.env.BOOK_API_BASE_URL || "http://localhost:5064";
  */
 export async function GET(
   request: Request,
-  { params }: { params: { bookId: string } }
+  { params }: { params: Promise<{ bookId: string }> }
 ) {
   try {
     const url = new URL(request.url);
     const stats = url.searchParams.get("stats");
     const endpoint =
       stats === "true"
-        ? `${BACKEND_URL}/api/BookReview/book/${params.bookId}/stats`
-        : `${BACKEND_URL}/api/BookReview/book/${params.bookId}`;
+        ? `${BACKEND_URL}/api/BookReview/book/${(await params).bookId}/stats`
+        : `${BACKEND_URL}/api/BookReview/book/${(await params).bookId}`;
 
     const response = await fetch(endpoint, {
       method: "GET",

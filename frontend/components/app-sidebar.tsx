@@ -8,6 +8,7 @@ import {
   LogOut,
   User,
   BookOpen,
+  CreditCard,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -43,6 +44,11 @@ const citizenItems = [
     title: "Profile",
     url: "/dashboard/profile",
     icon: User,
+  },
+  {
+    title: "Subscription",
+    url: "/dashboard/subscription",
+    icon: CreditCard,
   },
 ];
 
