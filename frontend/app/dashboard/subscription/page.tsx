@@ -82,7 +82,9 @@ export default function SubscriptionPage() {
             1: "Premium",
             2: "Author",
           };
-          setCurrentSubscription(subscriptionMap[userData.subscription] || "Free");
+          setCurrentSubscription(
+            subscriptionMap[userData.subscription] || "Free"
+          );
         }
       } catch (error) {
         console.error("Error fetching subscription:", error);
@@ -167,7 +169,7 @@ export default function SubscriptionPage() {
       }
 
       toast.success(`Successfully changed to ${newSubscription} plan!`);
-      
+
       // Refetch subscription from API to update UI
       const getUserResponse = await fetch(
         `${
@@ -182,7 +184,9 @@ export default function SubscriptionPage() {
           1: "Premium",
           2: "Author",
         };
-        setCurrentSubscription(subscriptionMap[userData.subscription] || "Free");
+        setCurrentSubscription(
+          subscriptionMap[userData.subscription] || "Free"
+        );
       }
     } catch (error) {
       console.error("Error updating subscription:", error);
