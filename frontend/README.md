@@ -65,6 +65,15 @@ The app will run at → `http://localhost:3000`
 
 ---
 
+## 💳 Subscription Management
+
+- Users can manage their subscription plans (Free, Premium, Author) via the `/dashboard/subscription` page.
+- **Mock Payment System**: Use discount code `test-discount` to test subscription upgrades without actual payment.
+- The subscription status is stored in the user's session and updated in real-time.
+- See [Subscription Documentation](../docs/SUBSCRIPTION.md) for detailed information.
+
+---
+
 ## 🎨 UI Components
 
 - The project uses **shadcn/ui** for reusable UI components.
