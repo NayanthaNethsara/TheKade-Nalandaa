@@ -7,16 +7,22 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface BookGridProps {
+  books?: Book[];
   searchQuery?: string;
   filters?: string[];
 }
 
-export function BookGrid({ searchQuery, filters }: BookGridProps) {
-  const [books, setBooks] = useState<Book[]>([]);
-  const [loading, setLoading] = useState(true);
+export function BookGrid({ books: propBooks, searchQuery, filters }: BookGridProps) {
+  const [books, setBooks] = useState<Book[]>(propBooks || []);
+  const [loading, setLoading] = useState(!propBooks);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (propBooks) {
+      setBooks(propBooks);
+      return;
+    }
+
     async function fetchBooks() {
       try {
         const params = new URLSearchParams();
@@ -38,7 +44,7 @@ export function BookGrid({ searchQuery, filters }: BookGridProps) {
     }
 
     fetchBooks();
-  }, [searchQuery, filters]);
+  }, [searchQuery, filters, propBooks]);
 
   if (loading) {
     return (

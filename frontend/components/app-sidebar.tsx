@@ -8,6 +8,7 @@ import {
   LogOut,
   User,
   BookOpen,
+  Bookmark as BookmarkIcon,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -38,6 +39,11 @@ const citizenItems = [
     title: "Browse Books",
     url: "/",
     icon: BookOpen,
+  },
+  {
+    title: "My Bookmarks",
+    url: "/bookmarks",
+    icon: BookmarkIcon,
   },
   {
     title: "Profile",

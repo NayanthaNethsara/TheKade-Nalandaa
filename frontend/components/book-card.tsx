@@ -1,13 +1,14 @@
 "use client";
 
 import type { Book } from "@/types/book";
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Highlighter as Highlight, Plus, Star } from "lucide-react";
-import { useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
+import { BookOpen, Highlighter as Highlight, Star as StarIcon } from "lucide-react";
+import { useBookmark } from "@/hooks/useBookmark";
 
 interface BookCardProps {
   book: Book;
@@ -15,6 +16,13 @@ interface BookCardProps {
 
 export function BookCard({ book }: BookCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const { bookmarks, fetchBookmarks, toggle } = useBookmark();
+  const token = typeof window !== 'undefined' ? localStorage.getItem("accessToken") : null;
+
+  useEffect(() => {
+    fetchBookmarks(token);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
 
   return (
     <Card
@@ -27,9 +35,8 @@ export function BookCard({ book }: BookCardProps) {
           <Image
             src={
               book.coverImagePath ||
-              `/placeholder.svg?height=400&width=300&query=${
-                encodeURIComponent(book.title + " book cover") ||
-                "/placeholder.svg"
+              `/placeholder.svg?height=400&width=300&query=${encodeURIComponent(book.title + " book cover") ||
+              "/placeholder.svg"
               }`
             }
             fill
@@ -38,16 +45,15 @@ export function BookCard({ book }: BookCardProps) {
           />
 
           <div
-            className={`absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent transition-opacity duration-300 ${
-              isHovered ? "opacity-100" : "opacity-0"
-            }`}
+            className={`absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent transition-opacity duration-300 ${isHovered ? "opacity-100" : "opacity-0"
+              }`}
           >
             <div className="absolute bottom-4 left-4 right-4">
               <div className="flex items-center gap-2 mb-3">
                 <Button
                   size="sm"
                   className="bg-primary hover:bg-primary/90 text-primary-foreground"
-                  onClick={(e) => e.preventDefault()}
+                  onClick={(e: React.MouseEvent) => e.preventDefault()}
                 >
                   <BookOpen className="w-4 h-4 mr-2" />
                   Read
@@ -56,7 +62,7 @@ export function BookCard({ book }: BookCardProps) {
                   size="sm"
                   variant="outline"
                   className="bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30"
-                  onClick={(e) => e.preventDefault()}
+                  onClick={(e: React.MouseEvent) => e.preventDefault()}
                 >
                   <Highlight className="w-4 h-4 mr-2" />
                   Highlights
@@ -66,7 +72,7 @@ export function BookCard({ book }: BookCardProps) {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                    <StarIcon className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                     <span className="text-sm text-white/90">4.8</span>
                   </div>
                   <Badge
@@ -81,9 +87,15 @@ export function BookCard({ book }: BookCardProps) {
                   size="sm"
                   variant="ghost"
                   className="text-white hover:bg-white/20 p-2"
-                  onClick={(e) => e.preventDefault()}
+                  onClick={async (e: React.MouseEvent) => {
+                    e.preventDefault();
+                    if (!token || !book.id) return;
+                    await toggle(book.id, token);
+                  }}
                 >
-                  <Plus className="w-4 h-4" />
+                  <StarIcon
+                    className={`w-4 h-4 ${book.id && bookmarks.includes(book.id) ? "fill-yellow-400 text-yellow-400" : ""}`}
+                  />
                 </Button>
               </div>
             </div>
