@@ -53,39 +53,41 @@ export function SearchFilters({
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 dark:text-slate-500 w-5 h-5" />
           <Input
             placeholder="Search by title, author, or ISBN..."
             value={searchQuery}
             onChange={(e) => handleSearch(e.target.value)}
-            className="pl-10 bg-white/10 backdrop-blur-sm border-white/20 text-foreground placeholder:text-muted-foreground h-11"
+            className="pl-12 h-12 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl shadow-sm focus:shadow-md focus:ring-2 focus:ring-blue-500/20 transition-all"
           />
         </div>
       </div>
 
       {/* Active Filters Display */}
       {(activeFilters.length > 0 || selectedStatus.length > 0) && (
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm text-muted-foreground">Active filters:</span>
+        <div className="flex flex-wrap items-center gap-2 p-4 bg-blue-50/50 dark:bg-blue-950/20 rounded-xl border border-blue-200/50 dark:border-blue-800/30">
+          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+            Active filters:
+          </span>
           {[...activeFilters, ...selectedStatus].map((filter) => (
             <Badge
               key={filter}
               variant="secondary"
-              className="bg-primary/20 text-primary border-primary/30 cursor-pointer hover:bg-primary/30"
+              className="bg-blue-500 hover:bg-blue-600 text-white border-0 cursor-pointer shadow-sm hover:shadow-md transition-all"
               onClick={() => {
                 if (activeFilters.includes(filter)) toggleFilter(filter);
                 if (selectedStatus.includes(filter)) toggleStatus(filter);
               }}
             >
               {filter}
-              <X className="w-3 h-3 ml-1" />
+              <X className="w-3 h-3 ml-1.5" />
             </Badge>
           ))}
           <Button
             variant="ghost"
             size="sm"
             onClick={clearFilters}
-            className="text-muted-foreground hover:text-foreground h-auto py-1"
+            className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 h-auto py-1.5 px-3 rounded-lg"
           >
             Clear all
           </Button>

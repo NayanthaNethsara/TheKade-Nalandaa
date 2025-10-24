@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 
 import { AppSidebar } from "@/components/app-sidebar";
+import { SubscriptionBanner } from "@/components/subscription/subscription-banner";
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -68,6 +69,7 @@ export default function DashboardLayout({
               </Breadcrumb>
             </div>
           </header>
+          <SubscriptionBanner />
           <main className="flex-1 p-4">{children}</main>
         </SidebarInset>
       </SidebarProvider>

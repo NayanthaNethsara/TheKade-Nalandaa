@@ -36,6 +36,13 @@ export async function GET(
     const book = await response.json();
     return NextResponse.json(book);
   } catch (error) {
-    return NextResponse.json({});
+    return NextResponse.json(
+      {
+        error:
+          "Failed to fetch book data" +
+          (error instanceof Error ? `: ${error.message}` : ""),
+      },
+      { status: 500 }
+    );
   }
 }
