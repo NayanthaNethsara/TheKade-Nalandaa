@@ -18,6 +18,11 @@
     "test:api": "playwright test tests/auth-api.spec.ts --project=chromium",
     "test:middleware": "playwright test tests/middleware.spec.ts --project=chromium",
     "test:integration": "playwright test tests/auth-integration.spec.ts --project=chromium",
+    "test:books": "playwright test tests/books.spec.ts --project=chromium",
+    "test:reviews": "playwright test tests/reviews.spec.ts --project=chromium",
+    "test:books:all": "playwright test tests/books.spec.ts",
+    "test:reviews:all": "playwright test tests/reviews.spec.ts",
+    "test:features": "playwright test tests/books.spec.ts tests/reviews.spec.ts --project=chromium",
     "test:report": "playwright show-report",
     "test:ci": "playwright test --reporter=html,json,junit,github"
   },
