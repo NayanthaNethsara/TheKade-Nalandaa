@@ -12,6 +12,11 @@ on:
       - "frontend/**"
   workflow_dispatch:
 
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
 jobs:
   test:
     name: E2E Tests - ${{ matrix.browser }}
@@ -21,7 +26,7 @@ jobs:
       fail-fast: false
       matrix:
         browser: [chromium, firefox, webkit]
-    
+
     env:
       NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
       GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
@@ -90,6 +95,7 @@ jobs:
         with:
           name: junit-results-${{ matrix.browser }}
           path: frontend/results.xml
+          if-no-files-found: warn
           retention-days: 30
 
       - name: Upload HTML Report
@@ -142,6 +148,10 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     if: always()
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
 
     steps:
       - name: Download Test Results
@@ -150,10 +160,17 @@ jobs:
           pattern: junit-results-*
           merge-multiple: true
 
+      - name: List Downloaded Files
+        run: |
+          echo "Downloaded files:"
+          ls -la
+          find . -name "*.xml" -type f
+
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
         with:
-          files: "*.xml"
+          files: "**/*.xml"
           check_name: 🎭 Playwright Test Results
           comment_title: 🎭 Playwright Test Results (All Browsers)
           fail_on: nothing
