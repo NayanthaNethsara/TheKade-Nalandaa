@@ -8,9 +8,8 @@ namespace AuthService.Data
     {
         public static async Task SeedAdminAsync(AuthDbContext db)
         {
-            // Make sure the DB is created
-            await db.Database.EnsureCreatedAsync();
-
+            // Note: Database migrations are now applied in Program.cs before seeding
+            
             // Check if any admin exists
             if (!await db.Users.AnyAsync(u => u.Role == Roles.Admin))
             {

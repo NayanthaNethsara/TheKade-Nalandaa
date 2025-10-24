@@ -1,6 +1,7 @@
 using BookService.Configurations;
 using DotNetEnv;
 using BookService.Data;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,5 +39,12 @@ app.UseAuthorization();
 
 app.UseHttpsRedirection();
 app.MapControllers();
+
+// Apply pending migrations automatically on startup
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<BookDbContext>();
+    await db.Database.MigrateAsync();
+}
 
 app.Run();
