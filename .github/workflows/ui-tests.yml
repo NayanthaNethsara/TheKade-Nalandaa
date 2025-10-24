@@ -2,20 +2,26 @@ name: UI Tests
 
 on:
   push:
-    branches: [dev, test/**]
+    branches: [dev, main, test/**, tests/**]
     paths:
       - "frontend/**"
       - ".github/workflows/ui-tests.yml"
   pull_request:
-    branches: [dev]
+    branches: [dev, main]
     paths:
       - "frontend/**"
   workflow_dispatch:
 
 jobs:
   test:
+    name: E2E Tests - ${{ matrix.browser }}
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    
     env:
       NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
       GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
@@ -38,23 +44,43 @@ jobs:
           node-version: 18
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+        run: npx playwright install --with-deps ${{ matrix.browser }}
 
       - name: Build Next.js app
         run: npm run build
 
-      - name: Run Playwright tests
-        run: npx playwright test --reporter=html,json,junit
+      - name: 🔐 Run Authentication Tests
+        run: npx playwright test tests/auth.spec.ts --project=${{ matrix.browser }} --reporter=html,json,junit,github
+        continue-on-error: true
+
+      - name: 🌐 Run API Tests
+        run: npx playwright test tests/auth-api.spec.ts --project=${{ matrix.browser }} --reporter=html,json,junit,github
+        continue-on-error: true
+
+      - name: 🔄 Run Middleware Tests
+        run: npx playwright test tests/middleware.spec.ts --project=${{ matrix.browser }} --reporter=html,json,junit,github
+        continue-on-error: true
+
+      - name: 🔗 Run Integration Tests
+        run: npx playwright test tests/auth-integration.spec.ts --project=${{ matrix.browser }} --reporter=html,json,junit,github
+        continue-on-error: true
+
+      - name: 📚 Run Book Management Tests
+        run: npx playwright test tests/books.spec.ts --project=${{ matrix.browser }} --reporter=html,json,junit,github
+        continue-on-error: true
+
+      - name: ⭐ Run Review Tests
+        run: npx playwright test tests/reviews.spec.ts --project=${{ matrix.browser }} --reporter=html,json,junit,github
         continue-on-error: true
 
       - name: Upload Test Results (JSON)
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-results-json
+          name: test-results-${{ matrix.browser }}
           path: frontend/test-results/
           retention-days: 30
 
@@ -62,7 +88,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-results-junit
+          name: junit-results-${{ matrix.browser }}
           path: frontend/results.xml
           retention-days: 30
 
@@ -70,33 +96,64 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
+          name: playwright-report-${{ matrix.browser }}
           path: frontend/playwright-report/
           retention-days: 30
 
-      - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
+      - name: Upload Screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
         with:
-          files: |
-            frontend/results.xml
-          check_name: Playwright Test Results
-          comment_title: 🎭 Playwright Test Results
-          fail_on: nothing
+          name: screenshots-${{ matrix.browser }}
+          path: frontend/test-results/**/screenshots/
+          retention-days: 7
+
+      - name: Upload Videos
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: videos-${{ matrix.browser }}
+          path: frontend/test-results/**/videos/
+          retention-days: 7
 
       - name: Create Test Summary
         if: always()
         run: |
-          echo "## 🎭 Playwright Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "## 🎭 Playwright Test Results - ${{ matrix.browser }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           if [ -f "playwright-report/index.html" ]; then
             echo "✅ Tests completed! View the full report in the artifacts." >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "### Test Suites" >> $GITHUB_STEP_SUMMARY
-            echo "- Authentication Tests" >> $GITHUB_STEP_SUMMARY
-            echo "- API Tests" >> $GITHUB_STEP_SUMMARY
-            echo "- Middleware Tests" >> $GITHUB_STEP_SUMMARY
-            echo "- Integration Tests" >> $GITHUB_STEP_SUMMARY
+            echo "### 📋 Test Suites" >> $GITHUB_STEP_SUMMARY
+            echo "- 🔐 Authentication Tests" >> $GITHUB_STEP_SUMMARY
+            echo "- 🌐 API Tests" >> $GITHUB_STEP_SUMMARY
+            echo "- � Middleware Tests" >> $GITHUB_STEP_SUMMARY
+            echo "- 🔗 Integration Tests" >> $GITHUB_STEP_SUMMARY
+            echo "- 📚 Book Management Tests" >> $GITHUB_STEP_SUMMARY
+            echo "- ⭐ Review Tests" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "📊 **Download the HTML report from artifacts for detailed results**" >> $GITHUB_STEP_SUMMARY
           else
             echo "⚠️ Test report not generated" >> $GITHUB_STEP_SUMMARY
           fi
+
+  publish-results:
+    name: 📊 Publish Test Results
+    needs: test
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Download Test Results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: junit-results-*
+          merge-multiple: true
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          files: "*.xml"
+          check_name: 🎭 Playwright Test Results
+          comment_title: 🎭 Playwright Test Results (All Browsers)
+          fail_on: nothing
