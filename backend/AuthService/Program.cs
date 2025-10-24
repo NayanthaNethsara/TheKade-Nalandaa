@@ -1,7 +1,6 @@
 using AuthService.Configurations;
 using DotNetEnv;
 using AuthService.Data;
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,10 +41,6 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
-    
-    // Apply pending migrations automatically on startup
-    await db.Database.MigrateAsync();
-    
     await DbSeeder.SeedAdminAsync(db);
 }
 
