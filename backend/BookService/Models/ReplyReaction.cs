@@ -324,12 +324,6 @@ namespace BookService.Models
         [JsonIgnore]
         public virtual ReviewReply? ReviewReply { get; set; }
 
-        /// <summary>
-        /// Navigation property to the user who made the reaction
-        /// </summary>
-        [JsonIgnore]
-        public virtual User? User { get; set; }
-
         // Computed properties
         /// <summary>
         /// Reaction age in days
@@ -677,7 +671,7 @@ namespace BookService.Models
             CalculateQualityScore();
             CalculateEngagementScore();
             CalculateInfluenceScore();
-            
+
             if (UpdatedAt == null && CreatedAt != default)
             {
                 UpdatedAt = DateTime.UtcNow;

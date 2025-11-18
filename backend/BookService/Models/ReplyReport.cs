@@ -478,30 +478,6 @@ namespace BookService.Models
         public virtual ReviewReply? ReviewReply { get; set; }
 
         /// <summary>
-        /// Navigation property to the user who filed the report
-        /// </summary>
-        [JsonIgnore]
-        public virtual User? ReportedBy { get; set; }
-
-        /// <summary>
-        /// Navigation property to the assigned moderator
-        /// </summary>
-        [JsonIgnore]
-        public virtual User? AssignedModerator { get; set; }
-
-        /// <summary>
-        /// Navigation property to the moderator who resolved the report
-        /// </summary>
-        [JsonIgnore]
-        public virtual User? ResolvedBy { get; set; }
-
-        /// <summary>
-        /// Navigation property to the moderator who escalated the report
-        /// </summary>
-        [JsonIgnore]
-        public virtual User? EscalatedBy { get; set; }
-
-        /// <summary>
         /// Navigation property to the original report (if this is a duplicate)
         /// </summary>
         [JsonIgnore]
@@ -548,8 +524,8 @@ namespace BookService.Models
         /// Indicates if this report involves serious violations
         /// </summary>
         [NotMapped]
-        public bool InvolvesSeriousViolations => InvolvesHateSpeech || InvolvesViolence || 
-                                                InvolvesSelfHarm || InvolvesIllegalActivity || 
+        public bool InvolvesSeriousViolations => InvolvesHateSpeech || InvolvesViolence ||
+                                                InvolvesSelfHarm || InvolvesIllegalActivity ||
                                                 InvolvesCyberbullying || InvolvesDoxxing;
 
         /// <summary>
@@ -715,7 +691,6 @@ namespace BookService.Models
             if (InvolvesCyberbullying) score += 15;
             if (InvolvesDoxxing) score += 15;
             if (InvolvesIllegalActivity) score += 15;
-            if (InvolvesHarassmentPattern) score += 10;
             if (InvolvesMisinformation) score += 10;
             if (InvolvesImpersonation) score += 10;
             if (InvolvesFinancialScam) score += 10;
@@ -774,7 +749,6 @@ namespace BookService.Models
             if (InvolvesHateSpeech) score += 25;
             if (InvolvesCyberbullying) score += 25;
             if (InvolvesViolence) score += 20;
-            if (InvolvesHarassmentPattern) score += 20;
             if (InvolvesCoordinatedBehavior) score += 20;
             if (InvolvesMisinformation) score += 15;
             if (InvolvesDoxxing) score += 15;
@@ -866,7 +840,7 @@ namespace BookService.Models
         public void PrepareForSave()
         {
             CalculateScores();
-            
+
             if (UpdatedAt == null && CreatedAt != default)
             {
                 UpdatedAt = DateTime.UtcNow;

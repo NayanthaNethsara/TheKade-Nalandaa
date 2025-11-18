@@ -261,12 +261,6 @@ namespace BookService.Models
         public virtual Review? Review { get; set; }
 
         /// <summary>
-        /// Navigation property to the user who wrote the reply
-        /// </summary>
-        [JsonIgnore]
-        public virtual User? User { get; set; }
-
-        /// <summary>
         /// Navigation property to the parent reply (for threaded conversations)
         /// </summary>
         [JsonIgnore]
@@ -361,8 +355,8 @@ namespace BookService.Models
         /// Truncated reply content for preview (first 100 characters)
         /// </summary>
         [NotMapped]
-        public string PreviewContent => ReplyContent.Length > 100 
-            ? ReplyContent.Substring(0, 100) + "..." 
+        public string PreviewContent => ReplyContent.Length > 100
+            ? ReplyContent.Substring(0, 100) + "..."
             : ReplyContent;
 
         /// <summary>
@@ -473,7 +467,7 @@ namespace BookService.Models
         {
             if (!string.IsNullOrWhiteSpace(ReplyContent))
             {
-                WordCount = ReplyContent.Split(new char[] { ' ', '\t', '\n', '\r' }, 
+                WordCount = ReplyContent.Split(new char[] { ' ', '\t', '\n', '\r' },
                     StringSplitOptions.RemoveEmptyEntries).Length;
                 CharacterCount = ReplyContent.Length;
                 EstimatedReadingTime = Math.Max(5, WordCount * 60 / 200); // Assuming 200 words per minute, result in seconds
@@ -502,7 +496,7 @@ namespace BookService.Models
         {
             UpdateCounts();
             CalculateQualityScore();
-            
+
             if (UpdatedAt == null && CreatedAt != default)
             {
                 UpdatedAt = DateTime.UtcNow;
@@ -535,7 +529,7 @@ namespace BookService.Models
             IsVisible = false;
             DeletedAt = DateTime.UtcNow;
             UpdatedAt = DateTime.UtcNow;
-            
+
             if (!string.IsNullOrWhiteSpace(reason))
             {
                 ModerationReason = reason;
