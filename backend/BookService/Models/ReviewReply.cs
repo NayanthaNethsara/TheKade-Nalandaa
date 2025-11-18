@@ -502,6 +502,10 @@ namespace BookService.Models
                 UpdatedAt = DateTime.UtcNow;
             }
 
+            // Trim whitespace from string properties
+            ReplyContent = ReplyContent?.Trim();
+            ReplyType = ReplyType?.Trim();
+            ReplyTone = ReplyTone?.Trim();
             ModerationReason = ModerationReason?.Trim();
         }
 

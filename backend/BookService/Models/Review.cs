@@ -348,7 +348,23 @@ namespace BookService.Models
         [JsonIgnore]
         public virtual ICollection<ReviewAnalytics> ReviewAnalytics { get; set; } = new List<ReviewAnalytics>();
 
+        // Computed properties for API responses
+        /// <summary>
+        /// Average of all detailed ratings (excluding null values)
+        /// </summary>
+        [NotMapped]
+        public double AverageDetailedRating
+        {
+            get
+            {
+                var ratings = new List<int?> { StoryRating, CharacterRating, WritingStyleRating, PacingRating, WorldBuildingRating }
+                    .Where(r => r.HasValue)
+                    .Select(r => r.Value)
+                    .ToList();
 
+                return ratings.Any() ? ratings.Average() : OverallRating;
+            }
+        }
 
         /// <summary>
         /// Indicates if this is a detailed review (has detailed ratings)
