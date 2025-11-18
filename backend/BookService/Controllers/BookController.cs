@@ -34,6 +34,30 @@ namespace BookService.Controllers
             return Ok(books);
         }
 
+        // GET: api/books/my-books
+        [HttpGet("my-books")]
+        [Authorize]
+        public async Task<IActionResult> GetMyBooks()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized();
+            }
+
+            var books = await _bookService.GetBooksByAuthorAsync(userId);
+            return Ok(books);
+        }
+
+        // GET: api/books/author/{authorId}
+        [HttpGet("author/{authorId}")]
+        [Authorize]
+        public async Task<IActionResult> GetByAuthor(int authorId)
+        {
+            var books = await _bookService.GetBooksByAuthorAsync(authorId);
+            return Ok(books);
+        }
+
         // GET: api/books/{id}
         [HttpGet("{id}")]
         [Authorize]
@@ -41,7 +65,24 @@ namespace BookService.Controllers
         {
             var book = await _bookService.GetBookByIdAsync(id);
             if (book == null) return NotFound();
-            if (!book.IsApproved && !IsAdmin()) return Forbid();
+
+            // Allow access if book is approved, or user is admin, or user is the author
+            if (!book.IsApproved)
+            {
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (int.TryParse(userIdClaim, out var userId))
+                {
+                    if (!IsAdmin() && book.AuthorId != userId)
+                    {
+                        return Forbid(); // User is not the author and not an admin
+                    }
+                }
+                else if (!IsAdmin())
+                {
+                    return Forbid();
+                }
+            }
+
             return Ok(book);
         }
 
@@ -83,6 +124,23 @@ namespace BookService.Controllers
         [Authorize]
         public async Task<IActionResult> Update(int id, [FromBody] BookCreateDto dto)
         {
+            // Check if user is admin or the book's author
+            var book = await _bookService.GetBookByIdAsync(id);
+            if (book == null) return NotFound();
+
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (int.TryParse(userIdClaim, out var userId))
+            {
+                if (!IsAdmin() && book.AuthorId != userId)
+                {
+                    return Forbid(); // User is not the author and not an admin
+                }
+            }
+            else if (!IsAdmin())
+            {
+                return Forbid();
+            }
+
             var updated = await _bookService.UpdateBookAsync(id, dto);
             if (updated == null) return NotFound();
             return Ok(updated);
@@ -90,9 +148,26 @@ namespace BookService.Controllers
 
         // DELETE: api/books/{id}
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")] // Only admin delete
+        [Authorize]
         public async Task<IActionResult> Delete(int id)
         {
+            // Check if user is admin or the book's author
+            var book = await _bookService.GetBookByIdAsync(id);
+            if (book == null) return NotFound();
+
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (int.TryParse(userIdClaim, out var userId))
+            {
+                if (!IsAdmin() && book.AuthorId != userId)
+                {
+                    return Forbid(); // User is not the author and not an admin
+                }
+            }
+            else if (!IsAdmin())
+            {
+                return Forbid();
+            }
+
             var success = await _bookService.DeleteBookAsync(id);
             if (!success) return NotFound();
             return NoContent();

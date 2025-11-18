@@ -162,5 +162,20 @@ namespace BookService.Services
         {
             return await _bookRepo.ApproveAsync(id);
         }
+
+        public async Task<List<BookDto>> GetBooksByAuthorAsync(int authorId)
+        {
+            var books = await _bookRepo.GetByAuthorIdAsync(authorId);
+            return books.Select(b => new BookDto(
+                b.Id,
+                b.Title,
+                b.Description,
+                b.AuthorId,
+                b.AuthorName,
+                b.TitleSlug,
+                b.CoverImagePath,
+                b.IsApproved
+            )).ToList();
+        }
     }
 }
