@@ -9,6 +9,7 @@ import {
   User,
   BookOpen,
   CreditCard,
+  Library,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -39,6 +40,35 @@ const citizenItems = [
     title: "Browse Books",
     url: "/",
     icon: BookOpen,
+  },
+  {
+    title: "Profile",
+    url: "/dashboard/profile",
+    icon: User,
+  },
+  {
+    title: "Subscription",
+    url: "/dashboard/subscription",
+    icon: CreditCard,
+  },
+];
+
+// Author menu items
+const authorItems = [
+  {
+    title: "Dashboard",
+    url: "/dashboard",
+    icon: Home,
+  },
+  {
+    title: "Browse Books",
+    url: "/",
+    icon: BookOpen,
+  },
+  {
+    title: "My Books",
+    url: "/dashboard/my-books",
+    icon: Library,
   },
   {
     title: "Profile",
@@ -104,7 +134,12 @@ export function AppSidebar() {
   };
 
   // Show items based on role
-  const visibleItems = user.role === "Admin" ? adminItems : citizenItems;
+  const visibleItems =
+    user.role === "Admin"
+      ? adminItems
+      : user.role === "Author"
+      ? authorItems
+      : citizenItems;
 
   return (
     <Sidebar

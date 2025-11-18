@@ -537,9 +537,7 @@ namespace BookService.Models
                 UpdatedAt = DateTime.UtcNow;
             }
 
-            // Trim whitespace from string properties
-            ReportCategory = ReportCategory?.Trim();
-            ReportReason = ReportReason?.Trim();
+
             ReportDescription = ReportDescription?.Trim();
             ResolutionAction = ResolutionAction?.Trim();
             ResolutionNotes = ResolutionNotes?.Trim();

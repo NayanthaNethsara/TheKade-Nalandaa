@@ -12,6 +12,7 @@ namespace BookService.Repositories
         Task<List<Book>> GetApprovedAsync();
         Task<List<Book>> GetPendingApprovalAsync();
         Task<bool> ApproveAsync(int id);
+        Task<List<Book>> GetByAuthorIdAsync(int authorId);
     }
 
 }
