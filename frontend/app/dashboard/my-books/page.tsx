@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Book } from "@/types/book";
+import { AddBookModal } from "@/components/model/add-book-model";
+import { EditBookModal } from "@/components/model/edit-book-modal";
 import {
   Card,
   CardContent,
@@ -25,14 +27,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import {
-  BookOpen,
-  Edit,
-  Trash2,
-  Plus,
-  Clock,
-  CheckCircle2,
-} from "lucide-react";
+import { BookOpen, Trash2, Clock, CheckCircle2, Edit } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
 
@@ -42,17 +37,11 @@ export default function MyBooksPage() {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteLoading, setDeleteLoading] = useState<number | null>(null);
+  const [editingBookId, setEditingBookId] = useState<number | null>(null);
 
-  const fetchMyBooks = async () => {
+  const fetchMyBooks = useCallback(async () => {
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BOOK_SERVICE_URL}/api/books/my-books`,
-        {
-          headers: {
-            Authorization: `Bearer ${session?.user?.accessToken}`,
-          },
-        }
-      );
+      const response = await fetch("/api/books/my-books");
 
       if (response.ok) {
         const data = await response.json();
@@ -66,7 +55,7 @@ export default function MyBooksPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -77,28 +66,21 @@ export default function MyBooksPage() {
     if (status === "authenticated") {
       fetchMyBooks();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, router]);
+  }, [status, router, fetchMyBooks]);
 
   const handleDelete = async (bookId: number) => {
     setDeleteLoading(bookId);
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BOOK_SERVICE_URL}/api/books/${bookId}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${session?.user?.accessToken}`,
-          },
-        }
-      );
+      const response = await fetch(`/api/books/${bookId}`, {
+        method: "DELETE",
+      });
 
       if (response.ok || response.status === 204) {
         toast.success("Book deleted successfully");
         setBooks(books.filter((book) => book.id !== bookId));
       } else {
-        const error = await response.text();
-        toast.error(error || "Failed to delete book");
+        const error = await response.json();
+        toast.error(error?.error || "Failed to delete book");
       }
     } catch (error) {
       console.error("Error deleting book:", error);
@@ -116,6 +98,9 @@ export default function MyBooksPage() {
     );
   }
 
+  const userId = session?.user?.sub || 0;
+  const userName = session?.user?.name || "Author";
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
@@ -127,13 +112,11 @@ export default function MyBooksPage() {
             Manage your published and pending books
           </p>
         </div>
-        <Button
-          onClick={() => router.push("/dashboard/upload-book")}
-          className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Add New Book
-        </Button>
+        <AddBookModal
+          authorId={userId}
+          authorName={userName}
+          onBookAdded={fetchMyBooks}
+        />
       </div>
 
       {books.length === 0 ? (
@@ -144,13 +127,11 @@ export default function MyBooksPage() {
             <p className="text-muted-foreground mb-4">
               Start by adding your first book
             </p>
-            <Button
-              onClick={() => router.push("/dashboard/upload-book")}
-              className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Add Your First Book
-            </Button>
+            <AddBookModal
+              authorId={userId}
+              authorName={userName}
+              onBookAdded={fetchMyBooks}
+            />
           </CardContent>
         </Card>
       ) : (
@@ -213,7 +194,7 @@ export default function MyBooksPage() {
                   variant="outline"
                   size="sm"
                   className="flex-1"
-                  onClick={() => router.push(`/dashboard/edit-book/${book.id}`)}
+                  onClick={() => book.id && setEditingBookId(book.id)}
                 >
                   <Edit className="mr-2 h-4 w-4" />
                   Edit
@@ -229,7 +210,10 @@ export default function MyBooksPage() {
                       {deleteLoading === book.id ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
                       ) : (
-                        <Trash2 className="h-4 w-4" />
+                        <>
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Delete
+                        </>
                       )}
                     </Button>
                   </AlertDialogTrigger>
@@ -259,6 +243,16 @@ export default function MyBooksPage() {
             </Card>
           ))}
         </div>
+      )}
+
+      {/* Edit Book Modal */}
+      {editingBookId && (
+        <EditBookModal
+          bookId={editingBookId}
+          open={!!editingBookId}
+          onOpenChange={(open) => !open && setEditingBookId(null)}
+          onBookUpdated={fetchMyBooks}
+        />
       )}
     </div>
   );

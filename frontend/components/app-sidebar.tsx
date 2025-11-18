@@ -75,11 +75,6 @@ const authorItems = [
     url: "/dashboard/profile",
     icon: User,
   },
-  {
-    title: "Subscription",
-    url: "/dashboard/subscription",
-    icon: CreditCard,
-  },
 ];
 
 // Admin menu items

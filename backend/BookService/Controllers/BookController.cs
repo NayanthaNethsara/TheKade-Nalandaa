@@ -65,7 +65,24 @@ namespace BookService.Controllers
         {
             var book = await _bookService.GetBookByIdAsync(id);
             if (book == null) return NotFound();
-            if (!book.IsApproved && !IsAdmin()) return Forbid();
+
+            // Allow access if book is approved, or user is admin, or user is the author
+            if (!book.IsApproved)
+            {
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (int.TryParse(userIdClaim, out var userId))
+                {
+                    if (!IsAdmin() && book.AuthorId != userId)
+                    {
+                        return Forbid(); // User is not the author and not an admin
+                    }
+                }
+                else if (!IsAdmin())
+                {
+                    return Forbid();
+                }
+            }
+
             return Ok(book);
         }
 
