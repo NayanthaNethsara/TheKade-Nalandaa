@@ -323,11 +323,6 @@ namespace BookService.Models
         [JsonIgnore]
         public virtual Book? Book { get; set; }
 
-        /// <summary>
-        /// Navigation property to the user who wrote the review
-        /// </summary>
-        [JsonIgnore]
-        public virtual User? User { get; set; }
 
         /// <summary>
         /// Navigation property to review votes
@@ -375,8 +370,8 @@ namespace BookService.Models
         /// Indicates if this is a detailed review (has detailed ratings)
         /// </summary>
         [NotMapped]
-        public bool IsDetailedReview => StoryRating.HasValue || CharacterRating.HasValue || 
-                                       WritingStyleRating.HasValue || PacingRating.HasValue || 
+        public bool IsDetailedReview => StoryRating.HasValue || CharacterRating.HasValue ||
+                                       WritingStyleRating.HasValue || PacingRating.HasValue ||
                                        WorldBuildingRating.HasValue;
 
         /// <summary>
@@ -435,8 +430,8 @@ namespace BookService.Models
         /// Truncated review content for preview (first 150 characters)
         /// </summary>
         [NotMapped]
-        public string PreviewContent => ReviewContent.Length > 150 
-            ? ReviewContent.Substring(0, 150) + "..." 
+        public string PreviewContent => ReviewContent.Length > 150
+            ? ReviewContent.Substring(0, 150) + "..."
             : ReviewContent;
 
         /// <summary>
@@ -511,7 +506,7 @@ namespace BookService.Models
         {
             if (!string.IsNullOrWhiteSpace(ReviewContent))
             {
-                WordCount = ReviewContent.Split(new char[] { ' ', '\t', '\n', '\r' }, 
+                WordCount = ReviewContent.Split(new char[] { ' ', '\t', '\n', '\r' },
                     StringSplitOptions.RemoveEmptyEntries).Length;
                 CharacterCount = ReviewContent.Length;
                 EstimatedReadingTime = Math.Max(1, WordCount / 200); // Assuming 200 words per minute
@@ -525,7 +520,7 @@ namespace BookService.Models
         {
             UpdateCounts();
             CalculateQualityScore();
-            
+
             if (UpdatedAt == null && CreatedAt != default)
             {
                 UpdatedAt = DateTime.UtcNow;
@@ -534,7 +529,7 @@ namespace BookService.Models
             // Generate summary if not provided
             if (string.IsNullOrWhiteSpace(ReviewSummary) && !string.IsNullOrWhiteSpace(ReviewContent))
             {
-                ReviewSummary = ReviewContent.Length > 200 
+                ReviewSummary = ReviewContent.Length > 200
                     ? ReviewContent.Substring(0, 200) + "..."
                     : ReviewContent;
             }

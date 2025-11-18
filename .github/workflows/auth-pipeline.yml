@@ -2,7 +2,7 @@ name: Build, Test & Deploy AuthService
 
 on:
   push:
-    branches: [dev, main]
+    branches: [dev]
     paths:
       - "backend/AuthService/**"
       - "backend/AuthService.Tests/**"

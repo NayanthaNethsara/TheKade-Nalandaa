@@ -263,24 +263,6 @@ namespace BookService.Models
         public virtual Review? Review { get; set; }
 
         /// <summary>
-        /// Navigation property to the user who filed the report
-        /// </summary>
-        [JsonIgnore]
-        public virtual User? ReportedBy { get; set; }
-
-        /// <summary>
-        /// Navigation property to the assigned moderator
-        /// </summary>
-        [JsonIgnore]
-        public virtual User? AssignedModerator { get; set; }
-
-        /// <summary>
-        /// Navigation property to the moderator who resolved the report
-        /// </summary>
-        [JsonIgnore]
-        public virtual User? ResolvedBy { get; set; }
-
-        /// <summary>
         /// Navigation property to the original report (if this is a duplicate)
         /// </summary>
         [JsonIgnore]

@@ -119,12 +119,6 @@ namespace BookService.Models
         [JsonIgnore]
         public virtual Review? Review { get; set; }
 
-        /// <summary>
-        /// Navigation property to the user who cast the vote
-        /// </summary>
-        [JsonIgnore]
-        public virtual User? User { get; set; }
-
         // Computed properties
         /// <summary>
         /// Vote type as string for display purposes
