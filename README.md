@@ -1,4 +1,4 @@
-# TheKade Nalandaa
+# TheKade Nalandaa v2
 
 A cloud-based eBook platform that enables authors to
 publish books and readers to discover and read them online. The system provides a modern, subscription-style
