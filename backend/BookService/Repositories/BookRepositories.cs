@@ -70,5 +70,13 @@ namespace BookService.Repositories
             await _db.SaveChangesAsync();
             return true;
         }
+
+        public async Task<List<Book>> GetByAuthorIdAsync(int authorId)
+        {
+            return await _db.Books.Where(b => b.AuthorId == authorId)
+                                   .Include(b => b.Chunks)
+                                   .OrderByDescending(b => b.CreatedAt)
+                                   .ToListAsync();
+        }
     }
 }

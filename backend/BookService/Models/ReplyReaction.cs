@@ -677,8 +677,7 @@ namespace BookService.Models
                 UpdatedAt = DateTime.UtcNow;
             }
 
-            // Trim whitespace from string properties
-            ReactionType = ReactionType?.Trim().ToLower();
+
             ReactionComment = ReactionComment?.Trim();
             ReactionContext = ReactionContext?.Trim();
             ModerationReason = ModerationReason?.Trim();

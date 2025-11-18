@@ -17,5 +17,6 @@ namespace BookService.Services
         Task<List<BookDto>> GetApprovedBooksAsync();
         Task<List<BookDto>> GetPendingBooksAsync();
         Task<bool> ApproveBookAsync(int id);
+        Task<List<BookDto>> GetBooksByAuthorAsync(int authorId);
     }
 }
